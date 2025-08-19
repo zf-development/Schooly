@@ -2,14 +2,27 @@
 // - Affiche un voile de chargement au-dessus d'une section
 
 import React from 'react';
-import { LoadingOverlay } from '@mantine/core';
+import { Overlay, Loader, Center } from '@mantine/core';
 
-export interface LoaderOverlayProps {
-    visible: boolean;
+interface LoaderOverlayProps {
+  visible: boolean;
 }
 
 const LoaderOverlay: React.FC<LoaderOverlayProps> = ({ visible }) => {
-    return <LoadingOverlay visible={visible} />;
+  if (!visible) return null;
+
+  return (
+    <Overlay
+      color="#000"
+      backgroundOpacity={0.35}
+      blur={3}
+      center
+    >
+      <Center>
+        <Loader size="xl" color="white" />
+      </Center>
+    </Overlay>
+  );
 };
 
 export default LoaderOverlay;

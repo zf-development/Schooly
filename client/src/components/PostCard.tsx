@@ -1,6 +1,3 @@
-// TODO: Composant pour afficher un post
-// - Afficher auteur, contenu, visibilité, date
-
 import React from 'react';
 import { Card, Text, Group, Badge } from '@mantine/core';
 

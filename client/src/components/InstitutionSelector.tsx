@@ -1,10 +1,6 @@
-// TODO: Sélecteur d'institution
-// - Liste déroulante d'écoles
-
 import React from 'react';
 import { Select } from '@mantine/core';
-
-export interface InstitutionOption { id: string; name: string; logoUrl?: string }
+import type { InstitutionOption } from '../types';
 
 export interface InstitutionSelectorProps {
     institutions: InstitutionOption[];

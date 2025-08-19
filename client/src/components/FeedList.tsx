@@ -2,18 +2,11 @@
 // - Afficher une liste de PostCard
 
 import React from 'react';
-import { Stack, Text, Loader, Center } from '@mantine/core';
+import { Stack, Text, Center, Loader } from '@mantine/core';
 import PostCard from './PostCard';
+import type { Post } from '../types';
 
-export type Post = {
-    id: string;
-    author: { id: string; name: string; institution: string };
-    content: string;
-    visibility: 'public' | 'private';
-    createdAt: string | Date;
-};
-
-export interface FeedListProps {
+interface FeedListProps {
     posts: Post[];
     loading: boolean;
 }
@@ -21,20 +14,32 @@ export interface FeedListProps {
 const FeedList: React.FC<FeedListProps> = ({ posts, loading }) => {
     if (loading) {
         return (
-            <Center py="lg">
-                <Loader />
+            <Center py="xl">
+                <Loader size="lg" />
             </Center>
         );
     }
 
-    if (!posts || posts.length === 0) {
-        return <Text c="dimmed">Aucun post à afficher</Text>;
+    if (posts.length === 0) {
+        return (
+            <Center py="xl">
+                <Text c="dimmed" size="lg">
+                    Aucun post pour le moment. Soyez le premier à partager quelque chose !
+                </Text>
+            </Center>
+        );
     }
 
     return (
-        <Stack>
-            {posts.map((p) => (
-                <PostCard key={p.id} author={p.author} content={p.content} visibility={p.visibility} createdAt={p.createdAt} />
+        <Stack gap="md">
+            {posts.map((post) => (
+                <PostCard
+                    key={post.id}
+                    author={post.author}
+                    content={post.content}
+                    visibility={post.visibility}
+                    createdAt={post.createdAt}
+                />
             ))}
         </Stack>
     );

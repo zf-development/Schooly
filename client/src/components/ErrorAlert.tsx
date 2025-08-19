@@ -1,27 +1,25 @@
-// TODO: Alerte d'erreur générique
-// - Affiche un message d'erreur, permet de fermer
-
 import React from 'react';
-import { Alert, Button, Group } from '@mantine/core';
+import { Alert, Text, CloseButton } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons-react';
 
-export interface ErrorAlertProps {
-    message: string;
-    onClose?: () => void;
+interface ErrorAlertProps {
+  message: string;
+  onClose?: () => void;
 }
 
 const ErrorAlert: React.FC<ErrorAlertProps> = ({ message, onClose }) => {
-    return (
-        <Alert color="red" title="Erreur">
-            <Group justify="space-between" wrap="nowrap">
-                <div>{message}</div>
-                {onClose && (
-                    <Button variant="light" size="xs" onClick={onClose}>
-                        Fermer
-                    </Button>
-                )}
-            </Group>
-        </Alert>
-    );
+  return (
+    <Alert
+      icon={<IconAlertCircle size={16} />}
+      title="Erreur"
+      color="red"
+      variant="light"
+      withCloseButton={!!onClose}
+      onClose={onClose}
+    >
+      <Text size="sm">{message}</Text>
+    </Alert>
+  );
 };
 
 export default ErrorAlert;

@@ -1,28 +1,48 @@
 // TODO: Formulaire de création de post
 // - Saisie du contenu + sélection de visibilité
 
-import React, { useState } from 'react';
-import { Button, Stack, Textarea, SegmentedControl } from '@mantine/core';
+import React, { useState, useEffect } from 'react';
+import { Button, Stack, Textarea, SegmentedControl, TextInput } from '@mantine/core';
+import type { PostFormProps } from '../types';
 
-export interface PostFormProps {
-    onSubmit: (content: string, visibility: 'public' | 'private') => void;
-    loading: boolean;
-}
-
-const PostForm: React.FC<PostFormProps> = ({ onSubmit, loading }) => {
+const PostForm: React.FC<PostFormProps> = ({ onSubmit, loading, success = false }) => {
+    const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [visibility, setVisibility] = useState<'public' | 'private'>('public');
 
+    // Vider le formulaire seulement si l'envoi précédent a réussi
+    useEffect(() => {
+        if (success && !loading) {
+            // Réinitialiser les champs seulement en cas de succès
+            setTitle('');
+            setContent('');
+            setVisibility('public');
+        }
+    }, [success, loading]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Validation minimale
-        onSubmit(content, visibility);
+        onSubmit(title, content, visibility);
     };
 
     return (
         <form onSubmit={handleSubmit}>
             <Stack>
-                <Textarea label="Votre message" placeholder="Partagez une info..." value={content} onChange={(e) => setContent(e.currentTarget.value)} minRows={3} required />
+                <TextInput
+                    label="Titre"
+                    placeholder="Titre de votre post..."
+                    value={title}
+                    onChange={(e) => setTitle(e.currentTarget.value)}
+                    required
+                />
+                <Textarea
+                    label="Votre message"
+                    placeholder="Partagez une info..."
+                    value={content}
+                    onChange={(e) => setContent(e.currentTarget.value)}
+                    minRows={3}
+                    required
+                />
                 <SegmentedControl
                     value={visibility}
                     onChange={(v) => setVisibility(v as 'public' | 'private')}

@@ -1,6 +1,5 @@
 import { createTheme } from '@mantine/core';
 
-// TODO: Ajuster la palette si nécessaire avec l'équipe design
 export const theme = createTheme({
     colors: {
         // Palette "academic" (violet/indigo doux)

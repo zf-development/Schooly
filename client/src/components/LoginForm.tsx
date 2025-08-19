@@ -1,7 +1,3 @@
-// TODO: Formulaire de connexion
-// - Soumet email + password via onSubmit
-// - Afficher un loader si loading = true
-
 import React, { useState } from 'react';
 import { Button, PasswordInput, Stack, TextInput } from '@mantine/core';
 

@@ -6,14 +6,9 @@
 import React from 'react';
 import { Button, Group, Avatar, Menu, Text } from '@mantine/core';
 import { IconUser, IconLogout, IconLogin } from '@tabler/icons-react';
+import type { AuthButtonProps } from '../types';
 
-export interface AuthButtonProps {
-    isAuthenticated: boolean;
-    onLogin: () => void;
-    onLogout: () => void;
-}
-
-const AuthButton: React.FC<AuthButtonProps> = ({ isAuthenticated, onLogin, onLogout }) => {
+export const AuthButton: React.FC<AuthButtonProps> = ({ isAuthenticated, onLogin, onLogout }) => {
     if (!isAuthenticated) {
         return (
             <Button leftSection={<IconLogin size={16} />} variant="light" size="sm" onClick={onLogin}>

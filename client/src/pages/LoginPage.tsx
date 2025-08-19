@@ -1,47 +1,79 @@
-// TODO: Page de connexion
-// - Afficher un formulaire de connexion (LoginForm)
-// - Gérer un état loading local et affichage d'une erreur claire
-// - Aucune logique d'auth réelle ici (sera branchée à Supabase plus tard)
-
 import React, { useState } from 'react';
-import { Container, Paper, Title, Stack } from '@mantine/core';
-import MainLayout from '../layouts/MainLayout';
-import { LoginForm, ErrorAlert } from '../components';
 import { useNavigate } from 'react-router-dom';
+import { Stack, Title, Paper, Container, Alert, Text } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons-react';
+import MainLayout from '../layouts/MainLayout';
+import LoginForm from '../components/LoginForm';
+import type { InstitutionOption, AuthButtonProps } from '../types';
+import apiService from '../services/api';
 
 const LoginPage: React.FC = () => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    const handleSubmit = async (email: string, password: string) => {
-        setError(null);
-        setLoading(true);
-        try {
-            // TODO: Appeler Supabase auth (signIn) ici
-            // Placeholder demo
-            await new Promise((r) => setTimeout(r, 600));
-            navigate('/feed');
-        } catch (e) {
-            setError("Impossible de se connecter (démo).");
-        } finally {
-            setLoading(false);
-        }
-    };
+  // Données de démonstration
+  const demoInstitutions: InstitutionOption[] = [
+    { id: '662c1b3a-2984-4e1e-ae7a-18bffe5e8d8c', name: 'MGR Parent' },
+    { id: 'demo-institution-2', name: 'Cégep Édouard-Montpetit' }
+  ];
 
-    return (
-        <MainLayout>
-            <Container size="xs" py="xl">
-                <Paper withBorder p="xl" radius="md">
-                    <Stack>
-                        <Title order={2}>Connexion</Title>
-                        {error && <ErrorAlert message={error} onClose={() => setError(null)} />}
-                        <LoginForm loading={loading} onSubmit={handleSubmit} />
-                    </Stack>
-                </Paper>
-            </Container>
-        </MainLayout>
-    );
+  const handleLogin = async (email: string, password: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await apiService.login({ email, password });
+
+      if (response.success && response.data) {
+        // Connexion réussie
+        navigate('/feed');
+      } else {
+        setError(response.error || 'Email ou mot de passe incorrect');
+      }
+    } catch (err) {
+      setError('Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInstitutionChange = (institutionId: string) => {
+    // TODO: Gérer le changement d'institution
+  };
+
+  const authProps: AuthButtonProps = {
+    isAuthenticated: false,
+    onLogin: () => navigate('/login'),
+    onLogout: () => {}
+  };
+
+  return (
+    <MainLayout
+      institutions={demoInstitutions}
+      selectedInstitutionId={demoInstitutions[0].id}
+      onInstitutionChange={handleInstitutionChange}
+      authProps={authProps}
+    >
+      <Container size="sm" py="xl">
+        <Stack gap="xl" align="center">
+          <Title order={1} ta="center" c="academic">
+            Connexion à StudBud
+          </Title>
+
+          {error && (
+            <Alert icon={<IconAlertCircle size={16} />} title="Erreur" color="red" variant="light">
+              <Text size="sm">{error}</Text>
+            </Alert>
+          )}
+
+          <Paper p="xl" withBorder style={{ width: '100%', maxWidth: 400 }}>
+            <LoginForm onSubmit={handleLogin} loading={loading} />
+          </Paper>
+        </Stack>
+      </Container>
+    </MainLayout>
+  );
 };
 
 export default LoginPage;

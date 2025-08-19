@@ -1,35 +1,50 @@
-// TODO: Layout principal avec Header / Footer
-// - Header avec navigation et AuthButton
-// - Footer avec informations
-// - Wrapper pour le contenu principal
-
 import React from 'react';
+import { AppShell, Container } from '@mantine/core';
+import AppHeader from '../components/Header';
+import AppFooter from '../components/Footer';
+import type { InstitutionOption, AuthButtonProps } from '../types';
 
-const containerStyle: React.CSSProperties = {
-    minHeight: '100dvh',
-    display: 'flex',
-    flexDirection: 'column',
-};
+interface MainLayoutProps {
+  children: React.ReactNode;
+  institutions: InstitutionOption[];
+  selectedInstitutionId: string;
+  onInstitutionChange: (id: string) => void;
+  authProps: AuthButtonProps;
+}
 
-const mainStyle: React.CSSProperties = {
-    flex: 1,
-};
+const MainLayout: React.FC<MainLayoutProps> = ({
+  children,
+  institutions,
+  selectedInstitutionId,
+  onInstitutionChange,
+  authProps
+}) => {
+  return (
+    <AppShell
+      header={{ height: 60 }}
+      footer={{ height: 60 }}
+      padding="md"
+    >
+      <AppShell.Header>
+        <AppHeader
+          onInstitutionChange={onInstitutionChange}
+          institutions={institutions}
+          selectedInstitutionId={selectedInstitutionId}
+          authProps={authProps}
+        />
+      </AppShell.Header>
 
-const MainLayout = ({ children }: { children: React.ReactNode }) => {
-    // TODO: Implémenter le layout
-    return (
-        <div style={containerStyle}>
-            <header style={{ padding: 16 }}> {/* TODO: Remplacer par Header Mantine */}
-                <strong>StudBud</strong>
-            </header>
-            <main style={mainStyle}>
-                {children}
-            </main>
-            <footer style={{ padding: 16, fontSize: 12, color: '#666' }}> {/* TODO: Remplacer par Footer Mantine */}
-                © {new Date().getFullYear()} StudBud
-            </footer>
-        </div>
-    );
+      <AppShell.Main style={{ minHeight: 'calc(100vh - 120px)' }}>
+        <Container size="lg" py="xl">
+          {children}
+        </Container>
+      </AppShell.Main>
+
+      <AppShell.Footer>
+        <AppFooter />
+      </AppShell.Footer>
+    </AppShell>
+  );
 };
 
 export default MainLayout;
