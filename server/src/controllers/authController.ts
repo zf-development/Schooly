@@ -5,7 +5,7 @@
 // - POST /api/auth/register - Inscription utilisateur
 
 import { Request, Response } from 'express';
-import { createUser, getUserById } from '../services/supabaseService';
+import { createUser, getUserById, authenticateUser } from '../services/supabaseService';
 
 // Interface étendue pour inclure l'utilisateur authentifié
 interface AuthenticatedRequest extends Request {
@@ -47,11 +47,27 @@ export const login = async (req: Request, res: Response) => {
             });
         }
 
-        // TODO: Implémenter la logique de connexion avec Supabase
-        res.status(200).json({ message: 'Connexion réussie' });
+        // Authentification avec Supabase
+        const authResult = await authenticateUser(email, password);
+
+        if (!authResult.success) {
+            return res.status(401).json({
+                error: authResult.error || 'Identifiants invalides',
+                code: 'INVALID_CREDENTIALS'
+            });
+        }
+
+        // Connexion réussie - renvoyer le token et les infos utilisateur
+        res.status(200).json({
+            message: 'Connexion réussie',
+            token: authResult.token,
+            user: authResult.user
+        });
     } catch (error) {
-        // TODO: Gérer les erreurs
-        res.status(401).json({ error: 'Identifiants invalides' });
+        res.status(500).json({
+            error: 'Erreur serveur lors de la connexion',
+            code: 'SERVER_ERROR'
+        });
     }
 };
 
@@ -97,7 +113,6 @@ export const getCurrentUser = async (req: AuthenticatedRequest, res: Response) =
             }
         });
     } catch (error) {
-        console.error('Erreur getCurrentUser:', error);
         res.status(500).json({
             error: 'Erreur serveur lors de la récupération de l\'utilisateur',
             code: 'SERVER_ERROR'
@@ -170,8 +185,6 @@ export const register = async (req: Request, res: Response) => {
             }
         });
     } catch (error: any) {
-        console.error('Erreur register:', error);
-
         if (error.message === 'EMAIL_ALREADY_EXISTS') {
             return res.status(409).json({
                 error: 'Un utilisateur avec cet email existe déjà',

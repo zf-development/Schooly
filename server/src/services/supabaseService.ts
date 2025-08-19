@@ -49,14 +49,68 @@ export const getUserById = async (userId: string): Promise<User | null> => {
             .single();
 
         if (error) {
-            console.error('Erreur Supabase getUserById:', error);
             return null;
         }
 
         return data;
     } catch (error) {
-        console.error('Erreur getUserById:', error);
         return null;
+    }
+};
+
+// Fonction pour authentifier un utilisateur
+export const authenticateUser = async (email: string, password: string): Promise<{
+    success: boolean;
+    token?: string;
+    user?: any;
+    error?: string;
+}> => {
+    try {
+        // Authentification avec Supabase Auth
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
+
+        if (error) {
+            return {
+                success: false,
+                error: 'Email ou mot de passe incorrect'
+            };
+        }
+
+        if (!data.user || !data.session) {
+            return {
+                success: false,
+                error: 'Authentification échouée'
+            };
+        }
+
+        // Récupérer les détails de l'utilisateur depuis notre table custom
+        const userDetails = await getUserById(data.user.id);
+
+        if (!userDetails) {
+            return {
+                success: false,
+                error: 'Utilisateur non trouvé dans la base de données'
+            };
+        }
+
+        return {
+            success: true,
+            token: data.session.access_token,
+            user: {
+                id: userDetails.id,
+                email: userDetails.email,
+                institution_id: userDetails.institution_id,
+                created_at: userDetails.created_at
+            }
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: 'Erreur serveur lors de l\'authentification'
+        };
     }
 };
 
@@ -78,8 +132,6 @@ export const createUser = async (userData: {
         });
 
         if (authError) {
-            console.error('Erreur Supabase auth createUser:', authError);
-
             // Gérer les erreurs spécifiques
             if (authError.code === 'email_exists') {
                 throw new Error('EMAIL_ALREADY_EXISTS');
@@ -89,7 +141,6 @@ export const createUser = async (userData: {
         }
 
         if (!authData.user) {
-            console.error('Aucun utilisateur créé dans auth.users');
             return null;
         }
 
@@ -105,14 +156,12 @@ export const createUser = async (userData: {
             .single();
 
         if (customError) {
-            console.error('Erreur création utilisateur custom:', customError);
             // TODO: Supprimer l'utilisateur auth si échec custom
             return null;
         }
 
         return customUser;
     } catch (error) {
-        console.error('Erreur createUser:', error);
         return null;
     }
 };
@@ -128,13 +177,11 @@ export const getInstitutionById = async (institutionId: string): Promise<Institu
             .single();
 
         if (error) {
-            console.error('Erreur Supabase getInstitutionById:', error);
             return null;
         }
 
         return data;
     } catch (error) {
-        console.error('Erreur getInstitutionById:', error);
         return null;
     }
 };
@@ -150,13 +197,11 @@ export const getPosts = async (userInstitutionId: string): Promise<FeedPost[]> =
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('Erreur Supabase getPosts:', error);
             return [];
         }
 
         return data || [];
     } catch (error) {
-        console.error('Erreur getPosts:', error);
         return [];
     }
 };
@@ -183,13 +228,11 @@ export const createPost = async (postData: {
             .single();
 
         if (error) {
-            console.error('Erreur Supabase createPost:', error);
             return null;
         }
 
         return data;
     } catch (error) {
-        console.error('Erreur createPost:', error);
         return null;
     }
 };
@@ -209,13 +252,11 @@ export const updatePost = async (postId: string, updates: {
             .single();
 
         if (error) {
-            console.error('Erreur Supabase updatePost:', error);
             return null;
         }
 
         return data;
     } catch (error) {
-        console.error('Erreur updatePost:', error);
         return null;
     }
 };
@@ -229,13 +270,11 @@ export const deletePost = async (postId: string): Promise<boolean> => {
             .eq('id', postId);
 
         if (error) {
-            console.error('Erreur Supabase deletePost:', error);
             return false;
         }
 
         return true;
     } catch (error) {
-        console.error('Erreur deletePost:', error);
         return false;
     }
 };
@@ -256,7 +295,6 @@ export const canUserModifyPost = async (postId: string, userId: string): Promise
         // L'utilisateur peut modifier le post s'il en est l'auteur
         return data.author_id === userId;
     } catch (error) {
-        console.error('Erreur canUserModifyPost:', error);
         return false;
     }
 };

@@ -48,7 +48,6 @@ export const getPosts = async (req: AuthenticatedRequest, res: Response) => {
             message: 'Posts récupérés depuis Supabase avec filtrage selon l\'institution'
         });
     } catch (error) {
-        console.error('Erreur getPosts:', error);
         res.status(500).json({
             error: 'Erreur serveur lors de la récupération des posts',
             code: 'SERVER_ERROR'

@@ -13,6 +13,16 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(morgan('dev'));
+
+// Forcer l'encodage UTF-8 pour corriger les accents
+app.use((req, res, next) => {
+    // Ajouter le charset UTF-8 seulement si c'est du JSON
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    }
+    next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

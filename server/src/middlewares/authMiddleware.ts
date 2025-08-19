@@ -1,4 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
+import { createClient } from '@supabase/supabase-js';
+
+// Configuration Supabase côté serveur
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+// Créer le client Supabase avec la clé de service
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Interface étendue pour inclure l'utilisateur authentifié
 interface AuthenticatedRequest extends Request {
@@ -10,51 +18,45 @@ interface AuthenticatedRequest extends Request {
     };
 }
 
-// TODO: Implémenter la vérification JWT/Supabase
-export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+// Vraie validation JWT avec Supabase
+export const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-        // TODO: Vérifier le token JWT dans les headers
         const authHeader = req.headers.authorization;
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return res.status(401).json({ error: 'Token d\'authentification manquant' });
         }
 
-        // TODO: Valider le token avec Supabase
-        // Pour l'instant, on simule une authentification réussie
-        console.log('Auth middleware: token reçu, authentification simulée');
-
-        // Simulation d'un utilisateur connecté (à remplacer par la vraie validation JWT)
-        // On peut simuler différents utilisateurs selon le token
         const token = authHeader.split(' ')[1];
 
-        if (token === 'school-a-token') {
-            req.user = {
-                id: 'user1',
-                institution_id: 'school_a',
-                name: 'Jean Dupont',
-                email: 'jean@ecole-a.com'
-            };
-        } else if (token === 'school-b-token') {
-            req.user = {
-                id: 'user2',
-                institution_id: 'school_b',
-                name: 'Marie Martin',
-                email: 'marie@ecole-b.com'
-            };
-        } else {
-            // Token par défaut
-            req.user = {
-                id: 'user3',
-                institution_id: 'school_a',
-                name: 'Utilisateur Test',
-                email: 'test@ecole-a.com'
-            };
+        // Valider le token avec Supabase
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+
+        if (error || !user) {
+            return res.status(401).json({ error: 'Token invalide ou expiré' });
         }
+
+        // Récupérer les détails de l'utilisateur depuis notre table custom
+        const { data: userDetails, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+        if (userError || !userDetails) {
+            return res.status(401).json({ error: 'Utilisateur non trouvé' });
+        }
+
+        // Définir l'utilisateur authentifié
+        req.user = {
+            id: userDetails.id,
+            institution_id: userDetails.institution_id,
+            name: userDetails.name || user.email || 'Utilisateur',
+            email: userDetails.email
+        };
 
         next();
     } catch (error) {
-        console.error('Erreur dans authMiddleware:', error);
-        res.status(401).json({ error: 'Token invalide' });
+        res.status(401).json({ error: 'Erreur d\'authentification' });
     }
 };
