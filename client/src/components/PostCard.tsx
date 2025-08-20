@@ -1,9 +1,12 @@
 import React from 'react';
-import { Card, Text, Group, Badge, Avatar, Stack } from '@mantine/core';
+import { Card, Text, Group, Badge, Avatar, Stack, Button, ActionIcon } from '@mantine/core';
+import { IconFlag, IconDotsVertical } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 export interface PostCardProps {
+    id: string;
+    title?: string;
     author: {
         id: string;
         name: string;
@@ -14,9 +17,10 @@ export interface PostCardProps {
     content: string;
     visibility: 'public' | 'private';
     createdAt: string | Date;
+    onReport?: (postId: string, postTitle?: string) => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ author, content, visibility, createdAt }) => {
+const PostCard: React.FC<PostCardProps> = ({ id, title, author, content, visibility, createdAt, onReport }) => {
     const formatDate = (date: string | Date) => {
         try {
             const dateObj = typeof date === 'string' ? new Date(date) : date;
@@ -41,14 +45,33 @@ const PostCard: React.FC<PostCardProps> = ({ author, content, visibility, create
                         <Text size="xs" c="dimmed">{author.institution}</Text>
                     </Stack>
                 </Group>
-                <Badge
-                    variant="light"
-                    color={visibility === 'public' ? 'green' : 'yellow'}
-                    size="sm"
-                >
-                    {visibility === 'public' ? 'Public' : 'Privé'}
-                </Badge>
+                <Group gap="xs">
+                    <Badge
+                        variant="light"
+                        color={visibility === 'public' ? 'green' : 'yellow'}
+                        size="sm"
+                    >
+                        {visibility === 'public' ? 'Public' : 'Privé'}
+                    </Badge>
+                    {onReport && (
+                        <ActionIcon
+                            variant="light"
+                            color="gray"
+                            size="sm"
+                            onClick={() => onReport(id, title)}
+                            title="Signaler ce post"
+                        >
+                            <IconFlag size={16} />
+                        </ActionIcon>
+                    )}
+                </Group>
             </Group>
+
+            {title && (
+                <Text fw={600} size="md" mt="md" mb="xs">
+                    {title}
+                </Text>
+            )}
 
             <Text size="sm" mt="md" style={{ lineHeight: 1.5 }}>
                 {content}

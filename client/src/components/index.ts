@@ -11,9 +11,10 @@ export { default as LoginForm } from './LoginForm';
 export { default as PostCard } from './PostCard';
 export { default as PostForm } from './PostForm';
 export { default as FeedList } from './FeedList';
+export { default as ReportPostModal } from './ReportPostModal';
 
 // Institutions
-export { default as InstitutionSelector } from './InstitutionSelector';
+// InstitutionSelector supprimé
 
 // Utilitaires
 export { default as LoaderOverlay } from './LoaderOverlay';

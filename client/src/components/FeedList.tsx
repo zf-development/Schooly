@@ -9,9 +9,10 @@ import type { Post } from '../types';
 interface FeedListProps {
     posts: Post[];
     loading: boolean;
+    onReport?: (postId: string, postTitle?: string) => void;
 }
 
-const FeedList: React.FC<FeedListProps> = ({ posts, loading }) => {
+const FeedList: React.FC<FeedListProps> = ({ posts, loading, onReport }) => {
     if (loading) {
         return (
             <Center py="xl">
@@ -35,10 +36,13 @@ const FeedList: React.FC<FeedListProps> = ({ posts, loading }) => {
             {posts.map((post) => (
                 <PostCard
                     key={post.id}
+                    id={post.id}
+                    title={post.title}
                     author={post.author}
                     content={post.content}
                     visibility={post.visibility}
                     createdAt={post.createdAt}
+                    onReport={onReport}
                 />
             ))}
         </Stack>

@@ -4,6 +4,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import MainLayout from '../layouts/MainLayout';
 import PostForm from '../components/PostForm';
 import FeedList from '../components/FeedList';
+import ReportPostModal from '../components/ReportPostModal';
 import type { Post, AuthButtonProps } from '../types';
 import apiService from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +16,8 @@ const FeedPage: React.FC = () => {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [reportModalOpened, setReportModalOpened] = useState(false);
+  const [reportingPost, setReportingPost] = useState<{ id: string; title?: string } | null>(null);
   const navigate = useNavigate();
   const { logout } = useUserContext();
 
@@ -45,6 +48,7 @@ const FeedPage: React.FC = () => {
 
         const transformedPosts: Post[] = postsArray.map((post: any) => ({
           id: post.id,
+          title: post.title,
           author: {
             id: post.author?.id || post.author_id,
             name: post.author?.name || 'Utilisateur',
@@ -81,6 +85,7 @@ const FeedPage: React.FC = () => {
         // Transformer le nouveau post
         const newPost: Post = {
           id: response.data.id,
+          title: response.data.title,
           author: {
             id: response.data.author_id,
             name: response.data.author?.name || 'Vous',
@@ -106,6 +111,17 @@ const FeedPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Gestion du signalement de posts
+  const handleReportPost = (postId: string, postTitle?: string) => {
+    setReportingPost({ id: postId, title: postTitle });
+    setReportModalOpened(true);
+  };
+
+  const closeReportModal = () => {
+    setReportModalOpened(false);
+    setReportingPost(null);
   };
 
   // Plus besoin de gérer le changement d'institution
@@ -140,8 +156,16 @@ const FeedPage: React.FC = () => {
           <PostForm onSubmit={handleCreatePost} loading={loading} success={success} />
         </Paper>
 
-        <FeedList posts={posts} loading={loadingPosts} />
+        <FeedList posts={posts} loading={loadingPosts} onReport={handleReportPost} />
       </Stack>
+
+      {/* Modal de signalement */}
+      <ReportPostModal
+        opened={reportModalOpened}
+        onClose={closeReportModal}
+        postId={reportingPost?.id || ''}
+        postTitle={reportingPost?.title}
+      />
     </MainLayout>
   );
 };
