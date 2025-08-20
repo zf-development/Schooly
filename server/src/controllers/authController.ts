@@ -71,14 +71,35 @@ export const login = async (req: Request, res: Response) => {
     }
 };
 
-// TODO: Déconnexion utilisateur
-export const logout = async (req: Request, res: Response) => {
+// Déconnexion utilisateur
+export const logout = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        // TODO: Implémenter la logique de déconnexion
-        res.status(200).json({ message: 'Déconnexion réussie' });
+        const user = req.user;
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                error: 'Utilisateur non authentifié'
+            });
+        }
+
+        // Log de déconnexion pour audit
+        console.log(`Utilisateur ${user.email} (${user.id}) s'est déconnecté`);
+
+        // Ici on pourrait ajouter une logique de blacklist des tokens
+        // Pour l'instant, on se contente de confirmer la déconnexion
+
+        res.status(200).json({
+            success: true,
+            message: 'Déconnexion réussie',
+            user_id: user.id
+        });
     } catch (error) {
-        // TODO: Gérer les erreurs
-        res.status(500).json({ error: 'Erreur serveur' });
+        console.error('Erreur lors de la déconnexion:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Erreur serveur lors de la déconnexion'
+        });
     }
 };
 
@@ -109,6 +130,8 @@ export const getCurrentUser = async (req: AuthenticatedRequest, res: Response) =
                 id: userDetails.id,
                 email: userDetails.email,
                 institution_id: userDetails.institution_id,
+                display_name: userDetails.display_name,
+                avatar_url: userDetails.avatar_url,
                 created_at: userDetails.created_at
             }
         });

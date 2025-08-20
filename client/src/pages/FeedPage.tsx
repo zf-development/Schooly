@@ -4,14 +4,10 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import MainLayout from '../layouts/MainLayout';
 import PostForm from '../components/PostForm';
 import FeedList from '../components/FeedList';
-import type { Post, InstitutionOption, AuthButtonProps } from '../types';
+import type { Post, AuthButtonProps } from '../types';
 import apiService from '../services/api';
-
-// Données de démonstration pour les institutions
-const demoInstitutions: InstitutionOption[] = [
-  { id: '662c1b3a-2984-4e1e-ae7a-18bffe5e8d8c', name: 'MGR Parent' },
-  { id: 'demo-institution-2', name: 'Cégep Édouard-Montpetit' }
-];
+import { useNavigate } from 'react-router-dom';
+import { useUserContext } from '../contexts/UserContext';
 
 const FeedPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -19,7 +15,8 @@ const FeedPage: React.FC = () => {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [selectedInstitutionId, setSelectedInstitutionId] = useState(demoInstitutions[0].id);
+  const navigate = useNavigate();
+  const { logout } = useUserContext();
 
   // Charger les posts au montage du composant
   useEffect(() => {
@@ -34,18 +31,26 @@ const FeedPage: React.FC = () => {
       const response = await apiService.getPosts();
 
       if (response.success && response.data) {
-        // Transformer les données du backend au format frontend
-        const postsData = response.data as any;
+        console.log('✅ loadPosts: Succès, transformation des données'); // Debug log
+        const postsData = response.data as any; // Type assertion
+        console.log('📊 loadPosts: PostsData:', postsData); // Debug log
 
-        // Les posts sont dans postsData.posts, pas directement dans postsData
-        const postsArray = postsData.posts || [];
+        const postsArray = postsData.posts || []; // Corrected access
+        console.log('📊 loadPosts: PostsArray:', postsArray); // Debug log
+
+        // Log du premier post pour voir la structure
+        if (postsArray.length > 0) {
+          console.log('🔍 Premier post structure:', postsArray[0]);
+        }
 
         const transformedPosts: Post[] = postsArray.map((post: any) => ({
           id: post.id,
           author: {
-            id: post.author_id,
-            name: 'Utilisateur', // TODO: Récupérer le nom depuis l'API users
-            institution: 'MGR Parent' // TODO: Récupérer le nom depuis l'API institutions
+            id: post.author?.id || post.author_id,
+            name: post.author?.name || 'Utilisateur',
+            display_name: post.author?.display_name || 'Utilisateur',
+            avatar_url: post.author?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.id || post.author_id}`,
+            institution: post.author?.institution || 'MGR Parent'
           },
           content: post.content,
           visibility: post.visibility,
@@ -79,6 +84,8 @@ const FeedPage: React.FC = () => {
           author: {
             id: response.data.author_id,
             name: response.data.author?.name || 'Vous',
+            display_name: response.data.author?.display_name || 'Vous',
+            avatar_url: response.data.author?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${response.data.author_id}`,
             institution: response.data.institution?.name || 'MGR Parent'
           },
           content: response.data.content,
@@ -101,22 +108,21 @@ const FeedPage: React.FC = () => {
     }
   };
 
-  const handleInstitutionChange = (institutionId: string) => {
-    setSelectedInstitutionId(institutionId);
-    // TODO: Filtrer les posts par institution
-  };
+  // Plus besoin de gérer le changement d'institution
+
+  const { user } = useUserContext();
 
   const authProps: AuthButtonProps = {
     isAuthenticated: true,
-    onLogin: () => { },
-    onLogout: () => { }
+    onLogin: () => navigate('/login'),
+    onLogout: logout,
+    onProfile: () => navigate('/profile'),
+    userAvatar: user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id || Date.now()}`,
+    userName: user?.name || 'Utilisateur'
   };
 
   return (
     <MainLayout
-      institutions={demoInstitutions}
-      selectedInstitutionId={selectedInstitutionId}
-      onInstitutionChange={handleInstitutionChange}
       authProps={authProps}
     >
       <Stack gap="xl">

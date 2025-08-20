@@ -6,6 +6,9 @@ import morgan from 'morgan';
 import authRoutes from './routes/authRoutes';
 import feedRoutes from './routes/feedRoutes';
 import auditRoutes from './routes/auditRoutes';
+import userRoutes from './routes/userRoutes';
+import subscriptionRoutes from './routes/subscriptionRoutes';
+import institutionRoutes from './routes/institutionRoutes';
 
 const app = express();
 
@@ -30,6 +33,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/feed', feedRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/institutions', institutionRoutes);
 
 // Healthcheck
 app.get('/health', (_req, res) => {

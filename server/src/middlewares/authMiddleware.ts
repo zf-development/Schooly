@@ -9,7 +9,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Interface étendue pour inclure l'utilisateur authentifié
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
     user?: {
         id: string;
         institution_id: string;

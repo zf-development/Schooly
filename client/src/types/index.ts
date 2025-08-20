@@ -1,16 +1,14 @@
 // Types communs pour l'application StudBud
 
-export interface InstitutionOption {
-    id: string;
-    name: string;
-    logoUrl?: string;
-}
+// Plus besoin de InstitutionOption
 
 export interface Post {
     id: string;
     author: {
         id: string;
         name: string;
+        display_name: string;
+        avatar_url: string;
         institution: string;
     };
     content: string;
@@ -22,6 +20,9 @@ export interface AuthButtonProps {
     isAuthenticated: boolean;
     onLogin: () => void;
     onLogout: () => void;
+    onProfile?: () => void; // Navigation vers la page de profil
+    userAvatar?: string; // Avatar de l'utilisateur connecté
+    userName?: string; // Nom de l'utilisateur connecté
 }
 
 export interface PostFormProps {

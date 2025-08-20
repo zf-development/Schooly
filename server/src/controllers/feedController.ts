@@ -5,7 +5,7 @@
 // - DELETE /api/feed/:id - Supprimer un post
 
 import { Request, Response } from 'express';
-import { getPosts as getSupabasePosts, createPost as createSupabasePost, updatePost as updateSupabasePost, deletePost as deleteSupabasePost, canUserModifyPost } from '../services/supabaseService';
+import { getPosts as getSupabasePosts, createPost as createSupabasePost, updatePost as updateSupabasePost, deletePost as deleteSupabasePost, canUserModifyPost, getUserById, getUserSubscriptions, getInstitutionDetails } from '../services/supabaseService';
 import { AuditService, extractRequestContext } from '../services/auditService';
 
 // Interface étendue pour inclure l'utilisateur authentifié
@@ -31,21 +31,99 @@ export const getPosts = async (req: AuthenticatedRequest, res: Response) => {
             });
         }
 
-        // Récupérer les posts depuis Supabase avec filtrage selon l'institution
-        const posts = await getSupabasePosts(user.institution_id);
+        // Récupérer les posts de l'institution de l'utilisateur
+        const userInstitutionPosts = await getSupabasePosts(user.institution_id);
 
-        if (!posts) {
+        if (!userInstitutionPosts) {
             return res.status(500).json({
                 error: 'Erreur lors de la récupération des posts',
                 code: 'DATABASE_ERROR'
             });
         }
 
+        // Récupérer les abonnements de l'utilisateur
+        const userSubscriptions = await getUserSubscriptions(user.id);
+        let followedInstitutionPosts: any[] = [];
+
+        // Si l'utilisateur suit d'autres établissements, récupérer leurs posts publics
+        if (userSubscriptions && userSubscriptions.length > 0) {
+            const followedInstitutionIds = userSubscriptions.map(sub => sub.institution_id);
+
+            // Récupérer les posts publics de chaque établissement suivi
+            for (const institutionId of followedInstitutionIds) {
+                try {
+                    const publicPosts = await getSupabasePosts(institutionId, 'public');
+                    if (publicPosts) {
+                        followedInstitutionPosts.push(...publicPosts);
+                    }
+                } catch (error) {
+                    console.error(`Erreur lors de la récupération des posts de l'institution ${institutionId}:`, error);
+                }
+            }
+        }
+
+        // Combiner et trier tous les posts par date de création (plus récents en premier)
+        // Utiliser un Map pour éviter les doublons basés sur l'ID du post
+        const postsMap = new Map();
+
+        // Ajouter d'abord les posts de l'institution de l'utilisateur
+        userInstitutionPosts.forEach(post => {
+            postsMap.set(post.id, post);
+        });
+
+        // Ajouter les posts des établissements suivis (ils remplaceront les doublons)
+        followedInstitutionPosts.forEach(post => {
+            postsMap.set(post.id, post);
+        });
+
+        // Convertir le Map en tableau et trier par date
+        const allPosts = Array.from(postsMap.values());
+        const sortedPosts = allPosts.sort((a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
+        // Enrichir chaque post avec les données utilisateur complètes
+        const enrichedPosts = await Promise.all(sortedPosts.map(async (post) => {
+            try {
+                // Récupérer les détails de l'auteur
+                const authorDetails = await getUserById(post.author_id);
+                
+                // Récupérer les détails de l'institution du post
+                const institutionDetails = await getInstitutionDetails(post.institution_id);
+
+                return {
+                    ...post,
+                    author: {
+                        id: post.author_id,
+                        name: authorDetails?.display_name || 'Utilisateur',
+                        display_name: authorDetails?.display_name || 'Utilisateur',
+                        avatar_url: authorDetails?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_id}`,
+                        institution: institutionDetails?.name || 'Institution inconnue'
+                    }
+                };
+            } catch (error) {
+                // En cas d'erreur, utiliser les valeurs par défaut
+                return {
+                    ...post,
+                    author: {
+                        id: post.author_id,
+                        name: 'Utilisateur',
+                        display_name: 'Utilisateur',
+                        avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_id}`,
+                        institution: 'Institution inconnue'
+                    }
+                };
+            }
+        }));
+
         res.status(200).json({
-            posts: posts,
+            posts: enrichedPosts,
             user_institution: user.institution_id,
-            total_posts: posts.length,
-            message: 'Posts récupérés depuis Supabase avec filtrage selon l\'institution'
+            total_posts: enrichedPosts.length,
+            posts_from_user_institution: userInstitutionPosts.length,
+            posts_from_followed_institutions: followedInstitutionPosts.length,
+            followed_institutions_count: userSubscriptions ? userSubscriptions.length : 0,
+            message: 'Posts récupérés avec filtrage selon l\'institution et les abonnements'
         });
     } catch (error) {
         res.status(500).json({

@@ -2,21 +2,15 @@ import React from 'react';
 import { AppShell, Container } from '@mantine/core';
 import AppHeader from '../components/Header';
 import AppFooter from '../components/Footer';
-import type { InstitutionOption, AuthButtonProps } from '../types';
+import type { AuthButtonProps } from '../types';
 
 interface MainLayoutProps {
   children: React.ReactNode;
-  institutions: InstitutionOption[];
-  selectedInstitutionId: string;
-  onInstitutionChange: (id: string) => void;
   authProps: AuthButtonProps;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({
   children,
-  institutions,
-  selectedInstitutionId,
-  onInstitutionChange,
   authProps
 }) => {
   return (
@@ -27,9 +21,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     >
       <AppShell.Header>
         <AppHeader
-          onInstitutionChange={onInstitutionChange}
-          institutions={institutions}
-          selectedInstitutionId={selectedInstitutionId}
           authProps={authProps}
         />
       </AppShell.Header>

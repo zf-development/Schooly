@@ -20,5 +20,8 @@ export { default as LoaderOverlay } from './LoaderOverlay';
 export { default as ErrorAlert } from './ErrorAlert';
 export { default as NotificationToast } from './NotificationToast';
 
+// Theme
+export { default as ThemeToggle } from './ThemeToggle';
+
 // Ré-export des types depuis le fichier centralisé
-export type { Post, InstitutionOption, AuthButtonProps, PostFormProps } from '../types';
+export type { Post, AuthButtonProps, PostFormProps } from '../types';

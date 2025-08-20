@@ -1,0 +1,39 @@
+.themeToggle {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.themeToggle:hover {
+    transform: scale(1.1);
+}
+
+.icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+}
+
+.light {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.dark {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* Mode sombre */
+[data-mantine-color-scheme="dark"] .light {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+[data-mantine-color-scheme="dark"] .dark {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg);
+}
+

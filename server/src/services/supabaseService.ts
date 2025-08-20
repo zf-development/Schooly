@@ -17,6 +17,8 @@ interface User {
     id: string;
     email: string;
     institution_id: string;
+    display_name?: string;
+    avatar_url?: string;
     created_at: string;
 }
 
@@ -103,6 +105,8 @@ export const authenticateUser = async (email: string, password: string): Promise
                 id: userDetails.id,
                 email: userDetails.email,
                 institution_id: userDetails.institution_id,
+                display_name: userDetails.display_name,
+                avatar_url: userDetails.avatar_url,
                 created_at: userDetails.created_at
             }
         };
@@ -187,14 +191,22 @@ export const getInstitutionById = async (institutionId: string): Promise<Institu
 };
 
 // Fonction pour récupérer les posts avec filtrage selon l'institution
-export const getPosts = async (userInstitutionId: string): Promise<FeedPost[]> => {
+export const getPosts = async (userInstitutionId: string, visibility?: 'public' | 'private' | 'all'): Promise<FeedPost[]> => {
     try {
-        // Récupérer tous les posts publics + posts privés de l'institution de l'utilisateur
-        const { data, error } = await supabase
+        let query = supabase
             .from('feeds')
             .select('*')
-            .or(`visibility.eq.public,and(institution_id.eq.${userInstitutionId},visibility.eq.private)`)
-            .order('created_at', { ascending: false });
+            .eq('institution_id', userInstitutionId);
+
+        // Si une visibilité spécifique est demandée, filtrer par visibilité
+        if (visibility && visibility !== 'all') {
+            query = query.eq('visibility', visibility);
+        } else {
+            // Sinon, récupérer tous les posts publics + posts privés de l'institution de l'utilisateur
+            query = query.or(`visibility.eq.public,visibility.eq.private`);
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) {
             return [];
@@ -296,5 +308,143 @@ export const canUserModifyPost = async (postId: string, userId: string): Promise
         return data.author_id === userId;
     } catch (error) {
         return false;
+    }
+};
+
+// Fonction pour mettre à jour un utilisateur
+export const updateUser = async (userId: string, updates: {
+    display_name?: string;
+    avatar_url?: string;
+}): Promise<User | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .update(updates)
+            .eq('id', userId)
+            .select()
+            .single();
+
+        if (error) {
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        return null;
+    }
+};
+
+// Fonction pour récupérer les abonnements d'un utilisateur
+export const getUserSubscriptions = async (userId: string): Promise<any[] | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('subscriptions')
+            .select('*')
+            .eq('follower_user_id', userId);
+
+        if (error) {
+            return null;
+        }
+
+        return data || [];
+    } catch (error) {
+        return null;
+    }
+};
+
+// Fonction pour créer un abonnement
+export const createSubscription = async (userId: string, institutionId: string): Promise<any | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('subscriptions')
+            .insert([{
+                follower_user_id: userId,
+                institution_id: institutionId
+            }])
+            .select()
+            .single();
+
+        if (error) {
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        return null;
+    }
+};
+
+// Fonction pour supprimer un abonnement
+export const deleteSubscription = async (userId: string, institutionId: string): Promise<boolean> => {
+    try {
+        const { error } = await supabase
+            .from('subscriptions')
+            .delete()
+            .eq('follower_user_id', userId)
+            .eq('institution_id', institutionId);
+
+        if (error) {
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
+
+// Fonction pour récupérer les détails d'une institution
+export const getInstitutionDetails = async (institutionId: string): Promise<any | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('institutions')
+            .select('*')
+            .eq('id', institutionId)
+            .single();
+
+        if (error) {
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        return null;
+    }
+};
+
+// Fonction pour récupérer tous les établissements
+export const getAllSupabaseInstitutions = async (): Promise<Institution[]> => {
+    try {
+        const { data, error } = await supabase
+            .from('institutions')
+            .select('*')
+            .order('name');
+
+        if (error) {
+            return [];
+        }
+
+        return data || [];
+    } catch (error) {
+        return [];
+    }
+};
+
+// Fonction pour récupérer un établissement par son ID
+export const getSupabaseInstitutionById = async (institutionId: string): Promise<Institution | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('institutions')
+            .select('*')
+            .eq('id', institutionId)
+            .single();
+
+        if (error) {
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        return null;
     }
 };
