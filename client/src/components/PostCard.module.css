@@ -1,0 +1,88 @@
+.postCard {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 1px solid var(--mantine-color-gray-3);
+    background: var(--mantine-color-white);
+}
+
+.postCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--mantine-color-blue-3);
+}
+
+.postCard:active {
+    transform: translateY(0);
+    transition: all 0.1s ease;
+}
+
+/* Animation pour l'avatar */
+.avatar {
+    transition: all 0.3s ease;
+    border: 2px solid var(--mantine-color-gray-2);
+}
+
+.postCard:hover .avatar {
+    border-color: var(--mantine-color-blue-4);
+    transform: scale(1.05);
+}
+
+/* Animation pour le bouton de signalement */
+.reportButton {
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.postCard:hover .reportButton {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.reportButton:hover {
+    background-color: var(--mantine-color-red-1) !important;
+    color: var(--mantine-color-red-7) !important;
+}
+
+/* Animation pour le badge de visibilité */
+.visibilityBadge {
+    transition: all 0.2s ease;
+}
+
+.postCard:hover .visibilityBadge {
+    transform: scale(1.05);
+}
+
+/* Effet de focus pour l'accessibilité */
+.postCard:focus-within {
+    outline: 2px solid var(--mantine-color-blue-5);
+    outline-offset: 2px;
+}
+
+/* Animation d'entrée pour les nouveaux posts */
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.newPost {
+    animation: slideInFromTop 0.4s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .postCard {
+        padding: var(--mantine-spacing-md);
+    }
+
+    .postCard:hover {
+        transform: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+}

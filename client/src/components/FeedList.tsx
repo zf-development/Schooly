@@ -5,6 +5,7 @@ import React from 'react';
 import { Stack, Text, Center, Loader } from '@mantine/core';
 import PostCard from './PostCard';
 import type { Post } from '../types';
+import styles from './PostCard.module.css';
 
 interface FeedListProps {
     posts: Post[];
@@ -33,17 +34,21 @@ const FeedList: React.FC<FeedListProps> = ({ posts, loading, onReport }) => {
 
     return (
         <Stack gap="md">
-            {posts.map((post) => (
-                <PostCard
+            {posts.map((post, index) => (
+                <div
                     key={post.id}
-                    id={post.id}
-                    title={post.title}
-                    author={post.author}
-                    content={post.content}
-                    visibility={post.visibility}
-                    createdAt={post.createdAt}
-                    onReport={onReport}
-                />
+                    className={index === 0 ? styles.newPost : ''}
+                >
+                    <PostCard
+                        id={post.id}
+                        title={post.title}
+                        author={post.author}
+                        content={post.content}
+                        visibility={post.visibility}
+                        createdAt={post.createdAt}
+                        onReport={onReport}
+                    />
+                </div>
             ))}
         </Stack>
     );

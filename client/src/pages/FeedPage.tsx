@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Stack, Title, Paper, Alert, Text } from '@mantine/core';
+import { Stack, Title, Paper, Alert, Text, Box } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import MainLayout from '../layouts/MainLayout';
 import PostForm from '../components/PostForm';
@@ -142,7 +142,7 @@ const FeedPage: React.FC = () => {
       authProps={authProps}
     >
       <Stack gap="xl">
-        <Title order={1} ta="center" c="academic">
+        <Title order={1} ta="center" c="academic" mb="md">
           Fil d'actualité
         </Title>
 
@@ -152,11 +152,13 @@ const FeedPage: React.FC = () => {
           </Alert>
         )}
 
-        <Paper p="lg" withBorder>
+        <Paper p="xl" withBorder radius="md" shadow="xs">
           <PostForm onSubmit={handleCreatePost} loading={loading} success={success} />
         </Paper>
 
-        <FeedList posts={posts} loading={loadingPosts} onReport={handleReportPost} />
+        <Box>
+          <FeedList posts={posts} loading={loadingPosts} onReport={handleReportPost} />
+        </Box>
       </Stack>
 
       {/* Modal de signalement */}
