@@ -1,0 +1,90 @@
+/* Page Feed avec Design Moderne et Élégant */
+.feedPage {
+    min-height: 100vh;
+    background: #f8fafc;
+    padding: 24px;
+}
+
+/* Conteneur principal */
+.glassContainer {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 40px;
+    margin-bottom: 32px;
+}
+
+/* Titre principal */
+.mainTitle {
+    color: #1e293b;
+    text-align: center;
+    margin-bottom: 32px;
+    font-weight: 700;
+    font-size: 2.5rem;
+}
+
+/* Conteneur du formulaire de post */
+.postFormContainer {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+/* Conteneur de la liste des posts */
+.postsContainer {
+    margin-top: 24px;
+}
+
+/* Alert d'erreur */
+.errorAlert {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .feedPage {
+        padding: 16px;
+    }
+
+    .glassContainer {
+        padding: 24px;
+        border-radius: 12px;
+    }
+
+    .postFormContainer {
+        padding: 20px;
+    }
+
+    .mainTitle {
+        font-size: 2rem;
+    }
+}
+
+/* Support Mantine Color Scheme */
+[data-mantine-color-scheme="dark"] .feedPage {
+    background: #0f172a;
+}
+
+[data-mantine-color-scheme="dark"] .glassContainer {
+    background: #1e293b;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+[data-mantine-color-scheme="dark"] .mainTitle {
+    color: #f1f5f9;
+}
+
+[data-mantine-color-scheme="dark"] .postFormContainer {
+    background: #334155;
+    border-color: #475569;
+}
+
+[data-mantine-color-scheme="dark"] .errorAlert {
+    background: #450a0a;
+    border-color: #7f1d1d;
+}

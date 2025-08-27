@@ -2,10 +2,17 @@
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 8px;
+    border-radius: 8px;
 }
 
 .themeToggle:hover {
     transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
 }
 
 .icon {
@@ -14,6 +21,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     transition: all 0.3s ease;
+    color: var(--mantine-color-gray-7);
 }
 
 .light {
@@ -37,3 +45,11 @@
     transform: translate(-50%, -50%) rotate(0deg);
 }
 
+[data-mantine-color-scheme="dark"] .icon {
+    color: var(--mantine-color-gray-3);
+}
+
+[data-mantine-color-scheme="dark"] .themeToggle:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
+}

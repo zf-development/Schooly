@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Stack, Title, Paper, Alert, Text, Box } from '@mantine/core';
+import { Stack, Title, Alert, Text, Box, Container } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import MainLayout from '../layouts/MainLayout';
 import PostForm from '../components/PostForm';
@@ -9,6 +9,7 @@ import type { Post, AuthButtonProps } from '../types';
 import apiService from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../contexts/UserContext';
+import styles from './FeedPage.module.css';
 
 const FeedPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -141,25 +142,37 @@ const FeedPage: React.FC = () => {
     <MainLayout
       authProps={authProps}
     >
-      <Stack gap="xl">
-        <Title order={1} ta="center" c="academic" mb="md">
-          Fil d'actualité
-        </Title>
+      <Box className={styles.feedPage}>
+        <Container size="lg" style={{ width: '100%' }}>
+          <Box className={styles.glassContainer}>
+            <Stack gap="xl" align="center">
+              <Title order={1} className={styles.mainTitle}>
+                Fil d'actualité
+              </Title>
 
-        {error && (
-          <Alert icon={<IconAlertCircle size={16} />} title="Erreur" color="red" variant="light">
-            <Text size="sm">{error}</Text>
-          </Alert>
-        )}
+              {error && (
+                <Alert
+                  icon={<IconAlertCircle size={16} />}
+                  title="Erreur"
+                  color="red"
+                  variant="light"
+                  className={styles.errorAlert}
+                >
+                  <Text size="sm" c="#ef4444" fw={600}>{error}</Text>
+                </Alert>
+              )}
 
-        <Paper p="xl" withBorder radius="md" shadow="xs">
-          <PostForm onSubmit={handleCreatePost} loading={loading} success={success} />
-        </Paper>
+              <Box className={styles.postFormContainer}>
+                <PostForm onSubmit={handleCreatePost} loading={loading} success={success} />
+              </Box>
 
-        <Box>
-          <FeedList posts={posts} loading={loadingPosts} onReport={handleReportPost} />
-        </Box>
-      </Stack>
+              <Box className={styles.postsContainer}>
+                <FeedList posts={posts} loading={loadingPosts} onReport={handleReportPost} />
+              </Box>
+            </Stack>
+          </Box>
+        </Container>
+      </Box>
 
       {/* Modal de signalement */}
       <ReportPostModal
