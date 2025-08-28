@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   Stack,
   Title,
-  Paper,
   Container,
   Alert,
   Text,
@@ -11,12 +10,10 @@ import {
   Group
 } from '@mantine/core';
 import ThemeToggle from '../components/ThemeToggle';
-import { IconAlertCircle, IconSchool, IconBrandGithub } from '@tabler/icons-react';
+import { IconAlertCircle, IconSchool } from '@tabler/icons-react';
 import LoginForm from '../components/LoginForm';
-import type { AuthButtonProps } from '../types';
 import apiService from '../services/api';
 import { useUserContext } from '../contexts/UserContext';
-import styles from './LoginPage.module.css';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -32,9 +29,7 @@ const LoginPage: React.FC = () => {
       const response = await apiService.login({ email, password });
 
       if (response.success && response.data) {
-        // Connexion réussie - mettre à jour le contexte utilisateur
         const userData = response.data.user;
-        console.log('Données utilisateur reçues:', userData); // Debug
 
         setUser({
           id: userData.id,
@@ -43,7 +38,6 @@ const LoginPage: React.FC = () => {
           avatar_url: userData.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.id}`
         });
 
-        // Rediriger vers le feed
         navigate('/feed');
       } else {
         setError(response.error || 'Email ou mot de passe incorrect');
@@ -56,35 +50,25 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <Box className={styles.loginPage}>
-      {/* ThemeToggle flottant en haut à droite */}
-      <Box
-        style={{
-          position: 'fixed',
-          top: '24px',
-          right: '24px',
-          zIndex: 1000,
-          animation: 'themeToggleSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both'
-        }}
-      >
+    <Box>
+      <Box>
         <ThemeToggle />
-      </Box>
+      </Box >
 
-      {/* Contenu principal centré avec effet glass */}
       <Container size="sm" style={{ width: '100%' }}>
-        <Box className={styles.glassContainer}>
+        <Box>
           <Stack gap="xl" align="center">
-            {/* Logo et titre */}
             <Stack gap="sm" align="center" mb="lg">
               <Box
-                className={styles.logoContainer}
                 style={{
-                  width: '80px',
-                  height: '80px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  borderRadius: '20px',
+                  padding: '20px',
+                  boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)',
+                  marginBottom: '24px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: '16px'
                 }}
               >
                 <IconSchool size={40} color="white" />
@@ -93,12 +77,10 @@ const LoginPage: React.FC = () => {
               <Title
                 order={1}
                 ta="center"
-                className={styles.title}
-                style={{
-                  fontSize: '2.5rem',
-                  fontWeight: 800,
-                  margin: 0
-                }}
+                c="#1e293b"
+                fw={800}
+                size="2.5rem"
+                mb="16px"
               >
                 StudBud
               </Title>
@@ -106,11 +88,11 @@ const LoginPage: React.FC = () => {
               <Text
                 size="md"
                 ta="center"
-                className={styles.subtitle}
-                style={{
-                  fontWeight: 500,
-                  maxWidth: '300px'
-                }}
+                m="0"
+                lh={1.5}
+                c="#64748b"
+                fw={500}
+                mb="16px"
               >
                 Connectez-vous à votre espace éducatif
               </Text>
@@ -139,18 +121,25 @@ const LoginPage: React.FC = () => {
 
             {/* Formulaire de connexion */}
             <Box
-              className={styles.formContainer}
               style={{
                 width: '100%',
                 maxWidth: '400px',
-                padding: '32px'
+                padding: '32px',
+                backgroundColor: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '16px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}
             >
               <LoginForm onSubmit={handleLogin} loading={loading} />
             </Box>
 
             {/* Footer informatif */}
-            <Group gap="xs" size="sm" className={styles.footer}>
+            <Group gap="xs" style={{
+              color: '#64748b',
+              textAlign: 'center',
+              marginTop: '32px',
+            }}>
               <Text size="xs">
                 © 2025 StudBud - Plateforme éducative
               </Text>
@@ -163,8 +152,8 @@ const LoginPage: React.FC = () => {
             </Group>
           </Stack>
         </Box>
-      </Container>
-    </Box>
+      </Container >
+    </Box >
   );
 };
 

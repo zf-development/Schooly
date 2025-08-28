@@ -1,0 +1,225 @@
+/* PostFormAreaEditor - Éditeur WYSIWYG moderne */
+.editorContainer {
+    background: white;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.editorContainer:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Boutons d'action flottants */
+.floatingControls {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.actionButton {
+    transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+    background-color: #f1f5f9 !important;
+    transform: translateY(-1px);
+}
+
+/* Zone d'édition avec position relative pour les contrôles flottants */
+.editorSection {
+    margin-bottom: 16px;
+    position: relative;
+}
+
+/* Section de l'éditeur unifié */
+.editorSection {
+    margin-bottom: 16px;
+}
+
+.unifiedEditor {
+    min-height: 160px;
+    padding: 16px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    outline: none;
+    cursor: text;
+    resize: vertical;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.unifiedEditor:empty::before {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    white-space: pre;
+    font-family: inherit;
+}
+
+.unifiedEditor.focused {
+    border-color: #3b82f6;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.unifiedEditor:hover:not(.focused) {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+/* Style spécial pour la première ligne (titre) */
+.unifiedEditor:not(:empty) {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #334155;
+}
+
+/* Style pour la première ligne (titre) */
+.unifiedEditor:not(:empty)::first-line {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Style pour la première ligne de chaque paragraphe */
+.unifiedEditor p:first-child::first-line {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Style pour la première ligne du contenu */
+.unifiedEditor > *:first-child::first-line {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Support du mode sombre */
+[data-mantine-color-scheme="dark"] .editorContainer {
+    background: #1e293b;
+    border-color: #475569;
+}
+
+[data-mantine-color-scheme="dark"] .editorContainer:hover {
+    border-color: #64748b;
+}
+
+[data-mantine-color-scheme="dark"] .unifiedEditor {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+[data-mantine-color-scheme="dark"] .unifiedEditor:empty::before {
+    color: #64748b;
+}
+
+[data-mantine-color-scheme="dark"] .unifiedEditor.focused {
+    background: #1e293b;
+    border-color: #3b82f6;
+}
+
+[data-mantine-color-scheme="dark"] .unifiedEditor:hover:not(.focused) {
+    background: #475569;
+    border-color: #64748b;
+}
+
+[data-mantine-color-scheme="dark"] .unifiedEditor:not(:empty)::first-line {
+    color: #f1f5f9;
+}
+
+[data-mantine-color-scheme="dark"] .unifiedEditor p:first-child::first-line {
+    color: #f1f5f9;
+}
+
+[data-mantine-color-scheme="dark"] .unifiedEditor > *:first-child::first-line {
+    color: #f1f5f9;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .unifiedEditor {
+        min-height: 140px;
+        padding: 14px;
+        font-size: 13px;
+    }
+    
+    .unifiedEditor:not(:empty)::first-line {
+        font-size: 16px;
+    }
+    
+    .unifiedEditor p:first-child::first-line {
+        font-size: 16px;
+    }
+    
+    .unifiedEditor > *:first-child::first-line {
+        font-size: 16px;
+    }
+}
+
+/* Animations d'entrée */
+.editorContainer {
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Focus visible pour l'accessibilité */
+.unifiedEditor:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Badges de fichiers */
+.fileBadges {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.fileBadge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    font-size: 12px;
+    color: #475569;
+    transition: all 0.2s ease;
+}
+
+.removeFileButton {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.removeFileButton:hover {
+    background: #fecaca;
+    color: #dc2626;
+}

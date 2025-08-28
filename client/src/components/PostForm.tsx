@@ -1,24 +1,41 @@
-// TODO: Formulaire de création de post
-// - Saisie du contenu + sélection de visibilité
-
-import React, { useState, useEffect } from 'react';
-import { Button, Stack, Textarea, SegmentedControl, TextInput } from '@mantine/core';
+import React, { useState, useEffect, useRef } from 'react';
+import { Button, Stack, Textarea, SegmentedControl, TextInput, Card } from '@mantine/core';
 import type { PostFormProps } from '../types';
+import PostFormAreaEditor, { PostFormAreaEditorRef } from './PostFormAreaEditor';
 
 const PostForm: React.FC<PostFormProps> = ({ onSubmit, loading, success = false }) => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [visibility, setVisibility] = useState<'public' | 'private'>('public');
+    const [files, setFiles] = useState<File[]>([]);
+    const editorRef = useRef<PostFormAreaEditorRef>(null);
 
-    // Vider le formulaire seulement si l'envoi précédent a réussi
-    useEffect(() => {
+        useEffect(() => {
         if (success && !loading) {
-            // Réinitialiser les champs seulement en cas de succès
             setTitle('');
             setContent('');
             setVisibility('public');
+            setFiles([]);
+            
+            // Vider l'éditeur via la ref
+            if (editorRef.current) {
+                editorRef.current.clearEditor();
+            }
         }
     }, [success, loading]);
+
+    const handleContentChange = (newTitle: string, newContent: string) => {
+        setTitle(newTitle);
+        setContent(newContent);
+    };
+
+    const handleVisibilityChange = (newVisibility: string) => {
+        setVisibility(newVisibility as 'public' | 'private');
+    };
+
+    const handleFilesChange = (newFiles: File[]) => {
+        setFiles(newFiles);
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,31 +43,28 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, loading, success = false 
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <Stack>
-                <TextInput
-                    label="Titre"
-                    placeholder="Titre de votre post..."
-                    value={title}
-                    onChange={(e) => setTitle(e.currentTarget.value)}
-                    required
-                />
-                <Textarea
-                    label="Votre message"
-                    placeholder="Partagez une info..."
-                    value={content}
-                    onChange={(e) => setContent(e.currentTarget.value)}
-                    minRows={3}
-                    required
-                />
-                <SegmentedControl
-                    value={visibility}
-                    onChange={(v) => setVisibility(v as 'public' | 'private')}
-                    data={[{ label: 'Public', value: 'public' }, { label: 'Privé', value: 'private' }]}
-                />
-                <Button type="submit" loading={loading}>Publier</Button>
-            </Stack>
-        </form>
+        <Card withBorder shadow="sm" radius="md" p="lg" w="100%">
+            <PostFormAreaEditor
+                ref={editorRef}
+                onContentChange={handleContentChange}
+                onVisibilityChange={handleVisibilityChange}
+                onFilesChange={handleFilesChange}
+                initialTitle={title}
+                initialContent={content}
+                initialVisibility={visibility}
+            />
+            
+            <Button 
+                onClick={handleSubmit}
+                loading={loading}
+                disabled={!title.trim() || !content.trim()}
+                fullWidth
+                mt="md"
+                size="md"
+            >
+                Publier le Post
+            </Button>
+        </Card>
     );
 };
 

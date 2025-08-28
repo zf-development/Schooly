@@ -9,7 +9,6 @@ import type { Post, AuthButtonProps } from '../types';
 import apiService from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../contexts/UserContext';
-import styles from './FeedPage.module.css';
 
 const FeedPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -35,17 +34,8 @@ const FeedPage: React.FC = () => {
       const response = await apiService.getPosts();
 
       if (response.success && response.data) {
-        console.log('✅ loadPosts: Succès, transformation des données'); // Debug log
-        const postsData = response.data as any; // Type assertion
-        console.log('📊 loadPosts: PostsData:', postsData); // Debug log
-
-        const postsArray = postsData.posts || []; // Corrected access
-        console.log('📊 loadPosts: PostsArray:', postsArray); // Debug log
-
-        // Log du premier post pour voir la structure
-        if (postsArray.length > 0) {
-          console.log('🔍 Premier post structure:', postsArray[0]);
-        }
+        const postsData = response.data as any;
+        const postsArray = postsData.posts || [];
 
         const transformedPosts: Post[] = postsArray.map((post: any) => ({
           id: post.id,
@@ -125,8 +115,6 @@ const FeedPage: React.FC = () => {
     setReportingPost(null);
   };
 
-  // Plus besoin de gérer le changement d'institution
-
   const { user } = useUserContext();
 
   const authProps: AuthButtonProps = {
@@ -142,39 +130,35 @@ const FeedPage: React.FC = () => {
     <MainLayout
       authProps={authProps}
     >
-      <Box className={styles.feedPage}>
-        <Container size="lg" style={{ width: '100%' }}>
-          <Box className={styles.glassContainer}>
-            <Stack gap="xl" align="center">
-              <Title order={1} className={styles.mainTitle}>
-                Fil d'actualité
-              </Title>
+      <Container style={{ width: '100%' }}>
+        <Box>
+          <Stack gap="xl" align="center">
+            <Title order={1}>
+              Fil d'actualité
+            </Title>
 
-              {error && (
-                <Alert
-                  icon={<IconAlertCircle size={16} />}
-                  title="Erreur"
-                  color="red"
-                  variant="light"
-                  className={styles.errorAlert}
-                >
-                  <Text size="sm" c="#ef4444" fw={600}>{error}</Text>
-                </Alert>
-              )}
+            {error && (
+              <Alert
+                icon={<IconAlertCircle size={16} />}
+                title="Erreur"
+                color="red"
+                variant="light"
+              >
+                <Text size="sm" c="#ef4444" fw={600}>{error}</Text>
+              </Alert>
+            )}
 
-              <Box className={styles.postFormContainer}>
-                <PostForm onSubmit={handleCreatePost} loading={loading} success={success} />
-              </Box>
+            <Box w="100%">
+              <PostForm onSubmit={handleCreatePost} loading={loading} success={success} />
+            </Box>
 
-              <Box className={styles.postsContainer}>
-                <FeedList posts={posts} loading={loadingPosts} onReport={handleReportPost} />
-              </Box>
-            </Stack>
-          </Box>
-        </Container>
-      </Box>
+            <Box>
+              <FeedList posts={posts} loading={loadingPosts} onReport={handleReportPost} />
+            </Box>
+          </Stack>
+        </Box>
+      </Container>
 
-      {/* Modal de signalement */}
       <ReportPostModal
         opened={reportModalOpened}
         onClose={closeReportModal}

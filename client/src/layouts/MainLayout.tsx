@@ -1,41 +1,38 @@
-import React from 'react';
-import { AppShell, Container } from '@mantine/core';
-import AppHeader from '../components/Header';
-import AppFooter from '../components/Footer';
-import type { AuthButtonProps } from '../types';
+import React from "react";
+import { AppShell, Container } from "@mantine/core";
+import type { AuthButtonProps } from "../types";
+import NavbarWrapper from "../components/NavbarWrapper";
+import { useNavbarContext } from "../contexts/NavbarContext";
 
 interface MainLayoutProps {
-  children: React.ReactNode;
-  authProps: AuthButtonProps;
+    children: React.ReactNode;
+    authProps: AuthButtonProps;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({
-  children,
-  authProps
-}) => {
-  return (
-    <AppShell
-      header={{ height: 60 }}
-      footer={{ height: 60 }}
-      padding="md"
-    >
-      <AppShell.Header>
-        <AppHeader
-          authProps={authProps}
-        />
-      </AppShell.Header>
+const MainLayout: React.FC<MainLayoutProps> = ({ children, authProps }) => {
+    const { isOpen } = useNavbarContext();
 
-      <AppShell.Main style={{ minHeight: 'calc(100vh - 120px)' }}>
-        <Container size="lg" py="xl">
-          {children}
-        </Container>
-      </AppShell.Main>
+    return (
+        <AppShell
+            padding="md"
+            navbar={{
+                width: isOpen ? 280 : 90,
+                breakpoint: "sm",
+            }}
+        >
+            {/* Navbar persistante - isolée du cycle de rendu des pages */}
+            <AppShell.Navbar>
+                <NavbarWrapper />
+            </AppShell.Navbar>
 
-      <AppShell.Footer>
-        <AppFooter />
-      </AppShell.Footer>
-    </AppShell>
-  );
+            {/* Contenu principal qui change selon la route */}
+            <AppShell.Main>
+                <Container size="lg" py="xl">
+                    {children}
+                </Container>
+            </AppShell.Main>
+        </AppShell>
+    );
 };
 
 export default MainLayout;
