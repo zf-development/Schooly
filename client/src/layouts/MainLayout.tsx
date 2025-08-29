@@ -1,7 +1,7 @@
 import React from "react";
 import { AppShell, Container } from "@mantine/core";
 import type { AuthButtonProps } from "../types";
-import NavbarWrapper from "../components/NavbarWrapper";
+import AppNavbar from "../components/AppNavbar";
 import { useNavbarContext } from "../contexts/NavbarContext";
 
 interface MainLayoutProps {
@@ -22,7 +22,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, authProps }) => {
         >
             {/* Navbar persistante - isolée du cycle de rendu des pages */}
             <AppShell.Navbar>
-                <NavbarWrapper />
+                <AppNavbar />
             </AppShell.Navbar>
 
             {/* Contenu principal qui change selon la route */}

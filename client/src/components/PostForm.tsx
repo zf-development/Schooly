@@ -1,22 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button, Stack, Textarea, SegmentedControl, TextInput, Card } from '@mantine/core';
-import type { PostFormProps } from '../types';
-import PostFormAreaEditor, { PostFormAreaEditorRef } from './PostFormAreaEditor';
+import React, { useState, useEffect, useRef } from "react";
+import { Button, Paper } from "@mantine/core";
+import type { PostFormProps } from "../types";
+import PostFormAreaEditor, {
+    PostFormAreaEditorRef,
+} from "./PostFormAreaEditor";
 
-const PostForm: React.FC<PostFormProps> = ({ onSubmit, loading, success = false }) => {
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-    const [visibility, setVisibility] = useState<'public' | 'private'>('public');
+const PostForm: React.FC<PostFormProps> = ({
+    onSubmit,
+    loading,
+    success = false,
+}) => {
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    const [visibility, setVisibility] = useState<"public" | "private">(
+        "public"
+    );
     const [files, setFiles] = useState<File[]>([]);
     const editorRef = useRef<PostFormAreaEditorRef>(null);
 
-        useEffect(() => {
+    useEffect(() => {
         if (success && !loading) {
-            setTitle('');
-            setContent('');
-            setVisibility('public');
+            setTitle("");
+            setContent("");
+            setVisibility("public");
             setFiles([]);
-            
+
             // Vider l'éditeur via la ref
             if (editorRef.current) {
                 editorRef.current.clearEditor();
@@ -30,7 +38,7 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, loading, success = false 
     };
 
     const handleVisibilityChange = (newVisibility: string) => {
-        setVisibility(newVisibility as 'public' | 'private');
+        setVisibility(newVisibility as "public" | "private");
     };
 
     const handleFilesChange = (newFiles: File[]) => {
@@ -43,7 +51,7 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, loading, success = false 
     };
 
     return (
-        <Card withBorder shadow="sm" radius="md" p="lg" w="100%">
+        <Paper>
             <PostFormAreaEditor
                 ref={editorRef}
                 onContentChange={handleContentChange}
@@ -53,18 +61,21 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, loading, success = false 
                 initialContent={content}
                 initialVisibility={visibility}
             />
-            
-            <Button 
+
+            <Button
                 onClick={handleSubmit}
                 loading={loading}
                 disabled={!title.trim() || !content.trim()}
                 fullWidth
-                mt="md"
                 size="md"
+                style={{
+                    borderTopLeftRadius: 0,
+                    borderTopRightRadius: 0,
+                }}
             >
                 Publier le Post
             </Button>
-        </Card>
+        </Paper>
     );
 };
 

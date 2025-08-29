@@ -2,6 +2,8 @@ import { createTheme, MantineThemeOverride } from '@mantine/core';
 
 // Thème clair (par défaut)
 export const lightTheme: MantineThemeOverride = createTheme({
+    fontFamily: 'sofia-pro-variable, sans-serif',
+    fontFamilyMonospace: 'Monaco, Courier, monospace',
     colors: {
         // Palette "academic" (violet/indigo doux)
         academic: [
@@ -19,11 +21,15 @@ export const lightTheme: MantineThemeOverride = createTheme({
     },
     primaryColor: 'academic',
     defaultRadius: 'md',
-    colorScheme: 'light',
 });
 
 // Thème sombre
 export const darkTheme: MantineThemeOverride = createTheme({
+    fontFamily: 'Sofia Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+    fontFamilyMonospace: 'Monaco, Courier, monospace',
+    headings: {
+        fontFamily: 'Sofia Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+    },
     colors: {
         // Palette "academic" adaptée pour le mode sombre
         academic: [
@@ -54,7 +60,6 @@ export const darkTheme: MantineThemeOverride = createTheme({
     },
     primaryColor: 'academic',
     defaultRadius: 'md',
-    colorScheme: 'dark',
 });
 
 // Thème par défaut (clair)
