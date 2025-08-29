@@ -45,16 +45,6 @@ const linksSections = {
             { route: "/files", label: "Mes fichiers", icon: IconFile },
         ],
     },
-    development: {
-        label: "Développement",
-        links: [
-            {
-                route: "/loading-demo",
-                label: "Démo Chargement",
-                icon: IconNote,
-            },
-        ],
-    },
     account: {
         label: "Mon compte",
         links: [
@@ -181,12 +171,12 @@ const AppNavbar = React.memo(() => {
                                     lh={1}
                                     className={styles.logoText}
                                 >
-                                    Skolarae
+                                    Skolaræ
                                 </Text>
                             </Group>
 
                             <Group className={styles.versionGroup}>
-                                <Code>v1.0.0</Code>
+                                <Code style={{ fontSize: "10px" }}>v1.0.0</Code>
                             </Group>
                         </Group>
                     </div>
@@ -196,10 +186,6 @@ const AppNavbar = React.memo(() => {
                         <Stack justify="flex-start" gap="xl">
                             {renderSection("feed", linksSections.feed)}
                             {renderSection("academic", linksSections.academic)}
-                            {renderSection(
-                                "development",
-                                linksSections.development
-                            )}
                         </Stack>
                     </div>
 
@@ -218,7 +204,7 @@ const AppNavbar = React.memo(() => {
                             gap="xs"
                         >
                             <Tooltip
-                                label="Skolarae"
+                                label="Skolaræ"
                                 position="right"
                                 withArrow
                                 openDelay={500}
@@ -235,10 +221,6 @@ const AppNavbar = React.memo(() => {
                         <Stack justify="flex-start" gap="xl">
                             {renderSection("feed", linksSections.feed)}
                             {renderSection("academic", linksSections.academic)}
-                            {renderSection(
-                                "development",
-                                linksSections.development
-                            )}
                         </Stack>
                     </div>
 

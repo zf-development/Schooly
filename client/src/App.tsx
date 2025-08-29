@@ -10,7 +10,6 @@ import { ColorSchemeScript } from "@mantine/core";
 import LoginPage from "./pages/LoginPage";
 import FeedPage from "./pages/FeedPage";
 import ProfilePage from "./pages/ProfilePage";
-import LoadingDemoPage from "./pages/LoadingDemoPage";
 import { UserProvider } from "./contexts/UserContext";
 import { NavbarProvider } from "./contexts/NavbarContext";
 import { lightTheme, darkTheme } from "./theme";
@@ -119,17 +118,6 @@ const App: React.FC = () => {
                                     </ProtectedRoute>
                                 }
                             />
-
-                            {/* Route de démonstration des composants de chargement */}
-                            <Route
-                                path="/loading-demo"
-                                element={
-                                    <ProtectedRoute>
-                                        <LoadingDemoPage />
-                                    </ProtectedRoute>
-                                }
-                            />
-
                             {/* Redirection par défaut */}
                             <Route
                                 path="/"
