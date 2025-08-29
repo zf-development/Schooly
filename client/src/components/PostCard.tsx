@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
     Card,
     Text,
@@ -9,12 +9,12 @@ import {
     ActionIcon,
     Divider,
     Box,
-    Flex
-} from '@mantine/core';
-import { IconFlag, IconClock, IconBuilding } from '@tabler/icons-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import styles from './PostCard.module.css';
+    Flex,
+} from "@mantine/core";
+import { IconFlag, IconClock, IconBuilding } from "@tabler/icons-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import styles from "./PostCard.module.css";
 
 export interface PostCardProps {
     id: string;
@@ -27,7 +27,7 @@ export interface PostCardProps {
         institution: string;
     };
     content: string;
-    visibility: 'public' | 'private';
+    visibility: "public" | "private";
     createdAt: string | Date;
     onReport?: (postId: string, postTitle?: string) => void;
 }
@@ -39,23 +39,23 @@ const PostCard: React.FC<PostCardProps> = ({
     content,
     visibility,
     createdAt,
-    onReport
+    onReport,
 }) => {
     const formatDate = (date: string | Date) => {
         try {
-            const dateObj = typeof date === 'string' ? new Date(date) : date;
-            return format(dateObj, 'dd MMM yyyy à HH:mm', { locale: fr });
+            const dateObj = typeof date === "string" ? new Date(date) : date;
+            return format(dateObj, "dd MMM yyyy à HH:mm", { locale: fr });
         } catch {
             return String(date);
         }
     };
 
-    const getVisibilityColor = (vis: 'public' | 'private') => {
-        return vis === 'public' ? 'blue' : 'yellow';
+    const getVisibilityColor = (vis: "public" | "private") => {
+        return vis === "public" ? "blue" : "yellow";
     };
 
-    const getVisibilityLabel = (vis: 'public' | 'private') => {
-        return vis === 'public' ? 'Public' : 'Privé';
+    const getVisibilityLabel = (vis: "public" | "private") => {
+        return vis === "public" ? "Public" : "Privé";
     };
 
     return (
@@ -81,7 +81,10 @@ const PostCard: React.FC<PostCardProps> = ({
                             {author.display_name}
                         </Text>
                         <Group gap="xs" align="center">
-                            <IconBuilding size={14} color="var(--mantine-color-gray-6)" />
+                            <IconBuilding
+                                size={14}
+                                color="var(--mantine-color-gray-6)"
+                            />
                             <Text size="sm" c="dimmed" fw={500}>
                                 {author.institution}
                             </Text>
@@ -98,8 +101,8 @@ const PostCard: React.FC<PostCardProps> = ({
                         className={styles.visibilityBadge}
                         style={{
                             fontWeight: 600,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
                         }}
                     >
                         {getVisibilityLabel(visibility)}
@@ -132,7 +135,7 @@ const PostCard: React.FC<PostCardProps> = ({
                             c="dark.8"
                             style={{
                                 lineHeight: 1.3,
-                                marginBottom: '8px'
+                                marginBottom: "8px",
                             }}
                         >
                             {title}
@@ -146,8 +149,8 @@ const PostCard: React.FC<PostCardProps> = ({
                         c="dark.7"
                         style={{
                             lineHeight: 1.6,
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
                         }}
                     >
                         {content}

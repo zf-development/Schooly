@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Paper } from "@mantine/core";
+import { Button, Paper, Skeleton } from "@mantine/core";
 import type { PostFormProps } from "../types";
 import PostFormAreaEditor, {
     PostFormAreaEditorRef,
@@ -62,19 +62,22 @@ const PostForm: React.FC<PostFormProps> = ({
                 initialVisibility={visibility}
             />
 
-            <Button
-                onClick={handleSubmit}
-                loading={loading}
-                disabled={!title.trim() || !content.trim()}
-                fullWidth
-                size="md"
-                style={{
-                    borderTopLeftRadius: 0,
-                    borderTopRightRadius: 0,
-                }}
-            >
-                Publier le Post
-            </Button>
+            {loading ? (
+                <Skeleton height={42} width="100%" />
+            ) : (
+                <Button
+                    onClick={handleSubmit}
+                    disabled={!title.trim() || !content.trim()}
+                    fullWidth
+                    size="md"
+                    style={{
+                        borderTopLeftRadius: 0,
+                        borderTopRightRadius: 0,
+                    }}
+                >
+                    Publier le Post
+                </Button>
+            )}
         </Paper>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
     Modal,
     Button,
@@ -9,9 +9,10 @@ import {
     Title,
     Text,
     Group,
-    Alert
-} from '@mantine/core';
-import { IconFlag, IconAlertCircle } from '@tabler/icons-react';
+    Alert,
+    Skeleton,
+} from "@mantine/core";
+import { IconFlag, IconAlertCircle } from "@tabler/icons-react";
 
 interface ReportPostModalProps {
     opened: boolean;
@@ -24,20 +25,20 @@ const ReportPostModal: React.FC<ReportPostModalProps> = ({
     opened,
     onClose,
     postId,
-    postTitle
+    postTitle,
 }) => {
-    const [reason, setReason] = useState<string>('');
-    const [details, setDetails] = useState<string>('');
+    const [reason, setReason] = useState<string>("");
+    const [details, setDetails] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
     const reportReasons = [
-        { value: 'inappropriate', label: 'Contenu inapproprié' },
-        { value: 'spam', label: 'Spam ou publicité' },
-        { value: 'harassment', label: 'Harcèlement ou intimidation' },
-        { value: 'false_info', label: 'Fausses informations' },
-        { value: 'copyright', label: 'Violation de droits d\'auteur' },
-        { value: 'other', label: 'Autre raison' }
+        { value: "inappropriate", label: "Contenu inapproprié" },
+        { value: "spam", label: "Spam ou publicité" },
+        { value: "harassment", label: "Harcèlement ou intimidation" },
+        { value: "false_info", label: "Fausses informations" },
+        { value: "copyright", label: "Violation de droits d'auteur" },
+        { value: "other", label: "Autre raison" },
     ];
 
     const handleSubmit = async () => {
@@ -46,7 +47,7 @@ const ReportPostModal: React.FC<ReportPostModalProps> = ({
         setLoading(true);
 
         // Simuler l'envoi du signalement (placeholder)
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         setSuccess(true);
         setLoading(false);
@@ -55,16 +56,16 @@ const ReportPostModal: React.FC<ReportPostModalProps> = ({
         setTimeout(() => {
             onClose();
             setSuccess(false);
-            setReason('');
-            setDetails('');
+            setReason("");
+            setDetails("");
         }, 2000);
     };
 
     const handleClose = () => {
         if (!loading) {
             onClose();
-            setReason('');
-            setDetails('');
+            setReason("");
+            setDetails("");
             setSuccess(false);
         }
     };
@@ -80,13 +81,19 @@ const ReportPostModal: React.FC<ReportPostModalProps> = ({
         >
             <Stack gap="lg">
                 {postTitle && (
-                    <Alert icon={<IconAlertCircle size={16} />} title="Post concerné" color="blue" variant="light">
+                    <Alert
+                        icon={<IconAlertCircle size={16} />}
+                        title="Post concerné"
+                        color="blue"
+                        variant="light"
+                    >
                         <Text size="sm">{postTitle}</Text>
                     </Alert>
                 )}
 
                 <Text size="sm" c="dimmed">
-                    Aidez-nous à maintenir une communauté respectueuse en signalant ce qui ne respecte pas nos règles.
+                    Aidez-nous à maintenir une communauté respectueuse en
+                    signalant ce qui ne respecte pas nos règles.
                 </Text>
 
                 <Select
@@ -94,7 +101,7 @@ const ReportPostModal: React.FC<ReportPostModalProps> = ({
                     placeholder="Choisissez une raison"
                     data={reportReasons}
                     value={reason}
-                    onChange={(value) => setReason(value || '')}
+                    onChange={(value) => setReason(value || "")}
                     required
                     disabled={loading}
                 />
@@ -110,26 +117,40 @@ const ReportPostModal: React.FC<ReportPostModalProps> = ({
                 />
 
                 {success && (
-                    <Alert icon={<IconAlertCircle size={16} />} title="Signalement envoyé" color="green" variant="light">
+                    <Alert
+                        icon={<IconAlertCircle size={16} />}
+                        title="Signalement envoyé"
+                        color="green"
+                        variant="light"
+                    >
                         <Text size="sm">
-                            Merci pour votre signalement. Notre équipe va examiner ce contenu dans les plus brefs délais.
+                            Merci pour votre signalement. Notre équipe va
+                            examiner ce contenu dans les plus brefs délais.
                         </Text>
                     </Alert>
                 )}
 
                 <Group justify="flex-end" gap="sm">
-                    <Button variant="light" onClick={handleClose} disabled={loading}>
-                        Annuler
-                    </Button>
-                    <Button
-                        leftSection={<IconFlag size={16} />}
-                        onClick={handleSubmit}
-                        loading={loading}
-                        disabled={!reason.trim()}
-                        color="red"
-                    >
-                        Signaler le post
-                    </Button>
+                    {loading ? (
+                        <>
+                            <Skeleton height={36} width={80} />
+                            <Skeleton height={36} width={120} />
+                        </>
+                    ) : (
+                        <>
+                            <Button variant="light" onClick={handleClose}>
+                                Annuler
+                            </Button>
+                            <Button
+                                leftSection={<IconFlag size={16} />}
+                                onClick={handleSubmit}
+                                disabled={!reason.trim()}
+                                color="red"
+                            >
+                                Signaler le post
+                            </Button>
+                        </>
+                    )}
                 </Group>
             </Stack>
         </Modal>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 import {
     Code,
     Divider,
@@ -28,7 +28,14 @@ import {
 const linksSections = {
     feed: {
         label: "Social",
-        links: [{ route: "/feed", label: "Fil d'actualités", icon: IconHome }],
+        links: [
+            { route: "/feed", label: "Fil d'actualités", icon: IconHome },
+            {
+                route: "/subscriptions",
+                label: "Mes abonnements",
+                icon: IconBuilding,
+            },
+        ],
     },
     academic: {
         label: "Académique",
@@ -38,15 +45,21 @@ const linksSections = {
             { route: "/files", label: "Mes fichiers", icon: IconFile },
         ],
     },
+    development: {
+        label: "Développement",
+        links: [
+            {
+                route: "/loading-demo",
+                label: "Démo Chargement",
+                icon: IconNote,
+            },
+        ],
+    },
     account: {
         label: "Mon compte",
         links: [
             { route: "/profile", label: "Mon profil", icon: IconUser },
-            {
-                route: "/subscriptions",
-                label: "Mes établissements",
-                icon: IconBuilding,
-            },
+
             { route: "/logout", label: "Se déconnecter", icon: IconLogout },
         ],
     },
@@ -81,8 +94,8 @@ const AppNavbar = React.memo(() => {
                     lts={1.25}
                     ta="center"
                     c="#a2a2a2"
-                    mt="xs"
-                    mb="md"
+                    mt={0}
+                    mb="xs"
                     className={styles.sectionLabel}
                 >
                     {sectionData.label}
@@ -125,7 +138,6 @@ const AppNavbar = React.memo(() => {
 
     return (
         <>
-            {/* Bouton de toggle flottant */}
             <div
                 className={`${styles.toggleButton} ${
                     isOpen ? styles.toggleOpen : styles.toggleClosed
@@ -153,17 +165,19 @@ const AppNavbar = React.memo(() => {
 
             {isOpen ? (
                 <nav className={styles.navbar}>
-                    <div className={styles.navbarMain}>
+                    {/* Header sticky en haut */}
+                    <div className={styles.headerSticky}>
                         <Group
                             className={styles.header}
                             justify="center"
                             gap="xs"
                         >
                             <Group className={styles.logoGroup}>
-                                <IconSchool size={28} />
+                                <IconSchool size={32} color="#667eea" />
                                 <Text
-                                    size="lg"
-                                    fw={700}
+                                    c="#667eea"
+                                    size="xl"
+                                    fw={800}
                                     lh={1}
                                     className={styles.logoText}
                                 >
@@ -175,20 +189,29 @@ const AppNavbar = React.memo(() => {
                                 <Code>v1.0.0</Code>
                             </Group>
                         </Group>
+                    </div>
 
-                        <Stack justify="space-between" gap="xl">
+                    {/* Contenu scrollable au milieu */}
+                    <div className={styles.navbarScrollable}>
+                        <Stack justify="flex-start" gap="xl">
                             {renderSection("feed", linksSections.feed)}
                             {renderSection("academic", linksSections.academic)}
+                            {renderSection(
+                                "development",
+                                linksSections.development
+                            )}
                         </Stack>
                     </div>
 
-                    <div className={styles.footer}>
+                    {/* Footer sticky en bas */}
+                    <div className={styles.footerSticky}>
                         {renderSection("account", linksSections.account)}
                     </div>
                 </nav>
             ) : (
                 <nav className={styles.navbarClosed}>
-                    <div className={styles.navbarMain}>
+                    {/* Header sticky en haut */}
+                    <div className={styles.headerSticky}>
                         <Group
                             className={styles.header}
                             justify="center"
@@ -201,18 +224,26 @@ const AppNavbar = React.memo(() => {
                                 openDelay={500}
                             >
                                 <Group>
-                                    <IconSchool size={28} />
+                                    <IconSchool size={32} color="#667eea" />
                                 </Group>
                             </Tooltip>
                         </Group>
+                    </div>
 
-                        <Stack justify="space-between" gap="xl">
+                    {/* Contenu scrollable au milieu */}
+                    <div className={styles.navbarScrollable}>
+                        <Stack justify="flex-start" gap="xl">
                             {renderSection("feed", linksSections.feed)}
                             {renderSection("academic", linksSections.academic)}
+                            {renderSection(
+                                "development",
+                                linksSections.development
+                            )}
                         </Stack>
                     </div>
 
-                    <div className={styles.footer}>
+                    {/* Footer sticky en bas */}
+                    <div className={styles.footerSticky}>
                         {renderSection("account", linksSections.account)}
                     </div>
                 </nav>

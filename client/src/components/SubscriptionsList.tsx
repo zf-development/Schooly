@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
     Paper,
     Title,
@@ -13,11 +13,17 @@ import {
     TextInput,
     Card,
     Avatar,
-    ActionIcon
-} from '@mantine/core';
-import { IconSearch, IconPlus, IconX, IconSchool, IconUserCheck } from '@tabler/icons-react';
-import subscriptionService from '../services/subscriptionService';
-import institutionService from '../services/institutionService';
+    ActionIcon,
+} from "@mantine/core";
+import {
+    IconSearch,
+    IconPlus,
+    IconX,
+    IconSchool,
+    IconUserCheck,
+} from "@tabler/icons-react";
+import subscriptionService from "../services/subscriptionService";
+import institutionService from "../services/institutionService";
 
 interface SubscriptionsListProps {
     onSubscriptionChange?: () => void;
@@ -41,15 +47,19 @@ interface Subscription {
 
 const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
     onSubscriptionChange,
-    userInstitutionId
+    userInstitutionId,
 }) => {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [allInstitutions, setAllInstitutions] = useState<Institution[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [followingLoading, setFollowingLoading] = useState<string | null>(null);
-    const [unfollowingLoading, setUnfollowingLoading] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [followingLoading, setFollowingLoading] = useState<string | null>(
+        null
+    );
+    const [unfollowingLoading, setUnfollowingLoading] = useState<string | null>(
+        null
+    );
 
     // Charger les données initiales
     useEffect(() => {
@@ -61,21 +71,23 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             setLoading(true);
             setError(null);
 
-            console.log('🔍 Début du chargement des données...');
+            console.log("🔍 Début du chargement des données...");
 
             // Charger les abonnements et les établissements en parallèle
-            const [subscriptionsResponse, institutionsResponse] = await Promise.all([
-                subscriptionService.list(),
-                // Appel direct à l'API pour diagnostiquer
-                fetch('http://localhost:3001/api/institutions', {
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
-                    }
-                }).then(r => r.json())
-            ]);
+            const [subscriptionsResponse, institutionsResponse] =
+                await Promise.all([
+                    subscriptionService.list(),
+                    // Appel direct à l'API pour diagnostiquer
+                    fetch("http://localhost:3001/api/institutions", {
+                        headers: {
+                            Authorization:
+                                "Bearer " + localStorage.getItem("authToken"),
+                        },
+                    }).then((r) => r.json()),
+                ]);
 
-            console.log('📡 Réponse abonnements:', subscriptionsResponse);
-            console.log('📡 Réponse établissements:', institutionsResponse);
+            console.log("📡 Réponse abonnements:", subscriptionsResponse);
+            console.log("📡 Réponse établissements:", institutionsResponse);
 
             // Gérer les deux structures possibles de l'API
             let subscriptions = [];
@@ -85,41 +97,60 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                     subscriptions = subscriptionsResponse.data;
                 } else if ((subscriptionsResponse.data as any).subscriptions) {
                     // Structure : { success: true, data: { subscriptions: [...], total: X } }
-                    subscriptions = Array.isArray((subscriptionsResponse.data as any).subscriptions) ? (subscriptionsResponse.data as any).subscriptions : [];
+                    subscriptions = Array.isArray(
+                        (subscriptionsResponse.data as any).subscriptions
+                    )
+                        ? (subscriptionsResponse.data as any).subscriptions
+                        : [];
                 }
             } else if ((subscriptionsResponse as any).subscriptions) {
                 // Structure alternative : { subscriptions: [...], total: X }
-                subscriptions = Array.isArray((subscriptionsResponse as any).subscriptions) ? (subscriptionsResponse as any).subscriptions : [];
+                subscriptions = Array.isArray(
+                    (subscriptionsResponse as any).subscriptions
+                )
+                    ? (subscriptionsResponse as any).subscriptions
+                    : [];
             }
 
-            console.log('✅ Abonnements chargés:', subscriptions);
-            console.log('📊 Détail des abonnements:', subscriptions);
-            console.log('🔍 Structure de la réponse:', subscriptionsResponse);
-            console.log('🔍 Clés de la réponse:', Object.keys(subscriptionsResponse));
-            console.log('🔍 Contenu de subscriptions:', subscriptions);
+            console.log("✅ Abonnements chargés:", subscriptions);
+            console.log("📊 Détail des abonnements:", subscriptions);
+            console.log("🔍 Structure de la réponse:", subscriptionsResponse);
+            console.log(
+                "🔍 Clés de la réponse:",
+                Object.keys(subscriptionsResponse)
+            );
+            console.log("🔍 Contenu de subscriptions:", subscriptions);
             setSubscriptions(subscriptions);
 
             if (institutionsResponse.success && institutionsResponse.data) {
                 // S'assurer que data est un tableau
-                const institutions = Array.isArray(institutionsResponse.data) ? institutionsResponse.data : [];
-                console.log('✅ Établissements chargés:', institutions);
+                const institutions = Array.isArray(institutionsResponse.data)
+                    ? institutionsResponse.data
+                    : [];
+                console.log("✅ Établissements chargés:", institutions);
                 setAllInstitutions(institutions);
             } else {
                 // En cas d'échec, initialiser avec un tableau vide
-                console.log('❌ Échec chargement établissements');
+                console.log("❌ Échec chargement établissements");
                 setAllInstitutions([]);
             }
 
             if (!subscriptionsResponse.success) {
-                setError(subscriptionsResponse.error || 'Erreur lors du chargement des abonnements');
+                setError(
+                    subscriptionsResponse.error ||
+                        "Erreur lors du chargement des abonnements"
+                );
             }
 
             if (!institutionsResponse.success) {
-                setError(institutionsResponse.error || 'Erreur lors du chargement des établissements');
+                setError(
+                    institutionsResponse.error ||
+                        "Erreur lors du chargement des établissements"
+                );
             }
         } catch (err) {
-            console.error('💥 Erreur dans loadData:', err);
-            setError('Erreur lors du chargement des données');
+            console.error("💥 Erreur dans loadData:", err);
+            setError("Erreur lors du chargement des données");
         } finally {
             setLoading(false);
         }
@@ -135,10 +166,10 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                 await loadData();
                 onSubscriptionChange?.();
             } else {
-                setError(response.error || 'Erreur lors de l\'abonnement');
+                setError(response.error || "Erreur lors de l'abonnement");
             }
         } catch (err) {
-            setError('Erreur lors de l\'abonnement');
+            setError("Erreur lors de l'abonnement");
         } finally {
             setFollowingLoading(null);
         }
@@ -159,17 +190,19 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                 await loadData();
                 onSubscriptionChange?.();
             } else {
-                setError(response.error || 'Erreur lors du désabonnement');
+                setError(response.error || "Erreur lors du désabonnement");
             }
         } catch (err) {
-            setError('Erreur lors du désabonnement');
+            setError("Erreur lors du désabonnement");
         } finally {
             setUnfollowingLoading(null);
         }
     };
 
     const isFollowing = (institutionId: string): boolean => {
-        return subscriptions ? subscriptions.some(sub => sub.institution_id === institutionId) : false;
+        return subscriptions
+            ? subscriptions.some((sub) => sub.institution_id === institutionId)
+            : false;
     };
 
     const isUserInstitution = (institutionId: string): boolean => {
@@ -177,14 +210,29 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
     };
 
     // Debug: vérifier le type de allInstitutions et subscriptions
-    console.log('allInstitutions type:', typeof allInstitutions, 'value:', allInstitutions);
-    console.log('subscriptions type:', typeof subscriptions, 'value:', subscriptions);
+    console.log(
+        "allInstitutions type:",
+        typeof allInstitutions,
+        "value:",
+        allInstitutions
+    );
+    console.log(
+        "subscriptions type:",
+        typeof subscriptions,
+        "value:",
+        subscriptions
+    );
 
-    const filteredInstitutions = Array.isArray(allInstitutions) ? allInstitutions.filter(institution =>
-        // Exclure l'établissement de l'utilisateur et filtrer par nom
-        institution.id !== userInstitutionId &&
-        institution.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ) : [];
+    const filteredInstitutions = Array.isArray(allInstitutions)
+        ? allInstitutions.filter(
+              (institution) =>
+                  // Exclure l'établissement de l'utilisateur et filtrer par nom
+                  institution.id !== userInstitutionId &&
+                  institution.name
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+          )
+        : [];
 
     if (loading) {
         return (
@@ -206,21 +254,57 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                 <div>
                     <Title order={3} mb="md">
                         <IconUserCheck size={20} style={{ marginRight: 8 }} />
-                        Mes Abonnements ({subscriptions ? subscriptions.length : 0})
+                        Mes Abonnements (
+                        {subscriptions ? subscriptions.length : 0})
                     </Title>
 
-                    {!subscriptions || subscriptions.length === 0 ? (
+                    {loading ? (
+                        <Stack gap="sm">
+                            {[...Array(3)].map((_, index) => (
+                                <Card key={index} withBorder p="sm">
+                                    <Group justify="space-between">
+                                        <Group gap="sm">
+                                            <Skeleton height={40} circle />
+                                            <div style={{ flex: 1 }}>
+                                                <Skeleton
+                                                    height={18}
+                                                    width="60%"
+                                                    mb={4}
+                                                />
+                                                <Skeleton
+                                                    height={14}
+                                                    width="40%"
+                                                />
+                                            </div>
+                                        </Group>
+                                        <Skeleton height={32} width={100} />
+                                    </Group>
+                                </Card>
+                            ))}
+                        </Stack>
+                    ) : !subscriptions || subscriptions.length === 0 ? (
                         <Alert color="blue" title="Aucun abonnement">
-                            Vous n'êtes abonné à aucun établissement pour le moment.
+                            Vous n'êtes abonné à aucun établissement pour le
+                            moment.
                         </Alert>
                     ) : (
                         <Stack gap="sm">
                             {subscriptions.map((subscription) => {
-                                const institution = allInstitutions ? allInstitutions.find(inst => inst.id === subscription.institution_id) : null;
+                                const institution = allInstitutions
+                                    ? allInstitutions.find(
+                                          (inst) =>
+                                              inst.id ===
+                                              subscription.institution_id
+                                      )
+                                    : null;
                                 if (!institution) return null;
 
                                 return (
-                                    <Card key={subscription.id} withBorder p="sm">
+                                    <Card
+                                        key={subscription.id}
+                                        withBorder
+                                        p="sm"
+                                    >
                                         <Group justify="space-between">
                                             <Group gap="sm">
                                                 <Avatar
@@ -231,16 +315,28 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                                     <IconSchool size={16} />
                                                 </Avatar>
                                                 <div>
-                                                    <Text fw={500}>{institution.name}</Text>
+                                                    <Text fw={500}>
+                                                        {institution.name}
+                                                    </Text>
                                                     <Text size="sm" c="dimmed">
-                                                        Abonné depuis {new Date(subscription.created_at).toLocaleDateString('fr-FR')}
+                                                        Abonné depuis{" "}
+                                                        {new Date(
+                                                            subscription.created_at
+                                                        ).toLocaleDateString(
+                                                            "fr-FR"
+                                                        )}
                                                     </Text>
                                                 </div>
                                             </Group>
 
                                             <Group gap="xs">
-                                                {isUserInstitution(institution.id) && (
-                                                    <Badge color="green" variant="light">
+                                                {isUserInstitution(
+                                                    institution.id
+                                                ) && (
+                                                    <Badge
+                                                        color="green"
+                                                        variant="light"
+                                                    >
                                                         Mon établissement
                                                     </Badge>
                                                 )}
@@ -248,9 +344,18 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                                     variant="light"
                                                     color="red"
                                                     size="sm"
-                                                    disabled={isUserInstitution(institution.id)}
-                                                    loading={unfollowingLoading === institution.id}
-                                                    onClick={() => handleUnfollow(institution.id)}
+                                                    disabled={isUserInstitution(
+                                                        institution.id
+                                                    )}
+                                                    loading={
+                                                        unfollowingLoading ===
+                                                        institution.id
+                                                    }
+                                                    onClick={() =>
+                                                        handleUnfollow(
+                                                            institution.id
+                                                        )
+                                                    }
                                                 >
                                                     Se désabonner
                                                 </Button>
@@ -281,7 +386,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                             searchTerm && (
                                 <ActionIcon
                                     variant="subtle"
-                                    onClick={() => setSearchTerm('')}
+                                    onClick={() => setSearchTerm("")}
                                     size="sm"
                                 >
                                     <IconX size={16} />
@@ -298,17 +403,50 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                     )}
 
                     <Stack gap="sm">
-                        {filteredInstitutions.length === 0 ? (
+                        {loading ? (
+                            // Skeletons pour les institutions
+                            [...Array(4)].map((_, index) => (
+                                <Card key={index} withBorder p="sm">
+                                    <Group justify="space-between">
+                                        <Group gap="sm">
+                                            <Skeleton height={40} circle />
+                                            <div style={{ flex: 1 }}>
+                                                <Skeleton
+                                                    height={18}
+                                                    width="70%"
+                                                    mb={4}
+                                                />
+                                                <Skeleton
+                                                    height={14}
+                                                    width="50%"
+                                                />
+                                            </div>
+                                        </Group>
+                                        <Group gap="xs">
+                                            <Skeleton height={24} width={80} />
+                                            <Skeleton height={32} width={90} />
+                                        </Group>
+                                    </Group>
+                                </Card>
+                            ))
+                        ) : filteredInstitutions.length === 0 ? (
                             <Alert color="yellow" title="Aucun résultat">
-                                Aucun établissement ne correspond à votre recherche.
+                                Aucun établissement ne correspond à votre
+                                recherche.
                             </Alert>
                         ) : (
                             filteredInstitutions.map((institution) => {
                                 const following = isFollowing(institution.id);
-                                const isOwnInstitution = isUserInstitution(institution.id);
+                                const isOwnInstitution = isUserInstitution(
+                                    institution.id
+                                );
 
                                 return (
-                                    <Card key={institution.id} withBorder p="sm">
+                                    <Card
+                                        key={institution.id}
+                                        withBorder
+                                        p="sm"
+                                    >
                                         <Group justify="space-between">
                                             <Group gap="sm">
                                                 <Avatar
@@ -319,10 +457,18 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                                     <IconSchool size={16} />
                                                 </Avatar>
                                                 <div>
-                                                    <Text fw={500}>{institution.name}</Text>
+                                                    <Text fw={500}>
+                                                        {institution.name}
+                                                    </Text>
                                                     {institution.description && (
-                                                        <Text size="sm" c="dimmed" lineClamp={2}>
-                                                            {institution.description}
+                                                        <Text
+                                                            size="sm"
+                                                            c="dimmed"
+                                                            lineClamp={2}
+                                                        >
+                                                            {
+                                                                institution.description
+                                                            }
                                                         </Text>
                                                     )}
                                                 </div>
@@ -330,24 +476,55 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
 
                                             <Group gap="xs">
                                                 {isOwnInstitution && (
-                                                    <Badge color="green" variant="light">
+                                                    <Badge
+                                                        color="green"
+                                                        variant="light"
+                                                    >
                                                         Mon établissement
                                                     </Badge>
                                                 )}
-                                                {following && !isOwnInstitution && (
-                                                    <Badge color="blue" variant="light">
-                                                        Déjà abonné
-                                                    </Badge>
-                                                )}
+                                                {following &&
+                                                    !isOwnInstitution && (
+                                                        <Badge
+                                                            color="blue"
+                                                            variant="light"
+                                                        >
+                                                            Déjà abonné
+                                                        </Badge>
+                                                    )}
                                                 <Button
-                                                    variant={following ? "light" : "filled"}
-                                                    color={following ? "gray" : "blue"}
+                                                    variant={
+                                                        following
+                                                            ? "light"
+                                                            : "filled"
+                                                    }
+                                                    color={
+                                                        following
+                                                            ? "gray"
+                                                            : "blue"
+                                                    }
                                                     size="sm"
-                                                    disabled={isOwnInstitution || following}
-                                                    loading={followingLoading === institution.id}
-                                                    onClick={() => following ? handleUnfollow(institution.id) : handleFollow(institution.id)}
+                                                    disabled={
+                                                        isOwnInstitution ||
+                                                        following
+                                                    }
+                                                    loading={
+                                                        followingLoading ===
+                                                        institution.id
+                                                    }
+                                                    onClick={() =>
+                                                        following
+                                                            ? handleUnfollow(
+                                                                  institution.id
+                                                              )
+                                                            : handleFollow(
+                                                                  institution.id
+                                                              )
+                                                    }
                                                 >
-                                                    {following ? 'Se désabonner' : 'S\'abonner'}
+                                                    {following
+                                                        ? "Se désabonner"
+                                                        : "S'abonner"}
                                                 </Button>
                                             </Group>
                                         </Group>

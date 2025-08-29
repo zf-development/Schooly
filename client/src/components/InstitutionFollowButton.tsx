@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Group, Text } from '@mantine/core';
-import { IconHeart, IconHeartOff } from '@tabler/icons-react';
-import subscriptionService from '../services/subscriptionService';
+import React, { useState, useEffect } from "react";
+import { Button, Group, Text, Skeleton } from "@mantine/core";
+import { IconHeart, IconHeartOff } from "@tabler/icons-react";
+import subscriptionService from "../services/subscriptionService";
 
 interface InstitutionFollowButtonProps {
     institutionId: string;
     institutionName: string;
     onFollowChange?: (isFollowing: boolean) => void;
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-    variant?: 'light' | 'filled' | 'outline' | 'default' | 'subtle' | 'gradient';
+    size?: "xs" | "sm" | "md" | "lg" | "xl";
+    variant?:
+        | "light"
+        | "filled"
+        | "outline"
+        | "default"
+        | "subtle"
+        | "gradient";
 }
 
 const InstitutionFollowButton: React.FC<InstitutionFollowButtonProps> = ({
     institutionId,
     institutionName,
     onFollowChange,
-    size = 'sm',
-    variant = 'light'
+    size = "sm",
+    variant = "light",
 }) => {
     const [isFollowing, setIsFollowing] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -28,11 +34,16 @@ const InstitutionFollowButton: React.FC<InstitutionFollowButtonProps> = ({
 
     const checkFollowStatus = async () => {
         try {
-            const following = await subscriptionService.isFollowing(institutionId);
+            const following = await subscriptionService.isFollowing(
+                institutionId
+            );
             setIsFollowing(following);
             setInitialized(true);
         } catch (error) {
-            console.error('Erreur lors de la vérification du statut de suivi:', error);
+            console.error(
+                "Erreur lors de la vérification du statut de suivi:",
+                error
+            );
             setInitialized(true);
         }
     };
@@ -44,25 +55,35 @@ const InstitutionFollowButton: React.FC<InstitutionFollowButtonProps> = ({
         try {
             if (isFollowing) {
                 // Désuivre
-                const response = await subscriptionService.unfollow(institutionId);
+                const response = await subscriptionService.unfollow(
+                    institutionId
+                );
                 if (response.success) {
                     setIsFollowing(false);
                     onFollowChange?.(false);
                 } else {
-                    console.error('Erreur lors du désabonnement:', response.error);
+                    console.error(
+                        "Erreur lors du désabonnement:",
+                        response.error
+                    );
                 }
             } else {
                 // Suivre
-                const response = await subscriptionService.follow(institutionId);
+                const response = await subscriptionService.follow(
+                    institutionId
+                );
                 if (response.success) {
                     setIsFollowing(true);
                     onFollowChange?.(true);
                 } else {
-                    console.error('Erreur lors de l\'abonnement:', response.error);
+                    console.error(
+                        "Erreur lors de l'abonnement:",
+                        response.error
+                    );
                 }
             }
         } catch (error) {
-            console.error('Erreur lors de la modification du suivi:', error);
+            console.error("Erreur lors de la modification du suivi:", error);
         } finally {
             setLoading(false);
         }
@@ -70,14 +91,20 @@ const InstitutionFollowButton: React.FC<InstitutionFollowButtonProps> = ({
 
     if (!initialized) {
         return (
-            <Button
-                size={size}
-                variant={variant}
-                loading={true}
-                disabled
-            >
-                Chargement...
-            </Button>
+            <Skeleton
+                height={
+                    size === "xs"
+                        ? 24
+                        : size === "sm"
+                        ? 32
+                        : size === "md"
+                        ? 36
+                        : size === "lg"
+                        ? 40
+                        : 44
+                }
+                width={100}
+            />
         );
     }
 
@@ -85,7 +112,7 @@ const InstitutionFollowButton: React.FC<InstitutionFollowButtonProps> = ({
         <Button
             size={size}
             variant={variant}
-            color={isFollowing ? 'red' : 'blue'}
+            color={isFollowing ? "red" : "blue"}
             leftSection={
                 isFollowing ? (
                     <IconHeartOff size={16} />
@@ -117,5 +144,3 @@ const InstitutionFollowButton: React.FC<InstitutionFollowButtonProps> = ({
 };
 
 export default InstitutionFollowButton;
-
-

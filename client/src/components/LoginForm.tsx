@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
     Button,
     PasswordInput,
     Stack,
     TextInput,
     Text,
-    Box
-} from '@mantine/core';
-import { IconMail, IconLock, IconLogin } from '@tabler/icons-react';
+    Box,
+    Skeleton,
+} from "@mantine/core";
+import { IconMail, IconLock, IconLogin } from "@tabler/icons-react";
 
 export interface LoginFormProps {
     onSubmit: (email: string, password: string) => void;
@@ -19,14 +20,16 @@ const isValidEmail = (value: string): boolean => {
 };
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [emailError, setEmailError] = useState<string | null>(null);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const valid = isValidEmail(email);
-        setEmailError(valid ? null : 'Veuillez entrer une adresse courriel valide');
+        setEmailError(
+            valid ? null : "Veuillez entrer une adresse courriel valide"
+        );
         if (!valid) return;
         onSubmit(email, password);
     };
@@ -35,7 +38,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
         const value = e.currentTarget.value;
         setEmail(value);
         if (emailError) {
-            setEmailError(isValidEmail(value) ? null : 'Veuillez entrer une adresse courriel valide');
+            setEmailError(
+                isValidEmail(value)
+                    ? null
+                    : "Veuillez entrer une adresse courriel valide"
+            );
         }
     };
 
@@ -58,7 +65,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
                         type="email"
                         value={email}
                         onChange={handleEmailChange}
-                        onBlur={() => setEmailError(isValidEmail(email) ? null : 'Veuillez entrer une adresse courriel valide')}
+                        onBlur={() =>
+                            setEmailError(
+                                isValidEmail(email)
+                                    ? null
+                                    : "Veuillez entrer une adresse courriel valide"
+                            )
+                        }
                         error={emailError}
                         required
                         leftSection={<IconMail size={16} />}
@@ -74,23 +87,27 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
                     />
                 </Stack>
 
-                <Button
-                    type="submit"
-                    loading={loading}
-                    leftSection={<IconLogin size={16} />}
-                    size="md"
-                    fullWidth
-                >
-                    {loading ? 'Connexion...' : 'Se connecter'}
-                </Button>
+                {loading ? (
+                    <Skeleton height={42} width="100%" />
+                ) : (
+                    <Button
+                        type="submit"
+                        leftSection={<IconLogin size={16} />}
+                        size="md"
+                        fullWidth
+                    >
+                        Se connecter
+                    </Button>
+                )}
 
                 <Box ta="center">
                     <Text size="xs" lh={1.4}>
-                        En vous connectant, vous acceptez nos conditions d'utilisation
+                        En vous connectant, vous acceptez nos conditions
+                        d'utilisation
                     </Text>
                 </Box>
             </Stack>
-        </form >
+        </form>
     );
 };
 
