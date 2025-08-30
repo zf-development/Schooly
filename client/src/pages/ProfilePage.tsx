@@ -9,23 +9,24 @@ import {
     Text,
     TextInput,
     Button,
-    Avatar,
     Group,
     Divider,
-    Tabs,
     Skeleton,
+    Card,
+    Badge,
+    Avatar,
 } from "@mantine/core";
 import {
     IconAlertCircle,
     IconCheck,
     IconX,
     IconUser,
-    IconBuilding,
+    IconEdit,
+    IconCamera,
 } from "@tabler/icons-react";
 import MainLayout from "../layouts/MainLayout";
 import type { AuthButtonProps } from "../types";
 import userService from "../services/userService";
-import SubscriptionsList from "../components/SubscriptionsList";
 import { useUserContext } from "../contexts/UserContext";
 
 interface UserProfile {
@@ -44,12 +45,8 @@ const ProfilePage: React.FC = () => {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-
-    // Champs éditables
     const [displayName, setDisplayName] = useState("");
     const [avatarUrl, setAvatarUrl] = useState("");
-
-    // Plus besoin de données de démonstration pour les institutions
 
     useEffect(() => {
         loadProfile();
@@ -112,7 +109,6 @@ const ProfilePage: React.FC = () => {
                 setProfile(response.data);
                 setSuccess("Profil mis à jour avec succès !");
 
-                // Mettre à jour le contexte utilisateur avec les nouvelles données
                 setUser({
                     id: user?.id || "",
                     email: user?.email || "",
@@ -123,7 +119,6 @@ const ProfilePage: React.FC = () => {
                     avatar_url: response.data.avatar_url || user?.avatar_url,
                 });
 
-                // Recharger le profil pour avoir les données à jour
                 await loadProfile();
             } else {
                 setError(response.error || "Erreur lors de la mise à jour");
@@ -135,10 +130,7 @@ const ProfilePage: React.FC = () => {
         }
     };
 
-    // Plus besoin de gérer le changement d'institution
-
     const { user, setUser } = useUserContext();
-
     const authProps: AuthButtonProps = {
         isAuthenticated: true,
         onLogin: () => navigate("/login"),
@@ -156,10 +148,36 @@ const ProfilePage: React.FC = () => {
         return (
             <MainLayout authProps={authProps}>
                 <Container size="md" py="xl">
-                    <Stack gap="xl" align="center">
-                        <Title order={1} ta="center" c="academic">
-                            Chargement du profil...
-                        </Title>
+                    <Stack gap="xl">
+                        <Skeleton height={40} width="60%" mx="auto" />
+
+                        <Paper p="xl" withBorder radius="lg">
+                            <Stack gap="xl">
+                                <Card p="lg" withBorder radius="md" bg="gray.0">
+                                    <Stack gap="lg" align="center">
+                                        <Skeleton
+                                            height={120}
+                                            width={120}
+                                            radius="xl"
+                                        />
+                                        <Stack gap="xs" align="center">
+                                            <Skeleton height={32} width="40%" />
+                                            <Skeleton height={20} width="60%" />
+                                        </Stack>
+                                    </Stack>
+                                </Card>
+
+                                <Divider />
+
+                                <Stack gap="lg">
+                                    <Skeleton height={28} width="30%" />
+                                    <Skeleton height={42} width="100%" />
+                                    <Skeleton height={42} width="100%" />
+                                    <Skeleton height={42} width="100%" />
+                                    <Skeleton height={42} width="100%" />
+                                </Stack>
+                            </Stack>
+                        </Paper>
                     </Stack>
                 </Container>
             </MainLayout>
@@ -196,26 +214,11 @@ const ProfilePage: React.FC = () => {
                         </Alert>
                     )}
 
-                    <Paper p="xl" withBorder>
-                        <Tabs defaultValue="profile">
-                            <Tabs.List>
-                                <Tabs.Tab
-                                    value="profile"
-                                    leftSection={<IconUser size={16} />}
-                                >
-                                    Mon Profil
-                                </Tabs.Tab>
-                                <Tabs.Tab
-                                    value="subscriptions"
-                                    leftSection={<IconBuilding size={16} />}
-                                >
-                                    Mes Abonnements
-                                </Tabs.Tab>
-                            </Tabs.List>
-
-                            <Tabs.Panel value="profile" pt="md">
-                                <Stack gap="lg">
-                                    <Group justify="center">
+                    <Paper p="xl" withBorder radius="md">
+                        <Stack gap="xl">
+                            <Card p="lg" withBorder radius="md" bg="gray.0">
+                                <Stack gap="lg" align="center">
+                                    <Group style={{ position: "relative" }}>
                                         <Avatar
                                             src={avatarUrl}
                                             size="xl"
@@ -224,60 +227,75 @@ const ProfilePage: React.FC = () => {
                                         />
                                     </Group>
 
-                                    <Divider />
-
-                                    <TextInput
-                                        label="Email"
-                                        value={profile?.email || ""}
-                                        disabled
-                                        description="L'email ne peut pas être modifié"
-                                    />
-
-                                    <TextInput
-                                        label="Nom d'affichage"
-                                        placeholder="Votre nom d'affichage..."
-                                        value={displayName}
-                                        onChange={(e) =>
-                                            setDisplayName(
-                                                e.currentTarget.value
-                                            )
-                                        }
-                                        required
-                                    />
-
-                                    <TextInput
-                                        label="URL de l'avatar"
-                                        placeholder="https://exemple.com/avatar.jpg"
-                                        value={avatarUrl}
-                                        onChange={(e) =>
-                                            setAvatarUrl(e.currentTarget.value)
-                                        }
-                                        description="Laissez vide pour utiliser l'avatar par défaut"
-                                    />
-
-                                    {saving ? (
-                                        <Skeleton height={42} width="100%" />
-                                    ) : (
-                                        <Button
-                                            onClick={handleSave}
-                                            disabled={!displayName.trim()}
-                                            fullWidth
-                                        >
-                                            Enregistrer les modifications
-                                        </Button>
-                                    )}
+                                    <Stack gap="xs" align="center">
+                                        <Title order={2} c="academic">
+                                            {profile?.display_name ||
+                                                "Utilisateur"}
+                                        </Title>
+                                        <Text size="sm" c="dimmed">
+                                            Membre de la communauté
+                                        </Text>
+                                    </Stack>
                                 </Stack>
-                            </Tabs.Panel>
+                            </Card>
 
-                            <Tabs.Panel value="subscriptions" pt="md">
-                                <SubscriptionsList
-                                    onSubscriptionChange={() => {
-                                        // Optionnel : recharger le profil si nécessaire
-                                    }}
-                                    userInstitutionId={profile?.institution_id}
+                            <Divider />
+
+                            {/* Section Édition du profil */}
+                            <Stack gap="lg">
+                                <Group>
+                                    <IconEdit
+                                        size={20}
+                                        color="var(--mantine-color-academic)"
+                                    />
+                                    <Title order={3}>Modifier mon profil</Title>
+                                </Group>
+
+                                <TextInput
+                                    label="Email"
+                                    value={profile?.email || ""}
+                                    disabled
+                                    description="L'email ne peut pas être modifié"
+                                    variant="filled"
                                 />
-                            </Tabs.Panel>
-                        </Tabs>
+
+                                <TextInput
+                                    label="Nom d'affichage"
+                                    placeholder="Votre nom d'affichage..."
+                                    value={displayName}
+                                    onChange={(e) =>
+                                        setDisplayName(e.currentTarget.value)
+                                    }
+                                    required
+                                    variant="filled"
+                                />
+
+                                <TextInput
+                                    label="URL de l'avatar"
+                                    placeholder="https://exemple.com/avatar.jpg"
+                                    value={avatarUrl}
+                                    onChange={(e) =>
+                                        setAvatarUrl(e.currentTarget.value)
+                                    }
+                                    description="Laissez vide pour utiliser l'avatar par défaut"
+                                    variant="filled"
+                                />
+
+                                {saving ? (
+                                    <Skeleton height={42} width="100%" />
+                                ) : (
+                                    <Button
+                                        onClick={handleSave}
+                                        disabled={!displayName.trim()}
+                                        fullWidth
+                                        size="md"
+                                        leftSection={<IconCheck size={16} />}
+                                    >
+                                        Enregistrer les modifications
+                                    </Button>
+                                )}
+                            </Stack>
+                        </Stack>
                     </Paper>
                 </Stack>
             </Container>

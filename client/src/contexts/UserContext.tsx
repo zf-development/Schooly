@@ -2,9 +2,16 @@
 // - Créer le contexte utilisateur
 // - Fournir les méthodes de gestion de l'utilisateur
 // - Gérer l'état global de l'utilisateur
+// - Gérer automatiquement l'expiration des tokens
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import apiService from "../services/api";
+import React, {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    useCallback,
+} from "react";
+import { setTokenExpiredCallback } from "../services/api";
 
 // Interface pour l'utilisateur
 interface User {
@@ -20,6 +27,8 @@ interface UserContextType {
     setUser: (user: User | null) => void;
     isLoading: boolean;
     logout: () => Promise<void>;
+    forceLogout: () => void; // Déconnexion forcée sans appel API
+    isTokenExpired: boolean;
 }
 
 // Créer le contexte
@@ -31,8 +40,23 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isTokenExpired, setIsTokenExpired] = useState(false);
 
-    // Fonction de déconnexion
+    // Fonction de déconnexion forcée (sans appel API)
+    const forceLogout = useCallback(() => {
+        localStorage.removeItem("authToken");
+        setUser(null);
+        setIsTokenExpired(false);
+        // Rediriger vers la page de connexion
+        window.location.href = "/login";
+    }, []);
+
+    // Enregistrer le callback de déconnexion dans le service API
+    useEffect(() => {
+        setTokenExpiredCallback(forceLogout);
+    }, [forceLogout]);
+
+    // Fonction de déconnexion normale
     const logout = async () => {
         try {
             setIsLoading(true);
@@ -53,22 +77,35 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                 }
             );
 
-            if (response.ok) {
-                // Nettoyer le token local
-                localStorage.removeItem("authToken");
-                setUser(null);
-
-                // Rediriger vers la page de connexion
-                window.location.href = "/login";
-            } else {
-                console.error("Erreur lors de la déconnexion");
-            }
+            // Même si l'API échoue, on se déconnecte localement
+            forceLogout();
         } catch (error) {
             console.error("Erreur lors de la déconnexion:", error);
+            // En cas d'erreur, on se déconnecte quand même
+            forceLogout();
         } finally {
             setIsLoading(false);
         }
     };
+
+    // Vérifier si un token est expiré en analysant sa structure
+    const isTokenExpiredCheck = useCallback((token: string): boolean => {
+        try {
+            // Décoder le JWT pour vérifier l'expiration
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            const currentTime = Math.floor(Date.now() / 1000);
+
+            // Vérifier si le token est expiré (avec une marge de 5 minutes)
+            if (payload.exp && payload.exp < currentTime + 300) {
+                return true;
+            }
+
+            return false;
+        } catch (error) {
+            console.error("Erreur lors de la vérification du token:", error);
+            return true; // En cas d'erreur, considérer comme expiré
+        }
+    }, []);
 
     // Initialisation avec vérification du token
     useEffect(() => {
@@ -79,6 +116,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                 if (!token) {
                     setUser(null);
                     setIsLoading(false);
+                    return;
+                }
+
+                // Vérifier d'abord si le token est expiré localement
+                if (isTokenExpiredCheck(token)) {
+                    console.log("Token expiré détecté localement");
+                    setIsTokenExpired(true);
+                    forceLogout();
                     return;
                 }
 
@@ -104,10 +149,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                         name: userData.user.name || "Utilisateur",
                         avatar_url: userData.user.avatar_url,
                     });
+                    setIsTokenExpired(false);
+                } else if (response.status === 401) {
+                    // Token invalide ou expiré
+                    console.log("Token invalide détecté par l'API");
+                    setIsTokenExpired(true);
+                    forceLogout();
                 } else {
-                    // Token invalide, le supprimer
-                    localStorage.removeItem("authToken");
-                    setUser(null);
+                    // Autre erreur
+                    console.error(
+                        "Erreur lors de la vérification:",
+                        response.status
+                    );
+                    setIsTokenExpired(true);
+                    forceLogout();
                 }
             } catch (error) {
                 console.error(
@@ -115,18 +170,45 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                     error
                 );
                 // En cas d'erreur, supprimer le token et considérer comme non connecté
-                localStorage.removeItem("authToken");
-                setUser(null);
+                setIsTokenExpired(true);
+                forceLogout();
             } finally {
                 setIsLoading(false);
             }
         };
 
         checkAuth();
-    }, []);
+    }, [forceLogout, isTokenExpiredCheck]);
+
+    // Vérifier périodiquement la validité du token (toutes les 5 minutes)
+    useEffect(() => {
+        if (!user) return;
+
+        const interval = setInterval(() => {
+            const token = localStorage.getItem("authToken");
+            if (token && isTokenExpiredCheck(token)) {
+                console.log(
+                    "Token expiré détecté lors de la vérification périodique"
+                );
+                setIsTokenExpired(true);
+                forceLogout();
+            }
+        }, 5 * 60 * 1000); // 5 minutes
+
+        return () => clearInterval(interval);
+    }, [user, forceLogout, isTokenExpiredCheck]);
 
     return (
-        <UserContext.Provider value={{ user, setUser, isLoading, logout }}>
+        <UserContext.Provider
+            value={{
+                user,
+                setUser,
+                isLoading,
+                logout,
+                forceLogout,
+                isTokenExpired,
+            }}
+        >
             {children}
         </UserContext.Provider>
     );

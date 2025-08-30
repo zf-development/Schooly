@@ -1,4 +1,8 @@
 // Service API pour communiquer avec le backend
+// - Gestion automatique des tokens expirés
+// - Interception globale des erreurs 401
+// - Déconnexion automatique en cas de session expirée
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 interface ApiResponse<T> {
@@ -6,6 +10,14 @@ interface ApiResponse<T> {
     data?: T;
     error?: string;
 }
+
+// Callback pour la déconnexion forcée
+let onTokenExpired: (() => void) | null = null;
+
+// Fonction pour enregistrer le callback de déconnexion
+export const setTokenExpiredCallback = (callback: () => void) => {
+    onTokenExpired = callback;
+};
 
 class ApiService {
     private getAuthToken(): string | null {
@@ -20,6 +32,24 @@ class ApiService {
         localStorage.removeItem('authToken');
     }
 
+    // Vérifier si un token est expiré localement
+    private isTokenExpired(token: string): boolean {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const currentTime = Math.floor(Date.now() / 1000);
+            
+            // Vérifier si le token est expiré (avec une marge de 5 minutes)
+            if (payload.exp && payload.exp < (currentTime + 300)) {
+                return true;
+            }
+            
+            return false;
+        } catch (error) {
+            console.error("Erreur lors de la vérification du token:", error);
+            return true; // En cas d'erreur, considérer comme expiré
+        }
+    }
+
     private async request<T>(
         endpoint: string,
         options: RequestInit = {}
@@ -27,6 +57,16 @@ class ApiService {
         try {
             const url = `${API_BASE_URL}${endpoint}`;
             const token = this.getAuthToken();
+
+            // Vérifier si le token est expiré avant de faire la requête
+            if (token && this.isTokenExpired(token)) {
+                console.log("Token expiré détecté avant la requête");
+                this.removeAuthToken();
+                if (onTokenExpired) {
+                    onTokenExpired();
+                }
+                throw new Error('Session expirée. Veuillez vous reconnecter.');
+            }
 
             const headers: Record<string, string> = {
                 'Content-Type': 'application/json',
@@ -53,7 +93,14 @@ class ApiService {
                 if (response.status === 401) {
                     // Si on a un token et qu'on reçoit 401, c'est une session expirée
                     if (token) {
+                        console.log("Erreur 401 reçue - session expirée");
                         this.removeAuthToken();
+                        
+                        // Déclencher la déconnexion automatique
+                        if (onTokenExpired) {
+                            onTokenExpired();
+                        }
+                        
                         throw new Error('Session expirée. Veuillez vous reconnecter.');
                     } else {
                         // Pas de token = erreur d'authentification, afficher le vrai message
