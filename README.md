@@ -1,4 +1,4 @@
-# StudBud – MVP
+# Skolarae – MVP
 
 ## 🧱 Stack
 

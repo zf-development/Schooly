@@ -1,4 +1,4 @@
-// Types communs pour l'application StudBud
+// Types communs pour l'application Skolarae
 
 // Plus besoin de InstitutionOption
 

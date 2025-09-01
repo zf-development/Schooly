@@ -18,7 +18,14 @@ interface User {
     email: string;
     institution_id: string;
     display_name?: string;
+    full_name?: string;
     avatar_url?: string;
+    file_number?: string;
+    school?: string;
+    group_number?: string;
+    education_level?: string;
+    preferred_tags?: string[];
+    academic_projects?: string[];
     created_at: string;
 }
 
@@ -312,24 +319,23 @@ export const canUserModifyPost = async (postId: string, userId: string): Promise
 };
 
 // Fonction pour mettre à jour un utilisateur
-export const updateUser = async (userId: string, updates: {
-    display_name?: string;
-    avatar_url?: string;
-}): Promise<User | null> => {
+export const updateUser = async (userId: string, updateData: Partial<User>): Promise<User | null> => {
     try {
         const { data, error } = await supabase
             .from('users')
-            .update(updates)
+            .update(updateData)
             .eq('id', userId)
             .select()
             .single();
 
         if (error) {
+            console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
             return null;
         }
 
         return data;
     } catch (error) {
+        console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
         return null;
     }
 };
@@ -446,5 +452,105 @@ export const getSupabaseInstitutionById = async (institutionId: string): Promise
         return data;
     } catch (error) {
         return null;
+    }
+};
+
+// Fonction pour récupérer les statistiques d'un utilisateur
+export const getUserStats = async (userId: string): Promise<{
+    posts_count: number;
+    xp_points: number;
+    level: number;
+    progress_to_next_level: number;
+} | null> => {
+    try {
+        // Compter les posts de l'utilisateur
+        const { count: postsCount, error: postsError } = await supabase
+            .from('feeds')
+            .select('*', { count: 'exact', head: true })
+            .eq('author_id', userId);
+
+        if (postsError) {
+            console.error('Erreur lors du comptage des posts:', postsError);
+            return null;
+        }
+
+        const posts_count = postsCount || 0;
+        const xp_points = posts_count * 10 + 50;
+        const level = Math.floor(xp_points / 100) + 1;
+        const progress_to_next_level = (xp_points % 100) / 100;
+
+        return {
+            posts_count,
+            xp_points,
+            level,
+            progress_to_next_level
+        };
+    } catch (error) {
+        console.error('Erreur lors de la récupération des statistiques:', error);
+        return null;
+    }
+};
+
+// Fonction pour récupérer les badges d'un utilisateur
+export const getUserBadges = async (userId: string): Promise<Array<{
+    badge_id: string;
+    badge_name: string;
+    badge_description: string;
+    badge_icon: string;
+    badge_color: string;
+    unlocked: boolean;
+    unlocked_at?: string;
+}>> => {
+    try {
+        // Récupérer les statistiques de l'utilisateur
+        const userStats = await getUserStats(userId);
+        
+        if (!userStats) {
+            return [];
+        }
+
+        const badges = [
+            {
+                badge_id: '1',
+                badge_name: 'Premier Post',
+                badge_description: 'A publié son premier post',
+                badge_icon: 'IconEdit',
+                badge_color: 'blue',
+                unlocked: userStats.posts_count > 0,
+                unlocked_at: userStats.posts_count > 0 ? new Date().toISOString() : undefined
+            },
+            {
+                badge_id: '2',
+                badge_name: 'Étudiant Actif',
+                badge_description: 'A publié 10 posts',
+                badge_icon: 'IconTarget',
+                badge_color: 'green',
+                unlocked: userStats.posts_count >= 10,
+                unlocked_at: userStats.posts_count >= 10 ? new Date().toISOString() : undefined
+            },
+            {
+                badge_id: '3',
+                badge_name: 'Expert',
+                badge_description: 'A reçu 100 likes',
+                badge_icon: 'IconTrophy',
+                badge_color: 'gold',
+                unlocked: userStats.xp_points >= 1000,
+                unlocked_at: userStats.xp_points >= 1000 ? new Date().toISOString() : undefined
+            },
+            {
+                badge_id: '4',
+                badge_name: 'Collaborateur',
+                badge_description: 'A participé à 5 projets',
+                badge_icon: 'IconUsers',
+                badge_color: 'purple',
+                unlocked: false,
+                unlocked_at: undefined
+            }
+        ];
+
+        return badges;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des badges:', error);
+        return [];
     }
 };
