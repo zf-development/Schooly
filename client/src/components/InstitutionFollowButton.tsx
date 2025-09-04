@@ -112,7 +112,7 @@ const InstitutionFollowButton: React.FC<InstitutionFollowButtonProps> = ({
         <Button
             size={size}
             variant={variant}
-            color={isFollowing ? "red" : "blue"}
+            color={isFollowing ? "red" : "violet"}
             leftSection={
                 isFollowing ? (
                     <IconHeartOff size={16} />

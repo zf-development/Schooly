@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
     Card,
     Text,
@@ -10,11 +10,33 @@ import {
     Divider,
     Box,
     Flex,
+    Tooltip,
+    Button,
+    Menu,
+    Modal,
 } from "@mantine/core";
-import { IconFlag, IconClock, IconBuilding } from "@tabler/icons-react";
-import { format } from "date-fns";
+
+import {
+    IconFlag,
+    IconClock,
+    IconBuilding,
+    IconArrowUp,
+    IconArrowBigUpFilled,
+    IconMessageCircle,
+    IconDotsVertical,
+    IconEye,
+    IconEyeOff,
+    IconFile,
+    IconFileText,
+    IconFileCode,
+    IconPhoto,
+    IconFileTypePdf,
+} from "@tabler/icons-react";
+import { format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import styles from "./PostCard.module.css";
+import { feedService } from "../services/feedService";
+import CommentSection from "./CommentSection";
 
 export interface PostCardProps {
     id: string;
@@ -24,12 +46,26 @@ export interface PostCardProps {
         name: string;
         display_name: string;
         avatar_url: string;
+        institution_id: string;
         institution: string;
     };
     content: string;
     visibility: "public" | "private";
     createdAt: string | Date;
+    files?: Array<{
+        id: string;
+        name: string;
+        type: string;
+        size: number;
+        url: string;
+    }>;
+    upvotes?: number;
+    comments?: number;
+    isUpvoted?: boolean;
+    hasUpvoted?: boolean; // Nouveau: état upvote depuis le serveur
     onReport?: (postId: string, postTitle?: string) => void;
+    onUpvote?: (postId: string) => void;
+    onComment?: (postId: string) => void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({
@@ -39,11 +75,48 @@ const PostCard: React.FC<PostCardProps> = ({
     content,
     visibility,
     createdAt,
+    files = [],
+    upvotes = 0,
+    comments = 0,
+    isUpvoted = false,
+    hasUpvoted = false,
     onReport,
+    onUpvote,
+    onComment,
 }) => {
+    const [localUpvotes, setLocalUpvotes] = useState(upvotes);
+    const [localIsUpvoted, setLocalIsUpvoted] = useState(isUpvoted);
+    const [localCommentsCount, setLocalCommentsCount] = useState(comments || 0);
+    const [showComments, setShowComments] = useState(false);
+
+    // Initialiser l'état avec les données du serveur
+    useEffect(() => {
+        if (hasUpvoted !== undefined) {
+            setLocalIsUpvoted(hasUpvoted);
+        }
+        if (upvotes !== undefined) {
+            setLocalUpvotes(upvotes);
+        }
+    }, [hasUpvoted, upvotes]);
+    const [imageModalOpened, setImageModalOpened] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string>("");
+
     const formatDate = (date: string | Date) => {
         try {
             const dateObj = typeof date === "string" ? new Date(date) : date;
+            const now = new Date();
+            const diffInHours =
+                (now.getTime() - dateObj.getTime()) / (1000 * 60 * 60);
+
+            // Si moins de 24h, afficher le temps relatif
+            if (diffInHours < 24) {
+                return formatDistanceToNow(dateObj, {
+                    addSuffix: true,
+                    locale: fr,
+                });
+            }
+
+            // Sinon, afficher la date complète
             return format(dateObj, "dd MMM yyyy à HH:mm", { locale: fr });
         } catch {
             return String(date);
@@ -51,19 +124,104 @@ const PostCard: React.FC<PostCardProps> = ({
     };
 
     const getVisibilityColor = (vis: "public" | "private") => {
-        return vis === "public" ? "blue" : "yellow";
+        return vis === "public" ? "violet" : "yellow";
     };
 
     const getVisibilityLabel = (vis: "public" | "private") => {
         return vis === "public" ? "Public" : "Privé";
     };
 
+    const handleUpvote = async () => {
+        try {
+            const result = await feedService.toggleUpvote(id);
+            
+            // Gérer les deux structures possibles
+            const upvoteData = (result as any).data || result;
+            
+            setLocalUpvotes(upvoteData.upvotes_count);
+            setLocalIsUpvoted(upvoteData.upvoted);
+
+            // Appeler le callback si fourni
+            if (onUpvote) {
+                onUpvote(id);
+            }
+        } catch (error) {
+            console.error("Erreur lors du toggle upvote:", error);
+        }
+    };
+
+    const getFileIcon = (fileType: string) => {
+        if (fileType.startsWith("image/")) return <IconPhoto size={16} />;
+        if (fileType.includes("pdf")) return <IconFileTypePdf size={16} />;
+        if (fileType.includes("text") || fileType.includes("document"))
+            return <IconFileText size={16} />;
+        if (fileType.includes("code") || fileType.includes("script"))
+            return <IconFileCode size={16} />;
+        return <IconFile size={16} />;
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return "0 B";
+        const k = 1024;
+        const sizes = ["B", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+    };
+
+    const handleFileClick = async (file: any) => {
+        try {
+            if (file.type.startsWith("image/")) {
+                // Pour les images, utiliser l'URL directe de Supabase
+                setSelectedImage(file.url);
+                setImageModalOpened(true);
+            } else if (
+                file.type === "application/pdf" ||
+                file.type.startsWith("text/")
+            ) {
+                // Pour les PDFs et fichiers texte, utiliser l'URL directe de Supabase
+                // Les PDFs s'ouvrent mieux directement dans le navigateur
+                window.open(file.url, "_blank");
+            } else {
+                // Télécharger le fichier via notre API
+                const token = localStorage.getItem("authToken");
+                const response = await fetch(
+                    `http://localhost:3001/api/feed/files/${encodeURIComponent(
+                        (file as any).path
+                    )}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = file.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error("Erreur lors du traitement du fichier:", error);
+            // Fallback: essayer l'URL directe
+            window.open(file.url, "_blank");
+        }
+    };
+
     return (
         <Card
             withBorder
             padding="lg"
-            radius="md"
-            shadow="xs"
+            radius="lg"
+            shadow="sm"
             className={styles.postCard}
         >
             {/* Header avec avatar et informations de l'auteur */}
@@ -85,7 +243,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                 size={14}
                                 color="var(--mantine-color-gray-6)"
                             />
-                            <Text size="sm" c="dimmed" fw={500}>
+                            <Text size="xs" c="dimmed" fw={500}>
                                 {author.institution}
                             </Text>
                         </Group>
@@ -94,10 +252,14 @@ const PostCard: React.FC<PostCardProps> = ({
 
                 <Group gap="xs" align="center">
                     <Badge
-                        variant="light"
-                        color={getVisibilityColor(visibility)}
+                        variant="gradient"
+                        gradient={{
+                            from: visibility === "public" ? "violet" : "yellow",
+                            to: visibility === "public" ? "grape" : "orange",
+                            deg: 45,
+                        }}
                         size="sm"
-                        radius="sm"
+                        radius="md"
                         className={styles.visibilityBadge}
                         style={{
                             fontWeight: 600,
@@ -105,20 +267,39 @@ const PostCard: React.FC<PostCardProps> = ({
                             letterSpacing: "0.5px",
                         }}
                     >
-                        {getVisibilityLabel(visibility)}
+                        <Group gap={4} align="center">
+                            {visibility === "public" ? (
+                                <IconEye size={12} />
+                            ) : (
+                                <IconEyeOff size={12} />
+                            )}
+                            {getVisibilityLabel(visibility)}
+                        </Group>
                     </Badge>
 
                     {onReport && (
-                        <ActionIcon
-                            variant="subtle"
-                            color="gray"
-                            size="sm"
-                            onClick={() => onReport(id, title)}
-                            title="Signaler ce post"
-                            className={styles.reportButton}
-                        >
-                            <IconFlag size={16} />
-                        </ActionIcon>
+                        <Menu shadow="md" width={200} position="bottom-end">
+                            <Menu.Target>
+                                <ActionIcon
+                                    variant="subtle"
+                                    color="gray"
+                                    size="sm"
+                                    className={styles.menuButton}
+                                >
+                                    <IconDotsVertical size={16} />
+                                </ActionIcon>
+                            </Menu.Target>
+
+                            <Menu.Dropdown>
+                                <Menu.Item
+                                    leftSection={<IconFlag size={14} />}
+                                    color="red"
+                                    onClick={() => onReport(id, title)}
+                                >
+                                    Signaler
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
                     )}
                 </Group>
             </Group>
@@ -133,10 +314,7 @@ const PostCard: React.FC<PostCardProps> = ({
                             fw={700}
                             size="lg"
                             c="dark.8"
-                            style={{
-                                lineHeight: 1.3,
-                                marginBottom: "8px",
-                            }}
+                            className={styles.postTitle}
                         >
                             {title}
                         </Text>
@@ -144,35 +322,164 @@ const PostCard: React.FC<PostCardProps> = ({
                 )}
 
                 <Box>
-                    <Text
-                        size="sm"
-                        c="dark.7"
-                        style={{
-                            lineHeight: 1.6,
-                            whiteSpace: "pre-wrap",
-                            wordBreak: "break-word",
-                        }}
-                    >
+                    <Text size="sm" c="dark.7" className={styles.postContent}>
                         {content}
                     </Text>
                 </Box>
+
+                {/* Affichage des fichiers */}
+                {files.length > 0 && (
+                    <Box mt="lg">
+                        <Text size="sm" fw={600} c="dark.6" mb="xs">
+                            Fichiers joints ({files.length})
+                        </Text>
+                        <Stack gap="xs">
+                            {files.map((file, index) => (
+                                <Group
+                                    key={file.id || `file-${index}`}
+                                    gap="sm"
+                                    p="xs"
+                                    style={{
+                                        backgroundColor:
+                                            "var(--mantine-color-gray-0)",
+                                        borderRadius: "8px",
+                                        border: "1px solid var(--mantine-color-gray-2)",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s ease",
+                                    }}
+                                    onClick={() => handleFileClick(file)}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor =
+                                            "var(--mantine-color-gray-1)";
+                                        e.currentTarget.style.borderColor =
+                                            "var(--mantine-color-violet-3)";
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor =
+                                            "var(--mantine-color-gray-0)";
+                                        e.currentTarget.style.borderColor =
+                                            "var(--mantine-color-gray-2)";
+                                    }}
+                                >
+                                    <Box
+                                        style={{
+                                            color: "var(--mantine-color-violet-6)",
+                                        }}
+                                    >
+                                        {getFileIcon(file.type)}
+                                    </Box>
+                                    <Text
+                                        size="sm"
+                                        fw={500}
+                                        style={{ flex: 1 }}
+                                    >
+                                        {file.name}
+                                    </Text>
+                                    <Text size="xs" c="dimmed">
+                                        {formatFileSize(file.size)}
+                                    </Text>
+                                </Group>
+                            ))}
+                        </Stack>
+                    </Box>
+                )}
             </Stack>
 
-            {/* Footer avec timestamp */}
-            <Group justify="space-between" align="center" mt="lg" pt="md">
+            {/* Actions du post */}
+            <Group justify="space-between" align="center" mt="md">
+                <Group gap="xs">
+                    <Tooltip
+                        label={localIsUpvoted ? "Retirer l'upvote" : "Upvoter"}
+                    >
+                        <Button
+                            variant="light"
+                            color={localIsUpvoted ? "violet" : "gray"}
+                            size="sm"
+                            leftSection={
+                                localIsUpvoted ? (
+                                    <IconArrowBigUpFilled size={16} />
+                                ) : (
+                                    <IconArrowUp size={16} />
+                                )
+                            }
+                            onClick={handleUpvote}
+                            className={styles.actionButton}
+                            style={{
+                                backgroundColor: localIsUpvoted
+                                    ? "var(--mantine-color-violet-0)"
+                                    : "var(--mantine-color-gray-0)",
+                                borderColor: localIsUpvoted
+                                    ? "var(--mantine-color-violet-3)"
+                                    : "var(--mantine-color-gray-3)",
+                            }}
+                        >
+                            {localUpvotes}
+                        </Button>
+                    </Tooltip>
+
+                    <Tooltip label="Commenter">
+                        <Button
+                            variant="light"
+                            color="gray"
+                            size="sm"
+                            leftSection={<IconMessageCircle size={16} />}
+                            onClick={() => setShowComments(!showComments)}
+                            className={styles.actionButton}
+                            style={{
+                                backgroundColor: "var(--mantine-color-gray-0)",
+                                borderColor: "var(--mantine-color-gray-3)",
+                            }}
+                        >
+                            {localCommentsCount}
+                        </Button>
+                    </Tooltip>
+                </Group>
+
                 <Group gap="xs" align="center">
                     <IconClock size={14} color="var(--mantine-color-gray-5)" />
                     <Text size="xs" c="dimmed" fw={500}>
                         {formatDate(createdAt)}
                     </Text>
                 </Group>
-
-                <Box style={{ opacity: 0.6 }}>
-                    <Text size="xs" c="dimmed" ta="right">
-                        Post #{id.slice(0, 8)}
-                    </Text>
-                </Box>
             </Group>
+
+            {/* Modal pour afficher les images */}
+            <Modal
+                opened={imageModalOpened}
+                onClose={() => setImageModalOpened(false)}
+                size="lg"
+                centered
+                title="Aperçu de l'image"
+            >
+                <Box>
+                    <img
+                        src={selectedImage}
+                        alt="Aperçu"
+                        style={{
+                            width: "100%",
+                            height: "auto",
+                            borderRadius: "8px",
+                        }}
+                        onError={(e) => {
+                            console.error(
+                                "Erreur lors du chargement de l'image:",
+                                e
+                            );
+                        }}
+                    />
+                </Box>
+            </Modal>
+
+            {/* Section des commentaires */}
+            <Box>
+                <CommentSection
+                    postId={id}
+                    commentsCount={localCommentsCount}
+                    onCommentsCountChange={setLocalCommentsCount}
+                    showComments={showComments}
+                    onToggleComments={() => setShowComments(!showComments)}
+                />
+            </Box>
         </Card>
     );
 };

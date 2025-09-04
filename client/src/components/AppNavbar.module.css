@@ -45,8 +45,8 @@
 }
 
 .toggleIcon:hover {
-    background: var(--mantine-color-blue-1) !important;
-    border-color: var(--mantine-color-blue-3) !important;
+    background: var(--mantine-color-violet-1) !important;
+    border-color: var(--mantine-color-violet-3) !important;
     transform: scale(1.05) !important;
 }
 
@@ -197,8 +197,8 @@
 }
 
 .link:hover {
-    background: var(--mantine-color-blue-1);
-    color: var(--mantine-color-blue-7);
+    background: var(--mantine-color-violet-1);
+    color: var(--mantine-color-violet-7);
     transform: translateX(4px);
 }
 

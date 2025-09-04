@@ -60,14 +60,8 @@
 }
 
 .unifiedEditor.focused {
-    border-color: #3b82f6;
     background: white;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.unifiedEditor:hover:not(.focused) {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
 }
 
 /* Style spécial pour la première ligne (titre) */
@@ -178,7 +172,7 @@
 
 /* Focus visible pour l'accessibilité */
 .unifiedEditor:focus-visible {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid #8b5cf6;
     outline-offset: 2px;
 }
 

@@ -504,7 +504,7 @@ export const getUserBadges = async (userId: string): Promise<Array<{
     try {
         // Récupérer les statistiques de l'utilisateur
         const userStats = await getUserStats(userId);
-        
+
         if (!userStats) {
             return [];
         }
@@ -554,3 +554,435 @@ export const getUserBadges = async (userId: string): Promise<Array<{
         return [];
     }
 };
+
+// Fonction pour récupérer les posts avec tous les détails (utilisateurs, institutions, fichiers)
+export const getPostsWithDetails = async (userInstitutionId: string, userId?: string, visibility?: 'public' | 'private' | 'all'): Promise<any[]> => {
+    try {
+        // Récupérer directement depuis la table feeds pour avoir accès aux fichiers
+        let query = supabase
+            .from('feeds')
+            .select(`
+                *,
+                users!inner (
+                    id,
+                    display_name,
+                    avatar_url,
+                    institution_id
+                ),
+                institutions!inner (
+                    id,
+                    name
+                )
+            `)
+            .eq('institution_id', userInstitutionId);
+
+        // Si une visibilité spécifique est demandée, filtrer par visibilité
+        if (visibility && visibility !== 'all') {
+            query = query.eq('visibility', visibility);
+        } else {
+            // Sinon, récupérer tous les posts publics + posts privés de l'institution de l'utilisateur
+            query = query.or(`visibility.eq.public,visibility.eq.private`);
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Erreur lors de la récupération des posts avec détails:', error);
+            return [];
+        }
+
+        if (data && data.length > 0) {
+            const postIds = data.map(post => post.id);
+
+            // Récupérer les statistiques d'upvotes pour tous les posts
+            const { data: upvotesStats, error: upvotesError } = await supabase
+                .from('post_upvotes')
+                .select('post_id')
+                .in('post_id', postIds);
+
+            // Récupérer les statistiques de commentaires pour tous les posts
+            const { data: commentsStats, error: commentsError } = await supabase
+                .from('post_comments')
+                .select('post_id')
+                .in('post_id', postIds);
+
+            // Récupérer les upvotes de l'utilisateur si userId est fourni
+            let userUpvotes: any[] = [];
+            if (userId) {
+                const { data: userUpvotesData, error: userUpvotesError } = await supabase
+                    .from('post_upvotes')
+                    .select('post_id')
+                    .eq('user_id', userId)
+                    .in('post_id', postIds);
+
+                if (!userUpvotesError && userUpvotesData) {
+                    userUpvotes = userUpvotesData;
+                }
+            }
+
+            // Compter les upvotes et commentaires par post
+            const upvotesCount = new Map();
+            const commentsCount = new Map();
+            const userUpvotedPosts = new Set(userUpvotes.map(upvote => upvote.post_id));
+
+            if (!upvotesError && upvotesStats) {
+                upvotesStats.forEach(upvote => {
+                    upvotesCount.set(upvote.post_id, (upvotesCount.get(upvote.post_id) || 0) + 1);
+                });
+            }
+
+            if (!commentsError && commentsStats) {
+                commentsStats.forEach(comment => {
+                    commentsCount.set(comment.post_id, (commentsCount.get(comment.post_id) || 0) + 1);
+                });
+            }
+
+            // Ajouter les statistiques à chaque post
+            data.forEach(post => {
+                post.upvotes_count = upvotesCount.get(post.id) || 0;
+                post.comments_count = commentsCount.get(post.id) || 0;
+                post.hasUpvoted = userUpvotedPosts.has(post.id);
+            });
+        }
+
+        return data || [];
+    } catch (error) {
+        console.error('Erreur lors de la récupération des posts avec détails:', error);
+        return [];
+    }
+};
+
+// Fonction pour uploader un fichier vers Supabase Storage
+export const uploadFileToStorage = async (
+    file: Buffer,
+    fileName: string,
+    contentType: string,
+    userId: string
+): Promise<{ url: string; path: string } | null> => {
+    try {
+        const fileExtension = fileName.split('.').pop();
+        const uniqueFileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
+
+        const { data, error } = await supabase.storage
+            .from('post-files')
+            .upload(uniqueFileName, file, {
+                contentType: contentType,
+                upsert: false
+            });
+
+        if (error) {
+            console.error('Erreur lors de l\'upload du fichier:', error);
+            return null;
+        }
+
+        // Générer une URL publique pour le fichier
+        const { data: urlData } = supabase.storage
+            .from('post-files')
+            .getPublicUrl(uniqueFileName);
+
+        return {
+            url: urlData.publicUrl,
+            path: uniqueFileName
+        };
+    } catch (error) {
+        console.error('Erreur lors de l\'upload du fichier:', error);
+        return null;
+    }
+};
+
+// Fonction pour supprimer un fichier de Supabase Storage
+export const deleteFileFromStorage = async (filePath: string): Promise<boolean> => {
+    try {
+        const { error } = await supabase.storage
+            .from('post-files')
+            .remove([filePath]);
+
+        if (error) {
+            console.error('Erreur lors de la suppression du fichier:', error);
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Erreur lors de la suppression du fichier:', error);
+        return false;
+    }
+};
+
+// Fonction pour créer un post avec fichiers
+export const createFeedWithFiles = async (feedData: {
+    title?: string;
+    content: string;
+    visibility: string;
+    author_id: string;
+    institution_id: string;
+    files: Array<{
+        name: string;
+        type: string;
+        size: number;
+        url: string;
+        path: string;
+    }>;
+}): Promise<FeedPost | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('feeds')
+            .insert({
+                title: feedData.title,
+                content: feedData.content,
+                visibility: feedData.visibility,
+                author_id: feedData.author_id,
+                institution_id: feedData.institution_id,
+                files: feedData.files,
+                created_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Erreur lors de la création du feed avec fichiers:', error);
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la création du feed avec fichiers:', error);
+        return null;
+    }
+};
+
+// Fonctions pour les upvotes
+export const togglePostUpvote = async (postId: string, userId: string): Promise<{ upvoted: boolean; upvotes_count: number } | null> => {
+    try {
+        // Vérifier si l'utilisateur a déjà upvoté ce post
+        const { data: existingUpvote, error: checkError } = await supabase
+            .from('post_upvotes')
+            .select('id')
+            .eq('post_id', postId)
+            .eq('user_id', userId)
+            .single();
+
+        if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
+            console.error('Erreur lors de la vérification de l\'upvote:', checkError);
+            return null;
+        }
+
+        if (existingUpvote) {
+            // Supprimer l'upvote existant
+            const { error: deleteError } = await supabase
+                .from('post_upvotes')
+                .delete()
+                .eq('post_id', postId)
+                .eq('user_id', userId);
+
+            if (deleteError) {
+                console.error('Erreur lors de la suppression de l\'upvote:', deleteError);
+                return null;
+            }
+        } else {
+            // Ajouter un nouvel upvote
+            const { error: insertError } = await supabase
+                .from('post_upvotes')
+                .insert({
+                    post_id: postId,
+                    user_id: userId,
+                    created_at: new Date().toISOString()
+                });
+
+            if (insertError) {
+                console.error('Erreur lors de l\'ajout de l\'upvote:', insertError);
+                return null;
+            }
+        }
+
+        // Récupérer le nouveau nombre d'upvotes
+        const { count, error: countError } = await supabase
+            .from('post_upvotes')
+            .select('*', { count: 'exact', head: true })
+            .eq('post_id', postId);
+
+        if (countError) {
+            console.error('Erreur lors du comptage des upvotes:', countError);
+            return null;
+        }
+
+        return {
+            upvoted: !existingUpvote,
+            upvotes_count: count || 0
+        };
+    } catch (error) {
+        console.error('Erreur lors du toggle upvote:', error);
+        return null;
+    }
+};
+
+export const checkUserUpvote = async (postId: string, userId: string): Promise<boolean> => {
+    try {
+        const { data, error } = await supabase
+            .from('post_upvotes')
+            .select('id')
+            .eq('post_id', postId)
+            .eq('user_id', userId)
+            .single();
+
+        if (error && error.code !== 'PGRST116') {
+            console.error('Erreur lors de la vérification de l\'upvote:', error);
+            return false;
+        }
+
+        return !!data;
+    } catch (error) {
+        console.error('Erreur lors de la vérification de l\'upvote:', error);
+        return false;
+    }
+};
+
+export const getPostUpvotesCount = async (postId: string): Promise<number> => {
+    try {
+        const { count, error } = await supabase
+            .from('post_upvotes')
+            .select('*', { count: 'exact', head: true })
+            .eq('post_id', postId);
+
+        if (error) {
+            console.error('Erreur lors du comptage des upvotes:', error);
+            return 0;
+        }
+
+        return count || 0;
+    } catch (error) {
+        console.error('Erreur lors du comptage des upvotes:', error);
+        return 0;
+    }
+};
+
+// Fonctions pour les commentaires
+export const addPostComment = async (postId: string, userId: string, content: string): Promise<any | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('post_comments')
+            .insert({
+                post_id: postId,
+                user_id: userId,
+                content: content.trim()
+            })
+            .select(`
+                *,
+                users!inner (
+                    id,
+                    display_name,
+                    avatar_url,
+                    institution_id
+                )
+            `)
+            .single();
+
+        if (error) {
+            console.error('Erreur lors de l\'ajout du commentaire:', error);
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de l\'ajout du commentaire:', error);
+        return null;
+    }
+};
+
+export const getPostComments = async (postId: string, limit: number = 50, offset: number = 0): Promise<{ comments: any[]; total_count: number }> => {
+    try {
+        // Récupérer les commentaires avec les informations utilisateur
+        const { data, error } = await supabase
+            .from('post_comments')
+            .select(`
+                *,
+                users!inner (
+                    id,
+                    display_name,
+                    avatar_url,
+                    institution_id
+                )
+            `)
+            .eq('post_id', postId)
+            .order('created_at', { ascending: true })
+            .range(offset, offset + limit - 1);
+
+        if (error) {
+            console.error('Erreur lors de la récupération des commentaires:', error);
+            return { comments: [], total_count: 0 };
+        }
+
+        // Récupérer le nombre total de commentaires
+        const { count, error: countError } = await supabase
+            .from('post_comments')
+            .select('*', { count: 'exact', head: true })
+            .eq('post_id', postId);
+
+        if (countError) {
+            console.error('Erreur lors du comptage des commentaires:', countError);
+        }
+
+        return {
+            comments: data || [],
+            total_count: count || 0
+        };
+    } catch (error) {
+        console.error('Erreur lors de la récupération des commentaires:', error);
+        return { comments: [], total_count: 0 };
+    }
+};
+
+export const updatePostComment = async (commentId: string, userId: string, content: string): Promise<any | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('post_comments')
+            .update({
+                content: content.trim()
+            })
+            .eq('id', commentId)
+            .eq('user_id', userId) // S'assurer que seul l'auteur peut modifier
+            .select(`
+                *,
+                users!inner (
+                    id,
+                    display_name,
+                    avatar_url,
+                    institution_id
+                )
+            `)
+            .single();
+
+        if (error) {
+            console.error('Erreur lors de la modification du commentaire:', error);
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la modification du commentaire:', error);
+        return null;
+    }
+};
+
+export const deletePostComment = async (commentId: string, userId: string): Promise<boolean> => {
+    try {
+        const { error } = await supabase
+            .from('post_comments')
+            .delete()
+            .eq('id', commentId)
+            .eq('user_id', userId); // S'assurer que seul l'auteur peut supprimer
+
+        if (error) {
+            console.error('Erreur lors de la suppression du commentaire:', error);
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Erreur lors de la suppression du commentaire:', error);
+        return false;
+    }
+};
+
+// Exporter le client Supabase pour utilisation dans les contrôleurs
+export { supabase };

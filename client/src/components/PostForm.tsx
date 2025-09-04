@@ -66,13 +66,15 @@ const PostForm: React.FC<PostFormProps> = ({
                 <Skeleton height={42} width="100%" />
             ) : (
                 <Button
+                    variant="filled"
+                    color="academic"
                     onClick={handleSubmit}
                     disabled={!title.trim() || !content.trim()}
                     fullWidth
                     size="md"
                     style={{
                         borderTopLeftRadius: 0,
-                        borderTopRightRadius: 0,
+                        borderTopRightRadius: 0
                     }}
                 >
                     Publier le Post

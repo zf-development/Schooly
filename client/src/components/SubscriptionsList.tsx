@@ -71,7 +71,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             setLoading(true);
             setError(null);
 
-            console.log("🔍 Début du chargement des données...");
+
 
             // Charger les abonnements et les établissements en parallèle
             const [subscriptionsResponse, institutionsResponse] =
@@ -112,14 +112,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                     : [];
             }
 
-            console.log("✅ Abonnements chargés:", subscriptions);
-            console.log("📊 Détail des abonnements:", subscriptions);
-            console.log("🔍 Structure de la réponse:", subscriptionsResponse);
-            console.log(
-                "🔍 Clés de la réponse:",
-                Object.keys(subscriptionsResponse)
-            );
-            console.log("🔍 Contenu de subscriptions:", subscriptions);
+
             setSubscriptions(subscriptions);
 
             if (institutionsResponse.success && institutionsResponse.data) {
@@ -127,11 +120,11 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                 const institutions = Array.isArray(institutionsResponse.data)
                     ? institutionsResponse.data
                     : [];
-                console.log("✅ Établissements chargés:", institutions);
+
                 setAllInstitutions(institutions);
             } else {
                 // En cas d'échec, initialiser avec un tableau vide
-                console.log("❌ Échec chargement établissements");
+
                 setAllInstitutions([]);
             }
 
@@ -283,7 +276,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                             ))}
                         </Stack>
                     ) : !subscriptions || subscriptions.length === 0 ? (
-                        <Alert color="blue" title="Aucun abonnement">
+                        <Alert color="violet" title="Aucun abonnement">
                             Vous n'êtes abonné à aucun établissement pour le
                             moment.
                         </Alert>
@@ -310,7 +303,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                                 <Avatar
                                                     src={institution.logoUrl}
                                                     size="md"
-                                                    color="blue"
+                                                    color="violet"
                                                 >
                                                     <IconSchool size={16} />
                                                 </Avatar>
@@ -452,7 +445,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                                 <Avatar
                                                     src={institution.logoUrl}
                                                     size="md"
-                                                    color="blue"
+                                                    color="violet"
                                                 >
                                                     <IconSchool size={16} />
                                                 </Avatar>
@@ -486,7 +479,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                                 {following &&
                                                     !isOwnInstitution && (
                                                         <Badge
-                                                            color="blue"
+                                                            color="violet"
                                                             variant="light"
                                                         >
                                                             Déjà abonné
@@ -501,7 +494,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                                     color={
                                                         following
                                                             ? "gray"
-                                                            : "blue"
+                                                            : "violet"
                                                     }
                                                     size="sm"
                                                     disabled={

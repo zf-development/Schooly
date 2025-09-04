@@ -70,7 +70,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
                         <Box className={styles.loadingIcon}>
                             <IconLoader
                                 size={getIconSize()}
-                                color="var(--mantine-color-blue-6)"
+                                color="var(--mantine-color-violet-6)"
                                 className={styles.spinningIcon}
                             />
                         </Box>
@@ -92,7 +92,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
                         align="center"
                         className={styles.loaderContainer}
                     >
-                        <Loader size="md" color="blue" />
+                        <Loader size="md" color="violet" />
                         <Text size="sm" c="dimmed" fw={500}>
                             Chargement...
                         </Text>

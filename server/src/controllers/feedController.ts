@@ -5,7 +5,7 @@
 // - DELETE /api/feed/:id - Supprimer un post
 
 import { Request, Response } from 'express';
-import { getPosts as getSupabasePosts, createPost as createSupabasePost, updatePost as updateSupabasePost, deletePost as deleteSupabasePost, canUserModifyPost, getUserById, getUserSubscriptions, getInstitutionDetails } from '../services/supabaseService';
+import { getPosts as getSupabasePosts, createPost as createSupabasePost, updatePost as updateSupabasePost, deletePost as deleteSupabasePost, canUserModifyPost, getUserById, getUserSubscriptions, getInstitutionDetails, supabase, uploadFileToStorage, createFeedWithFiles, togglePostUpvote, checkUserUpvote, getPostUpvotesCount, getPostsWithDetails, addPostComment, getPostComments, updatePostComment, deletePostComment } from '../services/supabaseService';
 import { AuditService, extractRequestContext } from '../services/auditService';
 
 // Interface étendue pour inclure l'utilisateur authentifié
@@ -31,8 +31,8 @@ export const getPosts = async (req: AuthenticatedRequest, res: Response) => {
             });
         }
 
-        // Récupérer les posts de l'institution de l'utilisateur
-        const userInstitutionPosts = await getSupabasePosts(user.institution_id);
+        // Récupérer les posts de l'institution de l'utilisateur avec les upvotes
+        const userInstitutionPosts = await getPostsWithDetails(user.institution_id, user.id);
 
         if (!userInstitutionPosts) {
             return res.status(500).json({
@@ -49,10 +49,10 @@ export const getPosts = async (req: AuthenticatedRequest, res: Response) => {
         if (userSubscriptions && userSubscriptions.length > 0) {
             const followedInstitutionIds = userSubscriptions.map(sub => sub.institution_id);
 
-            // Récupérer les posts publics de chaque établissement suivi
+            // Récupérer les posts publics de chaque établissement suivi avec les upvotes
             for (const institutionId of followedInstitutionIds) {
                 try {
-                    const publicPosts = await getSupabasePosts(institutionId, 'public');
+                    const publicPosts = await getPostsWithDetails(institutionId, user.id, 'public');
                     if (publicPosts) {
                         followedInstitutionPosts.push(...publicPosts);
                     }
@@ -67,12 +67,12 @@ export const getPosts = async (req: AuthenticatedRequest, res: Response) => {
         const postsMap = new Map();
 
         // Ajouter d'abord les posts de l'institution de l'utilisateur
-        userInstitutionPosts.forEach(post => {
+        userInstitutionPosts.forEach((post: any) => {
             postsMap.set(post.id, post);
         });
 
         // Ajouter les posts des établissements suivis (ils remplaceront les doublons)
-        followedInstitutionPosts.forEach(post => {
+        followedInstitutionPosts.forEach((post: any) => {
             postsMap.set(post.id, post);
         });
 
@@ -453,5 +453,473 @@ export const deletePost = async (req: AuthenticatedRequest, res: Response) => {
     } catch (error) {
         // TODO: Gérer les erreurs
         res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
+
+// Créer un nouveau post avec upload de fichiers
+export const createFeedWithFilesController = async (req: Request, res: Response) => {
+    try {
+        const { title, content, visibility } = req.body;
+        const files = (req as any).files as Array<{
+            originalname: string;
+            mimetype: string;
+            size: number;
+            buffer: Buffer;
+        }>;
+        const userId = (req as any).user?.id;
+
+        if (!userId) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        if (!content) {
+            return res.status(400).json({
+                error: 'Le contenu est requis',
+                code: 'MISSING_CONTENT'
+            });
+        }
+
+        // Upload des fichiers vers Supabase Storage
+        const uploadedFiles = [];
+        
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const uploadResult = await uploadFileToStorage(
+                    file.buffer,
+                    file.originalname,
+                    file.mimetype,
+                    userId
+                );
+
+                if (uploadResult) {
+                    uploadedFiles.push({
+                        name: file.originalname,
+                        type: file.mimetype,
+                        size: file.size,
+                        url: uploadResult.url,
+                        path: uploadResult.path
+                    });
+                }
+            }
+        }
+
+
+
+        // Récupérer l'institution_id de l'utilisateur
+        const userDetails = await getUserById(userId);
+        const institution_id = userDetails?.institution_id;
+
+        if (!institution_id) {
+            return res.status(400).json({
+                error: 'Institution non trouvée pour l\'utilisateur',
+                code: 'MISSING_INSTITUTION'
+            });
+        }
+
+        // Créer le post avec les fichiers
+        const feed = await createFeedWithFiles({
+            title,
+            content,
+            visibility: visibility || 'public',
+            author_id: userId,
+            institution_id: institution_id,
+            files: uploadedFiles
+        });
+
+
+
+        if (!feed) {
+            await AuditService.logError(
+                'feeds',
+                'Erreur lors de la création du post avec fichiers',
+                userId,
+                (req as any).user?.email,
+                (req as any).user?.institution_id,
+                extractRequestContext(req),
+                'création de post avec fichiers'
+            );
+            return res.status(500).json({
+                error: 'Erreur lors de la création du post avec fichiers',
+                code: 'DATABASE_ERROR'
+            });
+        }
+
+        if (feed) {
+            await AuditService.logCreate(
+                'feeds',
+                feed.id,
+                feed,
+                userId,
+                (req as any).user?.email,
+                (req as any).user?.institution_id,
+                extractRequestContext(req),
+                `Post créé avec fichiers: "${title}"`
+            );
+        }
+
+        res.status(201).json({
+            message: 'Post créé avec succès avec fichiers',
+            post: feed
+        });
+    } catch (error) {
+        console.error('Erreur lors de la création du post avec fichiers:', error);
+        await AuditService.logError(
+            'feeds',
+            'Erreur lors de la création du post avec fichiers',
+            (req as any).user?.id,
+            (req as any).user?.email,
+            (req as any).user?.institution_id,
+            extractRequestContext(req),
+            'création de post avec fichiers'
+        );
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
+};
+
+// Télécharger un fichier
+export const downloadFileController = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        const { filePath } = req.params;
+        
+        if (!filePath) {
+            return res.status(400).json({
+                error: 'Chemin du fichier requis',
+                code: 'MISSING_FILE_PATH'
+            });
+        }
+
+
+
+        // Vérifier d'abord si le bucket existe
+        const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+        
+        if (bucketsError) {
+            console.error("Erreur lors de la récupération des buckets:", bucketsError);
+            return res.status(500).json({
+                error: 'Erreur de configuration du stockage',
+                code: 'STORAGE_CONFIG_ERROR'
+            });
+        }
+
+        // Vérifier si le bucket post-files existe
+        const postFilesBucket = buckets?.find(b => b.name === 'post-files');
+        if (!postFilesBucket) {
+            console.error("Bucket 'post-files' non trouvé");
+            return res.status(404).json({
+                error: 'Bucket de stockage non trouvé',
+                code: 'STORAGE_BUCKET_NOT_FOUND'
+            });
+        }
+
+
+
+        // Lister les fichiers dans le bucket pour debug
+        const { data: files, error: listError } = await supabase.storage
+            .from('post-files')
+            .list();
+        
+        if (listError) {
+            console.error("Erreur lors de la liste des fichiers:", listError);
+        }
+
+        const { data, error } = await supabase.storage
+            .from('post-files')
+            .download(filePath);
+
+        if (error) {
+            console.error("Erreur lors du téléchargement:", error);
+            return res.status(404).json({
+                error: 'Fichier non trouvé',
+                code: 'FILE_NOT_FOUND'
+            });
+        }
+
+        // Déterminer le type MIME basé sur l'extension
+        const fileExtension = filePath.split('.').pop()?.toLowerCase();
+        let contentType = 'application/octet-stream';
+        
+        if (fileExtension === 'pdf') contentType = 'application/pdf';
+        else if (fileExtension === 'png') contentType = 'image/png';
+        else if (fileExtension === 'jpg' || fileExtension === 'jpeg') contentType = 'image/jpeg';
+        else if (fileExtension === 'gif') contentType = 'image/gif';
+        else if (fileExtension === 'txt') contentType = 'text/plain';
+        else if (fileExtension === 'doc') contentType = 'application/msword';
+        else if (fileExtension === 'docx') contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Content-Disposition', `attachment; filename="${filePath.split('/').pop()}"`);
+        res.send(data);
+
+    } catch (error) {
+        console.error("Erreur dans downloadFileController:", error);
+        return res.status(500).json({
+            error: 'Erreur interne du serveur',
+            code: 'SERVER_ERROR'
+        });
+    }
+};
+
+// Contrôleur pour toggle upvote
+export const toggleUpvoteController = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        const { postId } = req.params;
+        if (!postId) {
+            return res.status(400).json({
+                error: 'ID du post requis',
+                code: 'MISSING_POST_ID'
+            });
+        }
+
+        const result = await togglePostUpvote(postId, user.id);
+        if (!result) {
+            return res.status(500).json({
+                error: 'Erreur lors du toggle upvote',
+                code: 'UPVOTE_ERROR'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: 'Upvote mis à jour avec succès'
+        });
+
+    } catch (error) {
+        console.error("Erreur dans toggleUpvoteController:", error);
+        return res.status(500).json({
+            error: 'Erreur interne du serveur',
+            code: 'SERVER_ERROR'
+        });
+    }
+};
+
+// Contrôleur pour vérifier si l'utilisateur a upvoté
+export const checkUpvoteController = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        const { postId } = req.params;
+        if (!postId) {
+            return res.status(400).json({
+                error: 'ID du post requis',
+                code: 'MISSING_POST_ID'
+            });
+        }
+
+        const hasUpvoted = await checkUserUpvote(postId, user.id);
+        const upvotesCount = await getPostUpvotesCount(postId);
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                hasUpvoted,
+                upvotesCount
+            }
+        });
+
+    } catch (error) {
+        console.error("Erreur dans checkUpvoteController:", error);
+        return res.status(500).json({
+            error: 'Erreur interne du serveur',
+            code: 'SERVER_ERROR'
+        });
+    }
+};
+
+// Contrôleurs pour les commentaires
+
+// Ajouter un commentaire
+export const addCommentController = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        const { postId } = req.params;
+        const { content } = req.body;
+
+        if (!postId || !content || !content.trim()) {
+            return res.status(400).json({
+                error: 'ID du post et contenu du commentaire requis',
+                code: 'MISSING_DATA'
+            });
+        }
+
+        const result = await addPostComment(postId, user.id, content);
+        if (!result) {
+            return res.status(500).json({
+                error: 'Erreur lors de l\'ajout du commentaire',
+                code: 'COMMENT_ERROR'
+            });
+        }
+
+        return res.status(201).json({
+            success: true,
+            data: result,
+            message: 'Commentaire ajouté avec succès'
+        });
+
+    } catch (error) {
+        console.error("Erreur dans addCommentController:", error);
+        return res.status(500).json({
+            error: 'Erreur interne du serveur',
+            code: 'SERVER_ERROR'
+        });
+    }
+};
+
+// Récupérer les commentaires d'un post
+export const getCommentsController = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        const { postId } = req.params;
+        const { limit = 50, offset = 0 } = req.query;
+
+        if (!postId) {
+            return res.status(400).json({
+                error: 'ID du post requis',
+                code: 'MISSING_POST_ID'
+            });
+        }
+
+        const result = await getPostComments(
+            postId, 
+            parseInt(limit as string), 
+            parseInt(offset as string)
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: result
+        });
+
+    } catch (error) {
+        console.error("Erreur dans getCommentsController:", error);
+        return res.status(500).json({
+            error: 'Erreur interne du serveur',
+            code: 'SERVER_ERROR'
+        });
+    }
+};
+
+// Modifier un commentaire
+export const updateCommentController = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        const { commentId } = req.params;
+        const { content } = req.body;
+
+        if (!commentId || !content || !content.trim()) {
+            return res.status(400).json({
+                error: 'ID du commentaire et contenu requis',
+                code: 'MISSING_DATA'
+            });
+        }
+
+        const result = await updatePostComment(commentId, user.id, content);
+        if (!result) {
+            return res.status(500).json({
+                error: 'Erreur lors de la modification du commentaire',
+                code: 'COMMENT_ERROR'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: 'Commentaire modifié avec succès'
+        });
+
+    } catch (error) {
+        console.error("Erreur dans updateCommentController:", error);
+        return res.status(500).json({
+            error: 'Erreur interne du serveur',
+            code: 'SERVER_ERROR'
+        });
+    }
+};
+
+// Supprimer un commentaire
+export const deleteCommentController = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        const { commentId } = req.params;
+
+        if (!commentId) {
+            return res.status(400).json({
+                error: 'ID du commentaire requis',
+                code: 'MISSING_COMMENT_ID'
+            });
+        }
+
+        const success = await deletePostComment(commentId, user.id);
+        if (!success) {
+            return res.status(500).json({
+                error: 'Erreur lors de la suppression du commentaire',
+                code: 'COMMENT_ERROR'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Commentaire supprimé avec succès'
+        });
+
+    } catch (error) {
+        console.error("Erreur dans deleteCommentController:", error);
+        return res.status(500).json({
+            error: 'Erreur interne du serveur',
+            code: 'SERVER_ERROR'
+        });
     }
 };

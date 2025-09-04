@@ -3,58 +3,118 @@
     cursor: pointer;
     border: 1px solid var(--mantine-color-gray-3);
     background: var(--mantine-color-white);
+    position: relative;
+    overflow: hidden;
 }
 
 .postCard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: var(--mantine-color-blue-3);
+    /* transform: translateY(-4px); */
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    border-color: var(--mantine-color-violet-4);
 }
 
 .postCard:active {
-    transform: translateY(0);
+    /* transform: translateY(-2px); */
     transition: all 0.1s ease;
 }
 
 /* Animation pour l'avatar */
 .avatar {
     transition: all 0.3s ease;
-    border: 2px solid var(--mantine-color-gray-2);
+    border: 3px solid var(--mantine-color-gray-2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .postCard:hover .avatar {
-    border-color: var(--mantine-color-blue-4);
-    transform: scale(1.05);
+    border-color: var(--mantine-color-violet-4);
+    transform: scale(1.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Animation pour le bouton de signalement */
-.reportButton {
-    transition: all 0.2s ease;
-    opacity: 0.7;
+/* Styles pour le titre du post */
+.postTitle {
+    line-height: 1.3;
+    margin-bottom: 8px;
+    background: linear-gradient(
+        135deg,
+        var(--mantine-color-dark-8),
+        var(--mantine-color-dark-6)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-.postCard:hover .reportButton {
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-.reportButton:hover {
-    background-color: var(--mantine-color-red-1) !important;
-    color: var(--mantine-color-red-7) !important;
+/* Styles pour le contenu du post */
+.postContent {
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--mantine-color-dark-7);
 }
 
 /* Animation pour le badge de visibilité */
 .visibilityBadge {
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .postCard:hover .visibilityBadge {
-    transform: scale(1.05);
+    /* transform: scale(1.05); */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Styles pour le menu */
+.menuButton {
+    transition: all 0.2s ease;
+    opacity: 0.6;
+    border-radius: 50%;
+}
+
+.postCard:hover .menuButton {
+    opacity: 1;
+    transform: scale(1.1);
+    background-color: var(--mantine-color-gray-1);
+}
+
+.menuButton:hover {
+    background-color: var(--mantine-color-gray-2) !important;
+    transform: scale(1.15);
+}
+
+/* Styles pour les boutons d'action */
+.actionButton {
+    transition: all 0.2s ease;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.actionButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation spéciale pour le bouton upvote */
+.actionButton[data-color="violet"] {
+    background: linear-gradient(
+        135deg,
+        var(--mantine-color-violet-0),
+        var(--mantine-color-violet-1)
+    );
+}
+
+.actionButton[data-color="violet"]:hover {
+    background: linear-gradient(
+        135deg,
+        var(--mantine-color-violet-1),
+        var(--mantine-color-violet-2)
+    );
+    transform: translateY(-2px) scale(1.05);
 }
 
 /* Effet de focus pour l'accessibilité */
 .postCard:focus-within {
-    outline: 2px solid var(--mantine-color-blue-5);
+    outline: 2px solid var(--mantine-color-violet-5);
     outline-offset: 2px;
 }
 
@@ -62,27 +122,83 @@
 @keyframes slideInFromTop {
     from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translateY(-30px) scale(0.95);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
     }
 }
 
 .newPost {
-    animation: slideInFromTop 0.4s ease-out;
+    animation: slideInFromTop 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animation pour les likes */
+.likeAnimation {
+    animation: pulse 0.3s ease-in-out;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
     .postCard {
-        padding: var(--mantine-spacing-md);
+        padding: var(--mantine-spacing-lg);
     }
 
     .postCard:hover {
-        transform: none;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        /* transform: translateY(-2px); */
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .postTitle {
+        font-size: var(--mantine-font-size-lg);
+    }
+
+    .postContent {
+        font-size: var(--mantine-font-size-sm);
+    }
+
+    .actionButton {
+        padding: 6px 12px;
+        font-size: var(--mantine-font-size-xs);
+    }
+}
+
+/* Mode sombre */
+@media (prefers-color-scheme: dark) {
+    .postCard {
+        background: var(--mantine-color-dark-7);
+        border-color: var(--mantine-color-dark-4);
+    }
+
+    .postCard:hover {
+        border-color: var(--mantine-color-violet-4);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .postTitle {
+        background: linear-gradient(
+            135deg,
+            var(--mantine-color-gray-2),
+            var(--mantine-color-gray-4)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .postContent {
+        color: var(--mantine-color-gray-3);
     }
 }

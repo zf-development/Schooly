@@ -172,7 +172,7 @@ const PostFormAreaEditor = forwardRef<PostFormAreaEditorRef, PostFormAreaEditorP
                     <Tooltip label="Ajouter des fichiers" position="top">
                         <ActionIcon
                             variant="subtle"
-                            color="blue"
+                            color="violet"
                             size="md"
                             onClick={triggerFileUpload}
                             className={classes.actionButton}

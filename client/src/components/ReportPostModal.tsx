@@ -17,15 +17,21 @@ import { IconFlag, IconAlertCircle } from "@tabler/icons-react";
 interface ReportPostModalProps {
     opened: boolean;
     onClose: () => void;
-    postId: string;
+    postId?: string;
+    commentId?: string;
     postTitle?: string;
+    commentContent?: string;
+    type: 'post' | 'comment';
 }
 
 const ReportPostModal: React.FC<ReportPostModalProps> = ({
     opened,
     onClose,
     postId,
+    commentId,
     postTitle,
+    commentContent,
+    type,
 }) => {
     const [reason, setReason] = useState<string>("");
     const [details, setDetails] = useState<string>("");
@@ -46,19 +52,33 @@ const ReportPostModal: React.FC<ReportPostModalProps> = ({
 
         setLoading(true);
 
-        // Simuler l'envoi du signalement (placeholder)
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        try {
+            // Simuler l'envoi du signalement (placeholder)
+            // TODO: Implémenter l'API de signalement
+            console.log('Signalement:', {
+                type,
+                postId,
+                commentId,
+                reason,
+                details
+            });
+            
+            await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        setSuccess(true);
-        setLoading(false);
+            setSuccess(true);
+        } catch (error) {
+            console.error('Erreur lors du signalement:', error);
+        } finally {
+            setLoading(false);
 
-        // Fermer le modal après 2 secondes
-        setTimeout(() => {
-            onClose();
-            setSuccess(false);
-            setReason("");
-            setDetails("");
-        }, 2000);
+            // Fermer le modal après 2 secondes
+            setTimeout(() => {
+                onClose();
+                setSuccess(false);
+                setReason("");
+                setDetails("");
+            }, 2000);
+        }
     };
 
     const handleClose = () => {
@@ -74,20 +94,31 @@ const ReportPostModal: React.FC<ReportPostModalProps> = ({
         <Modal
             opened={opened}
             onClose={handleClose}
-            title="Signaler un post"
+            title={type === 'post' ? "Signaler un post" : "Signaler un commentaire"}
             size="md"
             closeOnClickOutside={!loading}
             closeOnEscape={!loading}
         >
             <Stack gap="lg">
-                {postTitle && (
+                {type === 'post' && postTitle && (
                     <Alert
                         icon={<IconAlertCircle size={16} />}
                         title="Post concerné"
-                        color="blue"
+                        color="violet"
                         variant="light"
                     >
                         <Text size="sm">{postTitle}</Text>
+                    </Alert>
+                )}
+                
+                {type === 'comment' && commentContent && (
+                    <Alert
+                        icon={<IconAlertCircle size={16} />}
+                        title="Commentaire concerné"
+                        color="violet"
+                        variant="light"
+                    >
+                        <Text size="sm">{commentContent}</Text>
                     </Alert>
                 )}
 

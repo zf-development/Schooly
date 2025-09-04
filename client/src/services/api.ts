@@ -123,25 +123,51 @@ class ApiService {
 
     // Posts
     async getPosts(): Promise<ApiResponse<any[]>> {
-        return this.request('/feed');
+        return this.request('/feed/feeds');
     }
 
     async createPost(postData: { title: string; content: string; visibility: 'public' | 'private' }): Promise<ApiResponse<any>> {
-        return this.request('/feed', {
+        return this.request('/feed/feeds', {
             method: 'POST',
             body: JSON.stringify(postData),
         });
     }
 
+    async createPostWithFiles(formData: FormData): Promise<ApiResponse<any>> {
+        try {
+            const token = this.getAuthToken();
+            const response = await fetch(`${API_BASE_URL}/feed/feeds/with-files`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: formData, // Pas de Content-Type pour FormData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || errorData.message || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            return { success: true, data };
+        } catch (error) {
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Erreur inconnue',
+            };
+        }
+    }
+
     async updatePost(postId: string, postData: { content: string; visibility: 'public' | 'private' }): Promise<ApiResponse<any>> {
-        return this.request(`/feed/${postId}`, {
+        return this.request(`/feed/feeds/${postId}`, {
             method: 'PUT',
             body: JSON.stringify(postData),
         });
     }
 
     async deletePost(postId: string): Promise<ApiResponse<any>> {
-        return this.request(`/feed/${postId}`, {
+        return this.request(`/feed/feeds/${postId}`, {
             method: 'DELETE',
         });
     }
@@ -194,6 +220,42 @@ class ApiService {
     // Institutions
     async getInstitutions(): Promise<ApiResponse<any[]>> {
         return this.request('/institutions');
+    }
+
+    // Upvotes
+    async toggleUpvote(postId: string): Promise<ApiResponse<{ upvoted: boolean; upvotes_count: number }>> {
+        return this.request(`/feed/feeds/${postId}/upvote`, {
+            method: 'POST',
+        });
+    }
+
+    async checkUpvote(postId: string): Promise<ApiResponse<{ hasUpvoted: boolean; upvotesCount: number }>> {
+        return this.request(`/feed/feeds/${postId}/upvote`);
+    }
+
+    // Commentaires
+    async addComment(postId: string, content: string): Promise<ApiResponse<any>> {
+        return this.request(`/feed/feeds/${postId}/comments`, {
+            method: 'POST',
+            body: JSON.stringify({ content }),
+        });
+    }
+
+    async getComments(postId: string, limit: number = 50, offset: number = 0): Promise<ApiResponse<{ comments: any[]; total_count: number }>> {
+        return this.request(`/feed/feeds/${postId}/comments?limit=${limit}&offset=${offset}`);
+    }
+
+    async updateComment(commentId: string, content: string): Promise<ApiResponse<any>> {
+        return this.request(`/feed/comments/${commentId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ content }),
+        });
+    }
+
+    async deleteComment(commentId: string): Promise<ApiResponse<any>> {
+        return this.request(`/feed/comments/${commentId}`, {
+            method: 'DELETE',
+        });
     }
 }
 

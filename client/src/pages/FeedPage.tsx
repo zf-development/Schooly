@@ -6,7 +6,7 @@ import PostForm from "../components/PostForm";
 import FeedList from "../components/FeedList";
 import ReportPostModal from "../components/ReportPostModal";
 import type { Post, AuthButtonProps } from "../types";
-import apiService from "../services/api";
+import { feedService } from "../services/feedService";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 
@@ -34,14 +34,25 @@ const FeedPage: React.FC = () => {
         setError(null);
 
         try {
-            const response = await apiService.getPosts();
+            const response = await feedService.getPosts();
+            if (response && response.posts !== undefined) {
+                const postsArray = response.posts;
 
-            if (response.success && response.data) {
-                const postsData = response.data as any;
-                const postsArray = postsData.posts || [];
+                const transformedPosts: Post[] = postsArray.map((post: any) => {
+                    const transformedFiles = (() => {
+                        if (!post.files) return [];
+                        if (typeof post.files === "string") {
+                            try {
+                                return JSON.parse(post.files);
+                            } catch (e) {
+                                console.error("Erreur parsing fichiers:", e);
+                                return [];
+                            }
+                        }
+                        return post.files;
+                    })();
 
-                const transformedPosts: Post[] = postsArray.map(
-                    (post: any) => ({
+                    return {
                         id: post.id,
                         title: post.title,
                         author: {
@@ -60,14 +71,16 @@ const FeedPage: React.FC = () => {
                         content: post.content,
                         visibility: post.visibility,
                         createdAt: new Date(post.created_at),
-                    })
-                );
+                        files: transformedFiles,
+                        upvotes: post.upvotes_count || 0,
+                        comments: post.comments_count || 0,
+                        hasUpvoted: post.hasUpvoted || false,
+                    };
+                });
 
                 setPosts(transformedPosts);
             } else {
-                setError(
-                    response.error || "Erreur lors du chargement des posts"
-                );
+                setError("Erreur lors du chargement des posts");
             }
         } catch (err) {
             setError("Erreur de connexion au serveur");
@@ -79,39 +92,51 @@ const FeedPage: React.FC = () => {
     const handleCreatePost = async (
         title: string,
         content: string,
-        visibility: "public" | "private"
+        visibility: "public" | "private",
+        files: File[] = []
     ) => {
         setLoading(true);
         setError(null);
         setSuccess(false);
 
         try {
-            const response = await apiService.createPost({
-                title,
-                content,
-                visibility,
-            });
+            let response;
+            if (files.length > 0) {
+                response = await feedService.createPostWithFiles(
+                    {
+                        title,
+                        content,
+                        visibility,
+                    },
+                    files
+                );
+            } else {
+                response = await feedService.createPost({
+                    title,
+                    content,
+                    visibility,
+                });
+            }
 
-            if (response.success && response.data) {
+            if (response) {
                 setSuccess(true);
                 // Transformer le nouveau post
                 const newPost: Post = {
-                    id: response.data.id,
-                    title: response.data.title,
+                    id: response.id,
+                    title: response.title,
                     author: {
-                        id: response.data.author_id,
-                        name: response.data.author?.name || "Vous",
-                        display_name:
-                            response.data.author?.display_name || "Vous",
+                        id: response.author_id,
+                        name: response.author?.name || "Vous",
+                        display_name: response.author?.display_name || "Vous",
                         avatar_url:
-                            response.data.author?.avatar_url ||
-                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${response.data.author_id}`,
-                        institution:
-                            response.data.institution?.name || "MGR Parent",
+                            response.author?.avatar_url ||
+                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${response.author_id}`,
+                        institution: "MGR Parent", // Pour l'instant, utiliser une valeur par défaut
                     },
-                    content: response.data.content,
-                    visibility: response.data.visibility,
-                    createdAt: new Date(response.data.created_at),
+                    content: response.content,
+                    visibility: response.visibility,
+                    createdAt: new Date(response.created_at),
+                    files: response.files || [],
                 };
 
                 // Ajouter le nouveau post au début de la liste
@@ -120,9 +145,7 @@ const FeedPage: React.FC = () => {
                 // Recharger les posts pour avoir les données complètes
                 await loadPosts();
             } else {
-                setError(
-                    response.error || "Erreur lors de la création du post"
-                );
+                setError("Erreur lors de la création du post");
             }
         } catch (err) {
             setError("Erreur de connexion au serveur");

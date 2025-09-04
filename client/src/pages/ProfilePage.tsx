@@ -396,7 +396,7 @@ const ProfilePage: React.FC = () => {
                             </Title>
                             <Button
                                 variant={editMode ? "filled" : "outline"}
-                                color={editMode ? "blue" : "gray"}
+                                color={editMode ? "violet" : "gray"}
                                 leftSection={<IconEdit size={16} />}
                                 onClick={() => setEditMode(!editMode)}
                             >
@@ -417,7 +417,7 @@ const ProfilePage: React.FC = () => {
                                         <Tooltip label="Changer l'avatar">
                                             <ActionIcon
                                                 variant="filled"
-                                                color="blue"
+                                                color="violet"
                                                 size="lg"
                                                 radius="xl"
                                                 pos="absolute"
@@ -447,7 +447,7 @@ const ProfilePage: React.FC = () => {
                                                 <Text
                                                     component="span"
                                                     fw={500}
-                                                    c="blue"
+                                                    c="violet"
                                                 >
                                                     {profile?.inscription_date
                                                         ? formatInscriptionDate(
@@ -457,7 +457,7 @@ const ProfilePage: React.FC = () => {
                                                 </Text>
                                             </Text>
                                         </Group>
-                                        <Badge variant="light" color="blue">
+                                        <Badge variant="light" color="violet">
                                             <Group gap="xs" align="center">
                                                 <IconHash size={12} />
                                                 {profile?.file_number || "0001"}
@@ -562,7 +562,7 @@ const ProfilePage: React.FC = () => {
                                                 <Badge
                                                     size="lg"
                                                     variant="light"
-                                                    color="blue"
+                                                    color="violet"
                                                 >
                                                     {userStats?.posts_count ||
                                                         profile?.posts_count ||
@@ -626,7 +626,7 @@ const ProfilePage: React.FC = () => {
                                                                 userStats.progress_to_next_level *
                                                                 100
                                                             }
-                                                            color="blue"
+                                                            color="violet"
                                                             size="sm"
                                                             radius="xl"
                                                         />
@@ -800,7 +800,7 @@ const ProfilePage: React.FC = () => {
                             <Alert
                                 icon={<IconAlertCircle size={16} />}
                                 title="Fonctionnalité à venir"
-                                color="blue"
+                                                                                    color="violet"
                                 variant="light"
                             >
                                 Cette section affichera bientôt vos posts les
@@ -871,7 +871,7 @@ const ProfilePage: React.FC = () => {
                             <Grid.Col span={{ base: 12, md: 6 }}>
                                 <Card p="md" withBorder>
                                     <Group gap="xs" mb="md">
-                                        <IconChartBar size={20} color="blue" />
+                                        <IconChartBar size={20} color="violet" />
                                         <Text fw={600}>Progression</Text>
                                     </Group>
                                     <Stack gap="lg">
@@ -888,7 +888,7 @@ const ProfilePage: React.FC = () => {
                                                         <Badge
                                                             size="lg"
                                                             variant="light"
-                                                            color="blue"
+                                                            color="violet"
                                                         >
                                                             {userStats.level}
                                                         </Badge>
@@ -896,7 +896,7 @@ const ProfilePage: React.FC = () => {
                                                     <Progress
                                                         value={100}
                                                         size="md"
-                                                        color="blue"
+                                                        color="violet"
                                                         radius="xl"
                                                     />
                                                 </Stack>
@@ -979,7 +979,7 @@ const ProfilePage: React.FC = () => {
                         <Group justify="center" gap="md">
                             <Button
                                 variant="filled"
-                                color="blue"
+                                                                                    color="violet"
                                 size="lg"
                                 onClick={handleSave}
                                 loading={saving}
@@ -1028,7 +1028,7 @@ const ProfilePage: React.FC = () => {
                         >
                             Annuler
                         </Button>
-                        <Button color="blue">Appliquer</Button>
+                        <Button color="violet">Appliquer</Button>
                     </Group>
                 </Stack>
             </Modal>

@@ -29,7 +29,7 @@ const AuthVerificationScreen: React.FC<AuthVerificationScreenProps> = ({
                         {isProtected ? (
                             <IconShieldCheck
                                 size={80}
-                                color="var(--mantine-color-blue-6)"
+                                color="var(--mantine-color-violet-6)"
                             />
                         ) : (
                             <IconUserCheck
@@ -59,7 +59,7 @@ const AuthVerificationScreen: React.FC<AuthVerificationScreenProps> = ({
                         align="center"
                         className={styles.loaderContainer}
                     >
-                        <Loader size="lg" color="blue" />
+                        <Loader size="lg" color="violet" />
                         <Text size="sm" c="dimmed" fw={500}>
                             Veuillez patienter...
                         </Text>

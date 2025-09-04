@@ -25,7 +25,14 @@ interface FeedListProps {
 
 // Composant Skeleton pour un post qui représente fidèlement PostCard
 const PostSkeleton: React.FC = () => (
-    <Card withBorder padding="lg" radius="md" shadow="xs">
+    <Card
+        withBorder
+        padding="lg"
+        radius="md"
+        shadow="xs"
+        w="36.5vw"
+        className={styles.postCard}
+    >
         {/* Header avec avatar et informations de l'auteur */}
         <Group justify="space-between" align="flex-start" mb="md">
             <Group gap="md" align="flex-start">
@@ -107,10 +114,17 @@ const FeedList: React.FC<FeedListProps> = ({ posts, loading, onReport }) => {
                     <PostCard
                         id={post.id}
                         title={post.title}
-                        author={post.author}
+                        author={{
+                            ...post.author,
+                            institution_id: post.author.institution,
+                        }}
                         content={post.content}
                         visibility={post.visibility}
                         createdAt={post.createdAt}
+                        files={post.files}
+                        upvotes={post.upvotes}
+                        comments={post.comments}
+                        hasUpvoted={post.hasUpvoted}
                         onReport={onReport}
                     />
                 </div>

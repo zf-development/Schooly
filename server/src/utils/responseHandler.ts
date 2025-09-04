@@ -5,62 +5,54 @@
 
 import { Response } from 'express';
 
-// TODO: Interface pour les réponses de succès
-interface SuccessResponse {
-    success: true;
-    data: any;
-    message?: string;
-}
-
-// TODO: Interface pour les réponses d'erreur
-interface ErrorResponse {
-    success: false;
-    error: string;
-    details?: any;
-}
-
-// TODO: Fonction pour envoyer une réponse de succès
-export const sendSuccess = (
+/**
+ * Fonction utilitaire pour gérer les réponses HTTP de manière cohérente
+ * @param res - Objet Response d'Express
+ * @param statusCode - Code de statut HTTP
+ * @param message - Message de réponse
+ * @param data - Données optionnelles à inclure dans la réponse
+ */
+export const handleResponse = (
     res: Response,
-    data: any,
-    message?: string,
-    statusCode: number = 200
-) => {
-    const response: SuccessResponse = {
-        success: true,
-        data,
-        message
+    statusCode: number,
+    message: string,
+    data?: any
+): void => {
+    const response: any = {
+        success: statusCode >= 200 && statusCode < 300,
+        message,
+        timestamp: new Date().toISOString()
     };
+
+    if (data !== undefined) {
+        response.data = data;
+    }
+
     res.status(statusCode).json(response);
 };
 
-// TODO: Fonction pour envoyer une réponse d'erreur
-export const sendError = (
+/**
+ * Fonction utilitaire pour gérer les erreurs de manière cohérente
+ * @param res - Objet Response d'Express
+ * @param statusCode - Code de statut HTTP d'erreur
+ * @param message - Message d'erreur
+ * @param error - Erreur optionnelle à inclure dans la réponse
+ */
+export const handleError = (
     res: Response,
-    error: string,
-    details?: any,
-    statusCode: number = 500
-) => {
-    const response: ErrorResponse = {
+    statusCode: number,
+    message: string,
+    error?: any
+): void => {
+    const response: any = {
         success: false,
-        error,
-        details
+        message,
+        timestamp: new Date().toISOString()
     };
+
+    if (error && process.env.NODE_ENV === 'development') {
+        response.error = error;
+    }
+
     res.status(statusCode).json(response);
-};
-
-// TODO: Fonction pour envoyer une réponse de validation d'erreur
-export const sendValidationError = (
-    res: Response,
-    errors: any
-) => {
-    sendError(res, 'Données de validation invalides', errors, 400);
-};
-
-// TODO: Fonction pour envoyer une réponse d'authentification échouée
-export const sendAuthError = (
-    res: Response,
-    message: string = 'Authentification requise'
-) => {
-    sendError(res, message, null, 401);
 };

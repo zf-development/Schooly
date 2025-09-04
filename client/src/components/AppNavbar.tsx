@@ -163,15 +163,15 @@ const AppNavbar = React.memo(() => {
                             gap="xs"
                         >
                             <Group className={styles.logoGroup}>
-                                <IconSchool size={32} color="#667eea" />
+                                <IconSchool size={32} color="#8b5cf6" />
                                 <Text
-                                    c="#667eea"
+                                    c="#8b5cf6"
                                     size="xl"
                                     fw={800}
                                     lh={1}
                                     className={styles.logoText}
                                 >
-                                    Skolaræ
+                                    Skolarae
                                 </Text>
                             </Group>
 
@@ -204,13 +204,13 @@ const AppNavbar = React.memo(() => {
                             gap="xs"
                         >
                             <Tooltip
-                                label="Skolaræ"
+                                label="Skolarae"
                                 position="right"
                                 withArrow
                                 openDelay={500}
                             >
                                 <Group>
-                                    <IconSchool size={32} color="#667eea" />
+                                    <IconSchool size={32} color="#8b5cf6" />
                                 </Group>
                             </Tooltip>
                         </Group>

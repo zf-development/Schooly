@@ -10,11 +10,13 @@
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.55.0",
+        "@types/multer": "^2.0.0",
         "cors": "^2.8.5",
         "dotenv": "^17.2.1",
         "express": "^4.19.2",
         "helmet": "^7.1.0",
-        "morgan": "^1.10.0"
+        "morgan": "^1.10.0",
+        "multer": "^2.0.2"
     },
     "devDependencies": {
         "@types/cors": "^2.8.19",
