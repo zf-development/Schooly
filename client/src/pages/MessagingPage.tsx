@@ -5,52 +5,40 @@ import {
     Group,
     ThemeIcon,
     Stack,
-    Card,
     Text,
     Button,
-    Grid,
-    Badge,
-    Modal,
     TextInput,
     Textarea,
     ActionIcon,
-    Tooltip,
     Box,
-    Paper,
-    Divider,
     Center,
     Loader,
-    Menu,
     Avatar,
     ScrollArea,
+    UnstyledButton,
+    useMantineTheme,
+    rem,
     Flex,
+    Divider,
+    Badge,
+    Menu,
+    Modal,
     Tabs,
-    Input,
-    Alert
+    Paper,
+    SimpleGrid
 } from '@mantine/core';
 import {
     IconMessage,
     IconPlus,
-    IconEdit,
-    IconTrash,
     IconSearch,
     IconSend,
     IconDots,
     IconPin,
     IconPinFilled,
     IconArchive,
-    IconShare,
-    IconCopy,
-    IconDownload,
-    IconFilter,
-    IconSortAscending,
-    IconSortDescending,
-    IconCalendar,
-    IconClock,
+    IconTrash,
     IconUser,
     IconUsers,
-    IconBell,
-    IconBellOff,
     IconCheck,
     IconChecks,
     IconPhoto,
@@ -58,7 +46,9 @@ import {
     IconMoodSmile,
     IconPhone,
     IconVideo,
-    IconInfoCircle
+    IconInfoCircle,
+    IconX,
+    IconEdit
 } from '@tabler/icons-react';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
@@ -71,10 +61,7 @@ interface Message {
     senderAvatar?: string;
     timestamp: Date;
     isRead: boolean;
-    isEdited?: boolean;
-    editedAt?: Date;
-    attachments?: Attachment[];
-    reactions?: Reaction[];
+    type: 'text' | 'image' | 'file';
 }
 
 interface Conversation {
@@ -89,6 +76,7 @@ interface Conversation {
     createdAt: Date;
     updatedAt: Date;
     avatar?: string;
+    isOnline?: boolean;
 }
 
 interface Participant {
@@ -100,22 +88,9 @@ interface Participant {
     role?: 'admin' | 'member';
 }
 
-interface Attachment {
-    id: string;
-    name: string;
-    type: string;
-    size: number;
-    url: string;
-}
-
-interface Reaction {
-    emoji: string;
-    userId: string;
-    userName: string;
-}
-
 const MessagingPage: React.FC = () => {
     const { user, isLoading } = useUserContext();
+    const theme = useMantineTheme();
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -148,14 +123,16 @@ const MessagingPage: React.FC = () => {
                     content: 'Salut ! Comment ça va ?',
                     senderId: '2',
                     senderName: 'Marie Dubois',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-                    isRead: false
+                    timestamp: new Date(Date.now() - 1000 * 60 * 30),
+                    isRead: false,
+                    type: 'text'
                 },
                 unreadCount: 2,
                 isPinned: true,
                 isArchived: false,
                 createdAt: new Date('2024-11-01'),
-                updatedAt: new Date(Date.now() - 1000 * 60 * 30)
+                updatedAt: new Date(Date.now() - 1000 * 60 * 30),
+                isOnline: true
             },
             {
                 id: '2',
@@ -167,7 +144,7 @@ const MessagingPage: React.FC = () => {
                         name: 'Pierre Martin',
                         avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
                         isOnline: false,
-                        lastSeen: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+                        lastSeen: new Date(Date.now() - 1000 * 60 * 60 * 2),
                         role: 'admin'
                     },
                     {
@@ -184,8 +161,9 @@ const MessagingPage: React.FC = () => {
                     content: 'J\'ai terminé la partie backend, vous pouvez tester !',
                     senderId: '3',
                     senderName: 'Pierre Martin',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-                    isRead: true
+                    timestamp: new Date(Date.now() - 1000 * 60 * 60),
+                    isRead: true,
+                    type: 'text'
                 },
                 unreadCount: 0,
                 isPinned: false,
@@ -196,46 +174,40 @@ const MessagingPage: React.FC = () => {
             },
             {
                 id: '3',
-                name: 'Cours Mathématiques',
+                name: 'Équipe Design',
                 type: 'group',
                 participants: [
                     {
                         id: '5',
-                        name: 'Prof. Durand',
-                        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-                        isOnline: false,
-                        lastSeen: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-                        role: 'admin'
-                    },
-                    {
-                        id: '6',
                         name: 'Lucas Moreau',
-                        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+                        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
                         isOnline: true,
                         lastSeen: new Date(),
-                        role: 'member'
+                        role: 'admin'
                     }
                 ],
                 lastMessage: {
                     id: 'm3',
-                    content: 'N\'oubliez pas l\'examen de demain !',
+                    content: 'Nouveaux mockups disponibles !',
                     senderId: '5',
-                    senderName: 'Prof. Durand',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-                    isRead: true
+                    senderName: 'Lucas Moreau',
+                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3),
+                    isRead: true,
+                    type: 'text'
                 },
                 unreadCount: 0,
                 isPinned: false,
                 isArchived: false,
-                createdAt: new Date('2024-10-15'),
-                updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24)
+                createdAt: new Date('2024-11-10'),
+                updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
+                avatar: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=150&h=150&fit=crop&crop=face'
             }
         ];
 
         setConversations(sampleConversations);
     }, []);
 
-    // Messages d'exemple pour la conversation sélectionnée
+    // Messages d'exemple
     useEffect(() => {
         if (selectedConversation) {
             const sampleMessages: Message[] = [
@@ -245,17 +217,19 @@ const MessagingPage: React.FC = () => {
                     senderId: '2',
                     senderName: 'Marie Dubois',
                     senderAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-                    isRead: true
+                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
+                    isRead: true,
+                    type: 'text'
                 },
                 {
                     id: 'm2',
                     content: 'Ça va bien merci ! Et toi ?',
                     senderId: user?.id || '1',
-                    senderName: user?.display_name || 'Moi',
+                    senderName: user?.name || 'Moi',
                     senderAvatar: user?.avatar_url,
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1.5), // 1.5 hours ago
-                    isRead: true
+                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1.5),
+                    isRead: true,
+                    type: 'text'
                 },
                 {
                     id: 'm3',
@@ -263,40 +237,22 @@ const MessagingPage: React.FC = () => {
                     senderId: '2',
                     senderName: 'Marie Dubois',
                     senderAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-                    isRead: true
-                },
-                {
-                    id: 'm4',
-                    content: 'Oui, il a l\'air intéressant ! On pourrait se réunir demain pour en discuter ?',
-                    senderId: user?.id || '1',
-                    senderName: user?.display_name || 'Moi',
-                    senderAvatar: user?.avatar_url,
-                    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-                    isRead: true
-                },
-                {
-                    id: 'm5',
-                    content: 'Parfait ! 14h ça te va ?',
-                    senderId: '2',
-                    senderName: 'Marie Dubois',
-                    senderAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
-                    isRead: false
+                    timestamp: new Date(Date.now() - 1000 * 60 * 60),
+                    isRead: true,
+                    type: 'text'
                 }
             ];
             setMessages(sampleMessages);
         }
     }, [selectedConversation, user]);
 
-    // Auto-scroll vers le bas quand de nouveaux messages arrivent
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
     if (!user) {
         return (
-            <MainLayout>
+            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -306,7 +262,7 @@ const MessagingPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <MainLayout>
+            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -321,16 +277,16 @@ const MessagingPage: React.FC = () => {
             id: Date.now().toString(),
             content: newMessage,
             senderId: user.id,
-            senderName: user.display_name || 'Moi',
+            senderName: user.name || 'Moi',
             senderAvatar: user.avatar_url,
             timestamp: new Date(),
-            isRead: false
+            isRead: false,
+            type: 'text'
         };
 
         setMessages([...messages, message]);
         setNewMessage('');
 
-        // Mettre à jour la conversation
         setConversations(conversations.map(conv => 
             conv.id === selectedConversation.id 
                 ? { ...conv, lastMessage: message, updatedAt: new Date() }
@@ -379,21 +335,15 @@ const MessagingPage: React.FC = () => {
 
     const filteredConversations = conversations.filter(conv => {
         const matchesSearch = conv.name.toLowerCase().includes(searchTerm.toLowerCase());
-        
         const matchesTab = activeTab === 'all' || 
                           (activeTab === 'unread' && conv.unreadCount > 0) ||
-                          (activeTab === 'pinned' && conv.isPinned) ||
-                          (activeTab === 'archived' && conv.isArchived);
-
+                          (activeTab === 'pinned' && conv.isPinned);
         return matchesSearch && matchesTab && !conv.isArchived;
     });
 
     const sortedConversations = [...filteredConversations].sort((a, b) => {
-        // Les conversations épinglées en premier
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
-        
-        // Puis par date de dernière activité
         return b.updatedAt.getTime() - a.updatedAt.getTime();
     });
 
@@ -415,72 +365,85 @@ const MessagingPage: React.FC = () => {
     };
 
     return (
-        <MainLayout>
+        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
             <Container size="xl" py="md">
-                {/* En-tête */}
-                <Group justify="space-between" align="center" mb="xl">
-                    <Group>
-                        <ThemeIcon size={40} radius="md" color="violet">
-                            <IconMessage size={24} />
-                        </ThemeIcon>
-                        <div>
-                            <Title order={1} size="h2">
-                                Messagerie
-                            </Title>
-                            <Text c="dimmed" size="sm">
-                                Communiquez avec vos collègues et amis
-                            </Text>
-                        </div>
-                    </Group>
-                    <Button
-                        leftSection={<IconPlus size={16} />}
-                        onClick={() => setModalOpened(true)}
-                        color="violet"
-                    >
-                        Nouvelle conversation
-                    </Button>
+                {/* En-tête cohérent avec le reste de la plateforme */}
+                <Group mb="xl">
+                    <ThemeIcon size={40} radius="md" color="violet">
+                        <IconMessage size={24} />
+                    </ThemeIcon>
+                    <div>
+                        <Title order={1} size="h2">
+                            Messagerie
+                        </Title>
+                        <Text c="dimmed" size="sm">
+                            Communiquez avec vos collègues et amis
+                        </Text>
+                    </div>
                 </Group>
 
-                <Grid>
-                    {/* Liste des conversations */}
-                    <Grid.Col span={4}>
-                        <Card shadow="sm" padding="md" radius="md" withBorder h="100%">
-                            {/* Recherche */}
+                {/* Interface de messagerie - 2 sections flottantes séparées */}
+                <Flex gap="md" h="calc(100vh - 200px)">
+                    {/* Section 1: Liste des conversations - Carte flottante */}
+                    <Paper 
+                        shadow="lg" 
+                        radius="lg" 
+                        w="350px"
+                        h="100%"
+                        style={{ 
+                            background: theme.white,
+                            overflow: 'hidden'
+                        }}
+                    >
+                        {/* Barre de recherche */}
+                        <Box p="md" style={{ borderBottom: `1px solid ${theme.colors.gray[2]}` }}>
                             <TextInput
-                                placeholder="Rechercher des conversations..."
+                                placeholder="Rechercher..."
                                 leftSection={<IconSearch size={16} />}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                mb="md"
+                                radius="md"
+                                size="sm"
                             />
 
-                            {/* Onglets */}
-                            <Tabs value={activeTab} onChange={(value) => setActiveTab(value || 'all')} mb="md">
+                            <Tabs value={activeTab} onChange={(value) => setActiveTab(value || 'all')} mt="md">
                                 <Tabs.List>
-                                    <Tabs.Tab value="all">Toutes</Tabs.Tab>
-                                    <Tabs.Tab value="unread">Non lues</Tabs.Tab>
-                                    <Tabs.Tab value="pinned">Épinglées</Tabs.Tab>
-                                    <Tabs.Tab value="archived">Archivées</Tabs.Tab>
+                                    <Tabs.Tab value="all" size="sm">Toutes</Tabs.Tab>
+                                    <Tabs.Tab value="unread" size="sm">Non lues</Tabs.Tab>
+                                    <Tabs.Tab value="pinned" size="sm">Épinglées</Tabs.Tab>
                                 </Tabs.List>
                             </Tabs>
+                        </Box>
 
-                            {/* Liste des conversations */}
-                            <ScrollArea h="calc(100vh - 300px)">
-                                <Stack gap="xs">
-                                    {sortedConversations.map(conversation => (
-                                        <Paper
-                                            key={conversation.id}
-                                            p="md"
-                                            radius="md"
-                                            style={{
-                                                cursor: 'pointer',
-                                                border: selectedConversation?.id === conversation.id ? '2px solid var(--mantine-color-violet-3)' : '1px solid var(--mantine-color-gray-3)',
-                                                backgroundColor: selectedConversation?.id === conversation.id ? 'var(--mantine-color-violet-0)' : 'transparent'
-                                            }}
-                                            onClick={() => setSelectedConversation(conversation)}
-                                        >
-                                            <Group justify="space-between" align="flex-start" mb="sm">
-                                                <Group>
+                        {/* Liste des conversations */}
+                        <ScrollArea h="calc(100% - 120px)">
+                            <Stack gap={0}>
+                                {sortedConversations.map((conversation) => (
+                                    <UnstyledButton
+                                        key={conversation.id}
+                                        onClick={() => setSelectedConversation(conversation)}
+                                        style={{
+                                            padding: '12px 16px',
+                                            borderBottom: `1px solid ${theme.colors.gray[1]}`,
+                                            backgroundColor: selectedConversation?.id === conversation.id 
+                                                ? theme.colors.violet[0] 
+                                                : 'transparent',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (selectedConversation?.id !== conversation.id) {
+                                                e.currentTarget.style.backgroundColor = theme.colors.gray[0];
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (selectedConversation?.id !== conversation.id) {
+                                                e.currentTarget.style.backgroundColor = 'transparent';
+                                            }
+                                        }}
+                                    >
+                                        <Group justify="space-between" align="flex-start">
+                                            <Group gap="sm" style={{ flex: 1, minWidth: 0 }}>
+                                                <Box style={{ position: 'relative' }}>
                                                     <Avatar
                                                         src={conversation.avatar || conversation.participants[0]?.avatar}
                                                         size="md"
@@ -492,191 +455,233 @@ const MessagingPage: React.FC = () => {
                                                             <IconUser size={20} />
                                                         )}
                                                     </Avatar>
-                                                    <Box>
-                                                        <Group align="center" gap="xs">
-                                                            <Text fw={500} size="sm" truncate>
-                                                                {conversation.name}
-                                                            </Text>
-                                                            {conversation.isPinned && (
-                                                                <IconPinFilled size={12} color="var(--mantine-color-violet-6)" />
-                                                            )}
-                                                        </Group>
-                                                        <Text size="xs" c="dimmed">
-                                                            {conversation.type === 'group' ? 'Groupe' : 'Message privé'} • 
-                                                            {conversation.participants.length} participant{conversation.participants.length !== 1 ? 's' : ''}
-                                                        </Text>
-                                                    </Box>
-                                                </Group>
-                                                <Group gap="xs">
-                                                    {conversation.unreadCount > 0 && (
-                                                        <Badge size="sm" color="violet" variant="filled">
-                                                            {conversation.unreadCount}
-                                                        </Badge>
+                                                    {conversation.isOnline && (
+                                                        <Box
+                                                            style={{
+                                                                position: 'absolute',
+                                                                bottom: 0,
+                                                                right: 0,
+                                                                width: 12,
+                                                                height: 12,
+                                                                backgroundColor: theme.colors.green[6],
+                                                                borderRadius: '50%',
+                                                                border: `2px solid ${theme.white}`
+                                                            }}
+                                                        />
                                                     )}
-                                                    <Menu>
-                                                        <Menu.Target>
-                                                            <ActionIcon size="sm" variant="subtle">
-                                                                <IconDots size={12} />
-                                                            </ActionIcon>
-                                                        </Menu.Target>
-                                                        <Menu.Dropdown>
-                                                            <Menu.Item 
-                                                                leftSection={conversation.isPinned ? <IconPin size={14} /> : <IconPinFilled size={14} />}
-                                                                onClick={() => handleTogglePin(conversation.id)}
-                                                            >
-                                                                {conversation.isPinned ? 'Désépingler' : 'Épingler'}
-                                                            </Menu.Item>
-                                                            <Menu.Item 
-                                                                leftSection={<IconArchive size={14} />}
-                                                                onClick={() => handleArchiveConversation(conversation.id)}
-                                                            >
-                                                                Archiver
-                                                            </Menu.Item>
-                                                            <Menu.Divider />
-                                                            <Menu.Item 
-                                                                leftSection={<IconTrash size={14} />}
-                                                                color="red"
-                                                                onClick={() => handleDeleteConversation(conversation.id)}
-                                                            >
-                                                                Supprimer
-                                                            </Menu.Item>
-                                                        </Menu.Dropdown>
-                                                    </Menu>
-                                                </Group>
-                                            </Group>
-
-                                            {conversation.lastMessage && (
-                                                <Group justify="space-between" align="center">
+                                                </Box>
+                                                
+                                                <Box style={{ flex: 1, minWidth: 0 }}>
+                                                    <Group justify="space-between" align="center" mb={4}>
+                                                        <Text fw={500} size="sm" truncate>
+                                                            {conversation.name}
+                                                        </Text>
+                                                        <Group gap="xs">
+                                                            {conversation.isPinned && (
+                                                                <IconPinFilled size={12} color={theme.colors.violet[6]} />
+                                                            )}
+                                                            <Text size="xs" c="dimmed">
+                                                                {formatTime(conversation.lastMessage?.timestamp || conversation.updatedAt)}
+                                                            </Text>
+                                                        </Group>
+                                                    </Group>
+                                                    
                                                     <Text size="xs" c="dimmed" truncate>
-                                                        {conversation.lastMessage.senderName}: {conversation.lastMessage.content}
+                                                        {conversation.lastMessage?.senderName}: {conversation.lastMessage?.content}
                                                     </Text>
-                                                    <Text size="xs" c="dimmed">
-                                                        {formatTime(conversation.lastMessage.timestamp)}
-                                                    </Text>
-                                                </Group>
-                                            )}
-                                        </Paper>
-                                    ))}
-                                </Stack>
-                            </ScrollArea>
-                        </Card>
-                    </Grid.Col>
-
-                    {/* Zone de chat */}
-                    <Grid.Col span={8}>
-                        <Card shadow="sm" padding="md" radius="md" withBorder h="100%">
-                            {selectedConversation ? (
-                                <Stack h="100%">
-                                    {/* En-tête de la conversation */}
-                                    <Group justify="space-between" align="center" mb="md">
-                                        <Group>
-                                            <Avatar
-                                                src={selectedConversation.avatar || selectedConversation.participants[0]?.avatar}
-                                                size="md"
-                                                radius="md"
-                                            >
-                                                {selectedConversation.type === 'group' ? (
-                                                    <IconUsers size={20} />
-                                                ) : (
-                                                    <IconUser size={20} />
+                                                </Box>
+                                            </Group>
+                                            
+                                            <Group gap="xs">
+                                                {conversation.unreadCount > 0 && (
+                                                    <Badge size="sm" color="violet" variant="filled" radius="xl">
+                                                        {conversation.unreadCount}
+                                                    </Badge>
                                                 )}
-                                            </Avatar>
+                                                <Menu>
+                                                    <Menu.Target>
+                                                        <ActionIcon size="sm" variant="subtle" color="gray">
+                                                            <IconDots size={12} />
+                                                        </ActionIcon>
+                                                    </Menu.Target>
+                                                    <Menu.Dropdown>
+                                                        <Menu.Item 
+                                                            leftSection={conversation.isPinned ? <IconPin size={14} /> : <IconPinFilled size={14} />}
+                                                            onClick={() => handleTogglePin(conversation.id)}
+                                                        >
+                                                            {conversation.isPinned ? 'Désépingler' : 'Épingler'}
+                                                        </Menu.Item>
+                                                        <Menu.Item 
+                                                            leftSection={<IconArchive size={14} />}
+                                                            onClick={() => handleArchiveConversation(conversation.id)}
+                                                        >
+                                                            Archiver
+                                                        </Menu.Item>
+                                                        <Menu.Divider />
+                                                        <Menu.Item 
+                                                            leftSection={<IconTrash size={14} />}
+                                                            color="red"
+                                                            onClick={() => handleDeleteConversation(conversation.id)}
+                                                        >
+                                                            Supprimer
+                                                        </Menu.Item>
+                                                    </Menu.Dropdown>
+                                                </Menu>
+                                            </Group>
+                                        </Group>
+                                    </UnstyledButton>
+                                ))}
+                            </Stack>
+                        </ScrollArea>
+                    </Paper>
+
+                    {/* Section 2: Zone de chat - Carte flottante */}
+                    <Paper 
+                        shadow="lg" 
+                        radius="lg" 
+                        style={{ 
+                            flex: 1,
+                            background: theme.white,
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column'
+                        }}
+                    >
+                        {selectedConversation ? (
+                            <>
+                                {/* En-tête de conversation */}
+                                <Box p="md" style={{ borderBottom: `1px solid ${theme.colors.gray[2]}` }}>
+                                    <Group justify="space-between" align="center">
+                                        <Group gap="sm">
+                                            <Box style={{ position: 'relative' }}>
+                                                <Avatar
+                                                    src={selectedConversation.avatar || selectedConversation.participants[0]?.avatar}
+                                                    size="md"
+                                                    radius="md"
+                                                >
+                                                    {selectedConversation.type === 'group' ? (
+                                                        <IconUsers size={20} />
+                                                    ) : (
+                                                        <IconUser size={20} />
+                                                    )}
+                                                </Avatar>
+                                                {selectedConversation.isOnline && (
+                                                    <Box
+                                                        style={{
+                                                            position: 'absolute',
+                                                            bottom: 0,
+                                                            right: 0,
+                                                            width: 12,
+                                                            height: 12,
+                                                            backgroundColor: theme.colors.green[6],
+                                                            borderRadius: '50%',
+                                                            border: `2px solid ${theme.white}`
+                                                        }}
+                                                    />
+                                                )}
+                                            </Box>
                                             <Box>
                                                 <Text fw={500} size="lg">
                                                     {selectedConversation.name}
                                                 </Text>
                                                 <Text size="sm" c="dimmed">
-                                                    {selectedConversation.type === 'group' ? 'Groupe' : 'Message privé'} • 
-                                                    {selectedConversation.participants.length} participant{selectedConversation.participants.length !== 1 ? 's' : ''}
+                                                    {selectedConversation.isOnline ? 'En ligne' : 'Hors ligne'} • 
+                                                    {selectedConversation.type === 'group' ? 'Groupe' : 'Message privé'}
                                                 </Text>
                                             </Box>
                                         </Group>
                                         <Group gap="xs">
-                                            <ActionIcon variant="light">
+                                            <ActionIcon variant="light" color="gray" radius="md">
                                                 <IconPhone size={16} />
                                             </ActionIcon>
-                                            <ActionIcon variant="light">
+                                            <ActionIcon variant="light" color="gray" radius="md">
                                                 <IconVideo size={16} />
                                             </ActionIcon>
-                                            <ActionIcon variant="light">
+                                            <ActionIcon variant="light" color="gray" radius="md">
                                                 <IconInfoCircle size={16} />
                                             </ActionIcon>
                                         </Group>
                                     </Group>
+                                </Box>
 
-                                    <Divider />
-
-                                    {/* Messages */}
-                                    <ScrollArea h="calc(100vh - 400px)" style={{ flex: 1 }}>
-                                        <Stack gap="md" p="md">
-                                            {messages.map(message => (
-                                                <Group
-                                                    key={message.id}
-                                                    justify={message.senderId === user.id ? 'flex-end' : 'flex-start'}
-                                                    align="flex-start"
+                                {/* Messages */}
+                                <ScrollArea 
+                                    style={{ 
+                                        flex: 1,
+                                        background: theme.colors.gray[0]
+                                    }} 
+                                    p="md"
+                                >
+                                    <Stack gap="md">
+                                        {messages.map((message) => (
+                                            <Group
+                                                key={message.id}
+                                                justify={message.senderId === user.id ? 'flex-end' : 'flex-start'}
+                                                align="flex-start"
+                                                gap="sm"
+                                            >
+                                                {message.senderId !== user.id && (
+                                                    <Avatar
+                                                        src={message.senderAvatar}
+                                                        size="sm"
+                                                        radius="md"
+                                                    />
+                                                )}
+                                                <Box
+                                                    style={{
+                                                        maxWidth: '70%',
+                                                        backgroundColor: message.senderId === user.id 
+                                                            ? theme.colors.violet[6]
+                                                            : theme.white,
+                                                        color: message.senderId === user.id ? theme.white : theme.black,
+                                                        padding: '12px 16px',
+                                                        borderRadius: message.senderId === user.id 
+                                                            ? '18px 18px 4px 18px'
+                                                            : '18px 18px 18px 4px',
+                                                        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                                                    }}
                                                 >
-                                                    {message.senderId !== user.id && (
-                                                        <Avatar
-                                                            src={message.senderAvatar}
-                                                            size="sm"
-                                                            radius="md"
-                                                        />
-                                                    )}
-                                                    <Box
-                                                        style={{
-                                                            maxWidth: '70%',
-                                                            backgroundColor: message.senderId === user.id 
-                                                                ? 'var(--mantine-color-violet-1)' 
-                                                                : 'var(--mantine-color-gray-1)',
-                                                            padding: '8px 12px',
-                                                            borderRadius: '12px',
-                                                            border: message.senderId === user.id 
-                                                                ? '1px solid var(--mantine-color-violet-3)' 
-                                                                : '1px solid var(--mantine-color-gray-3)'
-                                                        }}
-                                                    >
-                                                        <Text size="sm">
-                                                            {message.content}
+                                                    <Text size="sm" style={{ lineHeight: 1.4 }}>
+                                                        {message.content}
+                                                    </Text>
+                                                    <Group justify="space-between" align="center" mt="xs" gap="xs">
+                                                        <Text size="xs" c={message.senderId === user.id ? 'rgba(255,255,255,0.7)' : 'dimmed'}>
+                                                            {formatMessageTime(message.timestamp)}
                                                         </Text>
-                                                        <Group justify="space-between" align="center" mt="xs">
-                                                            <Text size="xs" c="dimmed">
-                                                                {formatMessageTime(message.timestamp)}
-                                                            </Text>
-                                                            {message.senderId === user.id && (
-                                                                <Group gap="xs">
-                                                                    {message.isRead ? (
-                                                                        <IconChecks size={12} color="var(--mantine-color-violet-6)" />
-                                                                    ) : (
-                                                                        <IconCheck size={12} color="var(--mantine-color-gray-6)" />
-                                                                    )}
-                                                                </Group>
-                                                            )}
-                                                        </Group>
-                                                    </Box>
-                                                    {message.senderId === user.id && (
-                                                        <Avatar
-                                                            src={message.senderAvatar}
-                                                            size="sm"
-                                                            radius="md"
-                                                        />
-                                                    )}
-                                                </Group>
-                                            ))}
-                                            <div ref={messagesEndRef} />
-                                        </Stack>
-                                    </ScrollArea>
+                                                        {message.senderId === user.id && (
+                                                            <Group gap="xs">
+                                                                {message.isRead ? (
+                                                                    <IconChecks size={12} color="rgba(255,255,255,0.8)" />
+                                                                ) : (
+                                                                    <IconCheck size={12} color="rgba(255,255,255,0.6)" />
+                                                                )}
+                                                            </Group>
+                                                        )}
+                                                    </Group>
+                                                </Box>
+                                                {message.senderId === user.id && (
+                                                    <Avatar
+                                                        src={message.senderAvatar}
+                                                        size="sm"
+                                                        radius="md"
+                                                    />
+                                                )}
+                                            </Group>
+                                        ))}
+                                        <div ref={messagesEndRef} />
+                                    </Stack>
+                                </ScrollArea>
 
-                                    <Divider />
-
-                                    {/* Zone de saisie */}
+                                {/* Zone de saisie */}
+                                <Box p="md" style={{ borderTop: `1px solid ${theme.colors.gray[2]}` }}>
                                     <Group align="flex-end" gap="sm">
-                                        <ActionIcon variant="light">
+                                        <ActionIcon variant="light" color="gray" radius="md">
                                             <IconPaperclip size={16} />
                                         </ActionIcon>
-                                        <ActionIcon variant="light">
+                                        <ActionIcon variant="light" color="gray" radius="md">
                                             <IconPhoto size={16} />
                                         </ActionIcon>
-                                        <ActionIcon variant="light">
+                                        <ActionIcon variant="light" color="gray" radius="md">
                                             <IconMoodSmile size={16} />
                                         </ActionIcon>
                                         <Textarea
@@ -693,35 +698,47 @@ const MessagingPage: React.FC = () => {
                                             minRows={1}
                                             maxRows={4}
                                             autosize
+                                            radius="md"
+                                            size="sm"
                                         />
                                         <ActionIcon
                                             variant="filled"
                                             color="violet"
+                                            radius="md"
                                             onClick={handleSendMessage}
                                             disabled={!newMessage.trim()}
+                                            size="lg"
                                         >
                                             <IconSend size={16} />
                                         </ActionIcon>
                                     </Group>
+                                </Box>
+                            </>
+                        ) : (
+                            <Center h="100%" style={{ background: theme.colors.gray[0] }}>
+                                <Stack align="center" gap="md">
+                                    <ThemeIcon size={80} radius="md" color="gray" variant="light">
+                                        <IconMessage size={40} />
+                                    </ThemeIcon>
+                                    <Text size="xl" fw={500} c="dimmed">
+                                        Sélectionnez une conversation
+                                    </Text>
+                                    <Text size="sm" c="dimmed" ta="center" maw={300}>
+                                        Choisissez une conversation dans la liste pour commencer à discuter
+                                    </Text>
+                                    <Button
+                                        leftSection={<IconPlus size={16} />}
+                                        onClick={() => setModalOpened(true)}
+                                        color="violet"
+                                        radius="md"
+                                    >
+                                        Nouvelle conversation
+                                    </Button>
                                 </Stack>
-                            ) : (
-                                <Center h="100%">
-                                    <Stack align="center" gap="md">
-                                        <ThemeIcon size={64} radius="md" color="gray" variant="light">
-                                            <IconMessage size={32} />
-                                        </ThemeIcon>
-                                        <Text size="lg" c="dimmed">
-                                            Sélectionnez une conversation
-                                        </Text>
-                                        <Text size="sm" c="dimmed" ta="center">
-                                            Choisissez une conversation dans la liste pour commencer à discuter
-                                        </Text>
-                                    </Stack>
-                                </Center>
-                            )}
-                        </Card>
-                    </Grid.Col>
-                </Grid>
+                            </Center>
+                        )}
+                    </Paper>
+                </Flex>
 
                 {/* Modal de nouvelle conversation */}
                 <Modal
@@ -729,6 +746,7 @@ const MessagingPage: React.FC = () => {
                     onClose={() => setModalOpened(false)}
                     title="Nouvelle conversation"
                     size="sm"
+                    radius="md"
                 >
                     <Stack gap="md">
                         <TextInput
@@ -737,6 +755,7 @@ const MessagingPage: React.FC = () => {
                             value={newConversationName}
                             onChange={(e) => setNewConversationName(e.target.value)}
                             required
+                            radius="md"
                         />
 
                         <Tabs value={newConversationType} onChange={(value) => setNewConversationType(value as 'direct' | 'group')}>
@@ -751,10 +770,10 @@ const MessagingPage: React.FC = () => {
                         </Tabs>
 
                         <Group justify="flex-end" mt="md">
-                            <Button variant="light" onClick={() => setModalOpened(false)}>
+                            <Button variant="light" onClick={() => setModalOpened(false)} radius="md">
                                 Annuler
                             </Button>
-                            <Button onClick={handleCreateConversation} color="violet">
+                            <Button onClick={handleCreateConversation} color="violet" radius="md">
                                 Créer
                             </Button>
                         </Group>

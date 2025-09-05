@@ -166,7 +166,7 @@ const SubscriptionsPage: React.FC = () => {
                                     Mes Abonnements
                                 </Tabs.Tab>
                                 <Tabs.Tab 
-                                    value="discover" 
+                                    value="discover"
                                     leftSection={<IconSearch size={16} />}
                                 >
                                     Découvrir
@@ -174,14 +174,14 @@ const SubscriptionsPage: React.FC = () => {
                             </Tabs.List>
 
                             <Tabs.Panel value="subscriptions">
-                                                                    <SubscriptionsList 
-                                        onSubscriptionChange={refreshSubscriptions}
-                                        subscriptions={subscriptions}
-                                        loading={subscriptionsLoading}
-                                        error={null}
-                                        userInstitutionId={user?.institution?.id}
-                                        userInstitutionName={user?.institution?.name}
-                                    />
+                                <SubscriptionsList 
+                                    onSubscriptionChange={refreshSubscriptions}
+                                    subscriptions={subscriptions}
+                                    loading={subscriptionsLoading}
+                                    error={null}
+                                    userInstitutionId={user?.institution?.id}
+                                    userInstitutionName={user?.institution?.name}
+                                />
                             </Tabs.Panel>
 
                             <Tabs.Panel value="discover">

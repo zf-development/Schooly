@@ -25,7 +25,8 @@ import {
     Alert,
     Tabs,
     ScrollArea,
-    Flex
+    Flex,
+    Select
 } from '@mantine/core';
 import {
     IconNotes,
@@ -199,7 +200,7 @@ const NotesPage: React.FC = () => {
 
     if (!user) {
         return (
-            <MainLayout>
+            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -209,7 +210,7 @@ const NotesPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <MainLayout>
+            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -359,7 +360,7 @@ const NotesPage: React.FC = () => {
     };
 
     return (
-        <MainLayout>
+        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
             <Container size="xl" py="md">
                 {/* En-tête */}
                 <Group justify="space-between" align="center" mb="xl">
@@ -388,99 +389,124 @@ const NotesPage: React.FC = () => {
                 <Grid>
                     {/* Panneau latéral */}
                     <Grid.Col span={3}>
-                        <Stack>
-                            {/* Recherche */}
-                            <Card shadow="sm" padding="md" radius="md" withBorder>
-                                <TextInput
-                                    placeholder="Rechercher dans les notes..."
-                                    leftSection={<IconSearch size={16} />}
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </Card>
+                        {/* Tags de filtrage */}
+                        <Card shadow="sm" padding="md" radius="md" withBorder h="100%">
+                            <TextInput
+                                placeholder="Rechercher dans les notes..."
+                                leftSection={<IconSearch size={16} />}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                mb="lg"
+                            />
 
-                            {/* Onglets */}
-                            <Card shadow="sm" padding="md" radius="md" withBorder>
-                                <Tabs value={activeTab} onChange={(value) => setActiveTab(value || 'all')}>
-                                    <Tabs.List>
-                                        <Tabs.Tab value="all">Toutes</Tabs.Tab>
-                                        <Tabs.Tab value="pinned">Épinglées</Tabs.Tab>
-                                        <Tabs.Tab value="starred">Favorites</Tabs.Tab>
-                                        <Tabs.Tab value="archived">Archivées</Tabs.Tab>
-                                    </Tabs.List>
-                                </Tabs>
-                            </Card>
+                            <Text fw={500} mb="md">Filtrer par</Text>
+                            <Group gap="xs" justify="center">
+                                <Badge
+                                    size="md"
+                                    variant={activeTab === 'all' ? 'filled' : 'light'}
+                                    color="violet"
+                                    style={{ cursor: 'pointer', padding: '7px 14px', textTransform: 'lowercase' }}
+                                    onClick={() => setActiveTab('all')}
+                                >
+                                    Toutes
+                                </Badge>
+                                <Badge
+                                    size="md"
+                                    variant={activeTab === 'pinned' ? 'filled' : 'light'}
+                                    color="blue"
+                                    style={{ cursor: 'pointer', padding: '7px 14px', textTransform: 'lowercase' }}
+                                    onClick={() => setActiveTab('pinned')}
+                                >
+                                    Épinglées
+                                </Badge>
+                                <Badge
+                                    size="md"
+                                    variant={activeTab === 'starred' ? 'filled' : 'light'}
+                                    color="yellow"
+                                    style={{ cursor: 'pointer', padding: '7px 14px', textTransform: 'lowercase' }}
+                                    onClick={() => setActiveTab('starred')}
+                                >
+                                    Favorites
+                                </Badge>
+                                <Badge
+                                    size="md"
+                                    variant={activeTab === 'archived' ? 'filled' : 'light'}
+                                    color="gray"
+                                    style={{ cursor: 'pointer', padding: '7px 14px', textTransform: 'lowercase' }}
+                                    onClick={() => setActiveTab('archived')}
+                                >
+                                    Archivées
+                                </Badge>
+                            </Group>
 
-                            {/* Dossiers */}
-                            <Card shadow="sm" padding="md" radius="md" withBorder>
-                                <Group justify="space-between" mb="md">
-                                    <Text fw={500}>Dossiers</Text>
-                                    <ActionIcon size="sm" variant="light">
-                                        <IconFolderPlus size={14} />
-                                    </ActionIcon>
-                                </Group>
-                                <Stack gap="xs">
+                            <Divider m="lg" />
+
+                            <Group justify="space-between" mb="md">
+                                <Text fw={500}>Dossiers</Text>
+                                <ActionIcon size="sm" variant="light">
+                                    <IconFolderPlus size={14} />
+                                </ActionIcon>
+                            </Group>
+                            <Stack gap="xs">
+                                <Button
+                                    variant={selectedFolder === null ? 'light' : 'subtle'}
+                                    justify="flex-start"
+                                    leftSection={<IconFolder size={16} />}
+                                    onClick={() => setSelectedFolder(null)}
+                                >
+                                    Tous les dossiers
+                                </Button>
+                                {folders.map(folder => (
                                     <Button
-                                        variant={selectedFolder === null ? 'light' : 'subtle'}
+                                        key={folder.id}
+                                        variant={selectedFolder === folder.name ? 'light' : 'subtle'}
                                         justify="flex-start"
                                         leftSection={<IconFolder size={16} />}
-                                        onClick={() => setSelectedFolder(null)}
+                                        onClick={() => setSelectedFolder(folder.name)}
                                     >
-                                        Tous les dossiers
+                                        {folder.name} ({folder.noteCount})
                                     </Button>
-                                    {folders.map(folder => (
-                                        <Button
-                                            key={folder.id}
-                                            variant={selectedFolder === folder.name ? 'light' : 'subtle'}
-                                            justify="flex-start"
-                                            leftSection={<IconFolder size={16} />}
-                                            onClick={() => setSelectedFolder(folder.name)}
-                                        >
-                                            {folder.name} ({folder.noteCount})
-                                        </Button>
-                                    ))}
-                                </Stack>
-                            </Card>
+                                ))}
+                            </Stack>
 
-                            {/* Tri */}
-                            <Card shadow="sm" padding="md" radius="md" withBorder>
-                                <Text fw={500} mb="md">Trier par</Text>
-                                <Stack gap="xs">
-                                    <Button
-                                        variant={sortBy === 'modified' ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconClock size={16} />}
-                                        onClick={() => setSortBy('modified')}
-                                    >
-                                        Date de modification
-                                    </Button>
-                                    <Button
-                                        variant={sortBy === 'created' ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconCalendar size={16} />}
-                                        onClick={() => setSortBy('created')}
-                                    >
-                                        Date de création
-                                    </Button>
-                                    <Button
-                                        variant={sortBy === 'title' ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconSortAscending size={16} />}
-                                        onClick={() => setSortBy('title')}
-                                    >
-                                        Titre
-                                    </Button>
-                                    <Button
-                                        variant="subtle"
-                                        justify="flex-start"
-                                        leftSection={sortOrder === 'asc' ? <IconSortAscending size={16} /> : <IconSortDescending size={16} />}
-                                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                                    >
-                                        {sortOrder === 'asc' ? 'Croissant' : 'Décroissant'}
-                                    </Button>
-                                </Stack>
-                            </Card>
-                        </Stack>
+                            <Divider m="lg" />
+
+                            <Text fw={500} mb="md">Trier par</Text>
+                            <Stack gap="xs">
+                                <Button
+                                    variant={sortBy === 'modified' ? 'light' : 'subtle'}
+                                    justify="flex-start"
+                                    leftSection={<IconClock size={16} />}
+                                    onClick={() => setSortBy('modified')}
+                                >
+                                    Date de modification
+                                </Button>
+                                <Button
+                                    variant={sortBy === 'created' ? 'light' : 'subtle'}
+                                    justify="flex-start"
+                                    leftSection={<IconCalendar size={16} />}
+                                    onClick={() => setSortBy('created')}
+                                >
+                                    Date de création
+                                </Button>
+                                <Button
+                                    variant={sortBy === 'title' ? 'light' : 'subtle'}
+                                    justify="flex-start"
+                                    leftSection={<IconSortAscending size={16} />}
+                                    onClick={() => setSortBy('title')}
+                                >
+                                    Titre
+                                </Button>
+                                <Button
+                                    variant="subtle"
+                                    justify="flex-start"
+                                    leftSection={sortOrder === 'asc' ? <IconSortAscending size={16} /> : <IconSortDescending size={16} />}
+                                    onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                                >
+                                    {sortOrder === 'asc' ? 'Croissant' : 'Décroissant'}
+                                </Button>
+                            </Stack>
+                        </Card>
                     </Grid.Col>
 
                     {/* Liste des notes */}
@@ -714,11 +740,19 @@ const NotesPage: React.FC = () => {
                                 />
                             </Grid.Col>
                             <Grid.Col span={6}>
-                                <TextInput
+                                <Select
                                     label="Dossier"
-                                    placeholder="Nom du dossier"
+                                    placeholder="Sélectionner un dossier"
                                     value={formData.folder}
-                                    onChange={(e) => setFormData({ ...formData, folder: e.target.value })}
+                                    onChange={(value) => setFormData({ ...formData, folder: value || '' })}
+                                    data={[
+                                        { value: '', label: 'Aucun dossier' },
+                                        ...folders.map(folder => ({
+                                            value: folder.name,
+                                            label: folder.name
+                                        }))
+                                    ]}
+                                    clearable
                                 />
                             </Grid.Col>
                         </Grid>

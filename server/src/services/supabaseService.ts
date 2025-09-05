@@ -597,7 +597,7 @@ export const getPostsWithDetails = async (userInstitutionId: string, userId?: st
 
             // Récupérer les statistiques de likes pour tous les posts
             const { data: likesStats, error: likesError } = await supabase
-                .from('post_likes')
+                .from('post_upvotes')
                 .select('post_id')
                 .in('post_id', postIds);
 
@@ -611,7 +611,7 @@ export const getPostsWithDetails = async (userInstitutionId: string, userId?: st
             let userLikes: any[] = [];
             if (userId) {
                 const { data: userLikesData, error: userLikesError } = await supabase
-                    .from('post_likes')
+                    .from('post_upvotes')
                     .select('post_id')
                     .eq('user_id', userId)
                     .in('post_id', postIds);
@@ -757,7 +757,7 @@ export const togglePostLike = async (postId: string, userId: string): Promise<{ 
     try {
         // Vérifier si l'utilisateur a déjà liké ce post
         const { data: existingLike, error: checkError } = await supabase
-            .from('post_likes')
+            .from('post_upvotes')
             .select('id')
             .eq('post_id', postId)
             .eq('user_id', userId)
@@ -771,7 +771,7 @@ export const togglePostLike = async (postId: string, userId: string): Promise<{ 
         if (existingLike) {
             // Supprimer le like existant
             const { error: deleteError } = await supabase
-                .from('post_likes')
+                .from('post_upvotes')
                 .delete()
                 .eq('post_id', postId)
                 .eq('user_id', userId);
@@ -783,7 +783,7 @@ export const togglePostLike = async (postId: string, userId: string): Promise<{ 
         } else {
             // Ajouter un nouveau like
             const { error: insertError } = await supabase
-                .from('post_likes')
+                .from('post_upvotes')
                 .insert({
                     post_id: postId,
                     user_id: userId,
@@ -798,7 +798,7 @@ export const togglePostLike = async (postId: string, userId: string): Promise<{ 
 
         // Récupérer le nouveau nombre de likes
         const { count, error: countError } = await supabase
-            .from('post_likes')
+            .from('post_upvotes')
             .select('*', { count: 'exact', head: true })
             .eq('post_id', postId);
 
@@ -820,7 +820,7 @@ export const togglePostLike = async (postId: string, userId: string): Promise<{ 
 export const checkUserLike = async (postId: string, userId: string): Promise<boolean> => {
     try {
         const { data, error } = await supabase
-            .from('post_likes')
+            .from('post_upvotes')
             .select('id')
             .eq('post_id', postId)
             .eq('user_id', userId)
@@ -841,7 +841,7 @@ export const checkUserLike = async (postId: string, userId: string): Promise<boo
 export const getPostLikesCount = async (postId: string): Promise<number> => {
     try {
         const { count, error } = await supabase
-            .from('post_likes')
+            .from('post_upvotes')
             .select('*', { count: 'exact', head: true })
             .eq('post_id', postId);
 

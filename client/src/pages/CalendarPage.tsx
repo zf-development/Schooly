@@ -33,7 +33,10 @@ import {
     IconUsers,
     IconBell,
     IconX,
-    IconCheck
+    IconCheck,
+    IconCalendarMonth,
+    IconCalendarWeek,
+    IconCalendarEvent
 } from '@tabler/icons-react';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
@@ -52,6 +55,8 @@ interface Event {
     createdAt: Date;
 }
 
+type ViewType = 'month' | 'week' | 'day';
+
 const CalendarPage: React.FC = () => {
     const { user, isLoading } = useUserContext();
     const [events, setEvents] = useState<Event[]>([]);
@@ -60,6 +65,7 @@ const CalendarPage: React.FC = () => {
     const [modalOpened, setModalOpened] = useState(false);
     const [editingEvent, setEditingEvent] = useState<Event | null>(null);
     const [loading, setLoading] = useState(false);
+    const [currentView, setCurrentView] = useState<ViewType>('month');
 
     // État du formulaire
     const [formData, setFormData] = useState({
@@ -533,6 +539,56 @@ const CalendarPage: React.FC = () => {
         setClickedDate(date);
     };
 
+    const handleViewChange = (view: ViewType) => {
+        setCurrentView(view);
+    };
+
+    const navigateDate = (direction: 'prev' | 'next') => {
+        const newDate = new Date(selectedDate);
+        
+        switch (currentView) {
+            case 'month':
+                newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
+                break;
+            case 'week':
+                newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
+                break;
+            case 'day':
+                newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
+                break;
+        }
+        
+        setSelectedDate(newDate);
+    };
+
+    const goToToday = () => {
+        setSelectedDate(new Date());
+    };
+
+    // Calculer les dates de la semaine
+    const getWeekDates = (date: Date) => {
+        const startOfWeek = new Date(date);
+        const day = startOfWeek.getDay();
+        const diff = startOfWeek.getDate() - day; // Dimanche
+        startOfWeek.setDate(diff);
+        
+        const weekDates = [];
+        for (let i = 0; i < 7; i++) {
+            const weekDate = new Date(startOfWeek);
+            weekDate.setDate(startOfWeek.getDate() + i);
+            weekDates.push(weekDate);
+        }
+        return weekDates;
+    };
+
+    // Obtenir les événements pour une période donnée
+    const getEventsForPeriod = (startDate: Date, endDate: Date) => {
+        return events.filter(event => {
+            const eventDate = new Date(event.startDate);
+            return eventDate >= startDate && eventDate <= endDate;
+        });
+    };
+
     const getEventTypeColor = (type: string) => {
         switch (type) {
             case 'academic': return 'blue';
@@ -599,13 +655,42 @@ const CalendarPage: React.FC = () => {
                             </Text>
                         </div>
                     </Group>
-                    <Button
-                        leftSection={<IconPlus size={16} />}
-                        onClick={handleCreateEvent}
-                        color="violet"
-                    >
-                        Nouvel événement
-                    </Button>
+                    <Group>
+                        <Button
+                            leftSection={<IconPlus size={16} />}
+                            onClick={handleCreateEvent}
+                            color="violet"
+                        >
+                            Nouvel événement
+                        </Button>
+                    </Group>
+                </Group>
+
+                {/* Sélecteur de vue */}
+                <Group justify="center" mb="md">
+                    <Button.Group>
+                        <Button
+                            variant={currentView === 'month' ? 'filled' : 'light'}
+                            leftSection={<IconCalendarMonth size={16} />}
+                            onClick={() => handleViewChange('month')}
+                        >
+                            Mois
+                        </Button>
+                        <Button
+                            variant={currentView === 'week' ? 'filled' : 'light'}
+                            leftSection={<IconCalendarWeek size={16} />}
+                            onClick={() => handleViewChange('week')}
+                        >
+                            Semaine
+                        </Button>
+                        <Button
+                            variant={currentView === 'day' ? 'filled' : 'light'}
+                            leftSection={<IconCalendarEvent size={16} />}
+                            onClick={() => handleViewChange('day')}
+                        >
+                            Jour
+                        </Button>
+                    </Button.Group>
                 </Group>
 
                 <Grid>
@@ -614,87 +699,276 @@ const CalendarPage: React.FC = () => {
                         <Card shadow="sm" padding="lg" radius="md" withBorder>
                             <Group justify="space-between" mb="md">
                                 <Title order={3}>
-                                    {selectedDate.toLocaleDateString('fr-FR', { 
+                                    {currentView === 'month' && selectedDate.toLocaleDateString('fr-FR', { 
                                         month: 'long', 
                                         year: 'numeric' 
                                     })}
+                                    {currentView === 'week' && (() => {
+                                        const weekDates = getWeekDates(selectedDate);
+                                        const startDate = weekDates[0];
+                                        const endDate = weekDates[6];
+                                        return `${startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${endDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+                                    })()}
+                                    {currentView === 'day' && selectedDate.toLocaleDateString('fr-FR', { 
+                                        weekday: 'long',
+                                        day: 'numeric', 
+                                        month: 'long',
+                                        year: 'numeric' 
+                                    })}
                                 </Title>
-                                <Group>
-                                    <Button variant="light" size="sm">
+                                <Button.Group>
+                                    <Button variant="light" size="sm" onClick={() => navigateDate('prev')}>
                                         Précédent
                                     </Button>
-                                    <Button variant="light" size="sm">
+                                    <Button variant="light" size="sm" onClick={goToToday}>
+                                        Aujourd'hui
+                                    </Button>
+                                    <Button variant="light" size="sm" onClick={() => navigateDate('next')}>
                                         Suivant
                                     </Button>
-                                </Group>
+                                </Button.Group>
                             </Group>
 
-                            {/* Grille du calendrier */}
-                            <SimpleGrid cols={7} spacing="xs">
-                                {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(day => (
-                                    <Paper key={day} p="xs" ta="center" bg="gray.0">
-                                        <Text size="sm" fw={500}>{day}</Text>
-                                    </Paper>
-                                ))}
-                                
-                                {/* Jours du mois */}
-                                {Array.from({ length: 35 }, (_, i) => {
-                                    const day = i - 6; // Commencer à -6 pour aligner
-                                    const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day);
-                                    const isCurrentMonth = date.getMonth() === selectedDate.getMonth();
-                                    const isToday = date.toDateString() === new Date().toDateString();
-                                    const dayEvents = events.filter(event => {
-                                        const eventDate = new Date(event.startDate);
-                                        return eventDate.toDateString() === date.toDateString();
-                                    });
+                            {/* Contenu selon la vue */}
+                            {currentView === 'month' && (
+                                <SimpleGrid cols={7} spacing="xs">
+                                    {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(day => (
+                                        <Paper key={day} p="xs" ta="center" bg="gray.0">
+                                            <Text size="sm" fw={500}>{day}</Text>
+                                        </Paper>
+                                    ))}
+                                    
+                                    {/* Jours du mois */}
+                                    {(() => {
+                                        // Calculer le premier jour du mois et le nombre de jours
+                                        const firstDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                                        const lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
+                                        const daysInMonth = lastDay.getDate();
+                                        
+                                        // Calculer le jour de la semaine du premier jour (0 = dimanche, 1 = lundi, etc.)
+                                        const firstDayOfWeek = firstDay.getDay();
+                                        const sundayOffset = firstDayOfWeek; // Dimanche = 0
+                                        
+                                        // Calculer le nombre de semaines nécessaires
+                                        const totalDays = sundayOffset + daysInMonth;
+                                        const weeksNeeded = Math.ceil(totalDays / 7);
+                                        
+                                        const calendarDays = [];
+                                        
+                                        // Ajouter les jours du mois précédent si nécessaire
+                                        for (let i = 0; i < sundayOffset; i++) {
+                                            const prevMonthDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), -sundayOffset + i + 1);
+                                            calendarDays.push({
+                                                date: prevMonthDay,
+                                                isCurrentMonth: false,
+                                                day: prevMonthDay.getDate()
+                                            });
+                                        }
+                                        
+                                        // Ajouter les jours du mois actuel
+                                        for (let day = 1; day <= daysInMonth; day++) {
+                                            const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day);
+                                            calendarDays.push({
+                                                date,
+                                                isCurrentMonth: true,
+                                                day
+                                            });
+                                        }
+                                        
+                                        // Ajouter les jours du mois suivant pour compléter la dernière semaine
+                                        const remainingDays = weeksNeeded * 7 - calendarDays.length;
+                                        for (let day = 1; day <= remainingDays; day++) {
+                                            const nextMonthDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, day);
+                                            calendarDays.push({
+                                                date: nextMonthDay,
+                                                isCurrentMonth: false,
+                                                day
+                                            });
+                                        }
+                                        
+                                        return calendarDays.map((calendarDay, i) => {
+                                            const { date, isCurrentMonth, day } = calendarDay;
+                                            const isToday = date.toDateString() === new Date().toDateString();
+                                            const dayEvents = events.filter(event => {
+                                                const eventDate = new Date(event.startDate);
+                                                return eventDate.toDateString() === date.toDateString();
+                                            });
 
-                                    const isClicked = clickedDate && clickedDate.toDateString() === date.toDateString();
+                                            const isClicked = clickedDate && clickedDate.toDateString() === date.toDateString();
 
-                                    return (
-                                        <Paper
-                                            key={i}
-                                            p="xs"
-                                            ta="center"
-                                            bg={isClicked ? 'blue.0' : isToday ? 'violet.0' : isCurrentMonth ? 'white' : 'gray.1'}
-                                            style={{ 
-                                                minHeight: 80,
-                                                cursor: 'pointer',
-                                                border: isClicked ? '2px solid var(--mantine-color-blue-3)' : 
-                                                        isToday ? '2px solid var(--mantine-color-violet-3)' : 
-                                                        '1px solid var(--mantine-color-gray-2)'
-                                            }}
-                                            onClick={() => handleDateClick(date)}
-                                        >
-                                            <Text 
-                                                size="sm" 
-                                                c={isCurrentMonth ? 'dark' : 'dimmed'}
-                                                fw={isToday ? 600 : 400}
+                                            return (
+                                                <Paper
+                                                    key={i}
+                                                    p="xs"
+                                                    ta="center"
+                                                    bg={isClicked ? 'blue.0' : isToday ? 'violet.0' : isCurrentMonth ? 'white' : 'gray.1'}
+                                                    style={{ 
+                                                        minHeight: 80,
+                                                        cursor: 'pointer',
+                                                        border: isClicked ? '2px solid var(--mantine-color-blue-3)' : 
+                                                                isToday ? '2px solid var(--mantine-color-violet-3)' : 
+                                                                '1px solid var(--mantine-color-gray-2)'
+                                                    }}
+                                                    onClick={() => handleDateClick(date)}
+                                                >
+                                                    <Text 
+                                                        size="sm" 
+                                                        c={isCurrentMonth ? 'dark' : 'dimmed'}
+                                                        fw={isToday ? 600 : 400}
+                                                    >
+                                                        {day}
+                                                    </Text>
+                                                    {dayEvents.length > 0 && (
+                                                        <Stack gap={2} mt={4}>
+                                                            {dayEvents.slice(0, 2).map(event => (
+                                                                <Badge
+                                                                    key={event.id}
+                                                                    size="xs"
+                                                                    color={getEventTypeColor(event.type)}
+                                                                    variant="light"
+                                                                >
+                                                                    {event.title}
+                                                                </Badge>
+                                                            ))}
+                                                            {dayEvents.length > 2 && (
+                                                                <Text size="xs" c="dimmed">
+                                                                    +{dayEvents.length - 2} autres
+                                                                </Text>
+                                                            )}
+                                                        </Stack>
+                                                    )}
+                                                </Paper>
+                                            );
+                                        });
+                                    })()}
+                                </SimpleGrid>
+                            )}
+
+                            {currentView === 'week' && (
+                                <SimpleGrid cols={7} spacing="xs">
+                                    {getWeekDates(selectedDate).map((date, index) => {
+                                        const isToday = date.toDateString() === new Date().toDateString();
+                                        const dayEvents = events.filter(event => {
+                                            const eventDate = new Date(event.startDate);
+                                            return eventDate.toDateString() === date.toDateString();
+                                        });
+
+                                        return (
+                                            <Paper
+                                                key={index}
+                                                p="xs"
+                                                ta="center"
+                                                bg={isToday ? 'violet.0' : 'white'}
+                                                style={{ 
+                                                    minHeight: 120,
+                                                    cursor: 'pointer',
+                                                    border: isToday ? '2px solid var(--mantine-color-violet-3)' : '1px solid var(--mantine-color-gray-2)'
+                                                }}
+                                                onClick={() => handleDateClick(date)}
                                             >
-                                                {day > 0 ? day : ''}
-                                            </Text>
-                                            {dayEvents.length > 0 && (
-                                                <Stack gap={2} mt={4}>
-                                                    {dayEvents.slice(0, 2).map(event => (
+                                                <Text 
+                                                    size="sm" 
+                                                    fw={isToday ? 600 : 400}
+                                                    mb="xs"
+                                                >
+                                                    {date.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' })}
+                                                </Text>
+                                                <Stack gap={2}>
+                                                    {dayEvents.slice(0, 4).map(event => (
                                                         <Badge
                                                             key={event.id}
                                                             size="xs"
                                                             color={getEventTypeColor(event.type)}
                                                             variant="light"
+                                                            style={{ fontSize: '10px' }}
                                                         >
                                                             {event.title}
                                                         </Badge>
                                                     ))}
-                                                    {dayEvents.length > 2 && (
+                                                    {dayEvents.length > 4 && (
                                                         <Text size="xs" c="dimmed">
-                                                            +{dayEvents.length - 2} autres
+                                                            +{dayEvents.length - 4} autres
                                                         </Text>
                                                     )}
                                                 </Stack>
-                                            )}
-                                        </Paper>
-                                    );
-                                })}
-                            </SimpleGrid>
+                                            </Paper>
+                                        );
+                                    })}
+                                </SimpleGrid>
+                            )}
+
+                            {currentView === 'day' && (
+                                <Box>
+                                    <Text size="lg" fw={500} mb="md">
+                                        {selectedDate.toLocaleDateString('fr-FR', { 
+                                            weekday: 'long',
+                                            day: 'numeric', 
+                                            month: 'long',
+                                            year: 'numeric' 
+                                        })}
+                                    </Text>
+                                    <Stack gap="sm">
+                                        {(() => {
+                                            const dayEvents = events.filter(event => {
+                                                const eventDate = new Date(event.startDate);
+                                                return eventDate.toDateString() === selectedDate.toDateString();
+                                            }).sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+
+                                            return dayEvents.length > 0 ? (
+                                                dayEvents.map(event => (
+                                                    <Paper key={event.id} p="md" bg="gray.0">
+                                                        <Group justify="space-between" align="flex-start">
+                                                            <Box style={{ flex: 1 }}>
+                                                                <Text fw={500} size="sm">
+                                                                    {event.title}
+                                                                </Text>
+                                                                <Text size="xs" c="dimmed">
+                                                                    {formatTime(event.startDate)} - {formatTime(event.endDate)}
+                                                                </Text>
+                                                                {event.location && (
+                                                                    <Text size="xs" c="dimmed">
+                                                                        <IconMapPin size={12} style={{ marginRight: 4 }} />
+                                                                        {event.location}
+                                                                    </Text>
+                                                                )}
+                                                                {event.description && (
+                                                                    <Text size="xs" c="dimmed" mt="xs">
+                                                                        {event.description}
+                                                                    </Text>
+                                                                )}
+                                                            </Box>
+                                                            <Group gap="xs">
+                                                                <Badge size="sm" color={getEventTypeColor(event.type)}>
+                                                                    {getEventTypeLabel(event.type)}
+                                                                </Badge>
+                                                                <ActionIcon
+                                                                    size="sm"
+                                                                    variant="subtle"
+                                                                    onClick={() => handleEditEvent(event)}
+                                                                >
+                                                                    <IconEdit size={12} />
+                                                                </ActionIcon>
+                                                                <ActionIcon
+                                                                    size="sm"
+                                                                    variant="subtle"
+                                                                    color="red"
+                                                                    onClick={() => handleDeleteEvent(event.id)}
+                                                                >
+                                                                    <IconTrash size={12} />
+                                                                </ActionIcon>
+                                                            </Group>
+                                                        </Group>
+                                                    </Paper>
+                                                ))
+                                            ) : (
+                                                <Text size="sm" c="dimmed" ta="center" py="xl">
+                                                    Aucun événement ce jour
+                                                </Text>
+                                            );
+                                        })()}
+                                    </Stack>
+                                </Box>
+                            )}
                         </Card>
                     </Grid.Col>
 
