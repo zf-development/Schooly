@@ -8,6 +8,8 @@ import {
     Text,
     Box,
     Group,
+    Center,
+    Loader,
 } from "@mantine/core";
 import ThemeToggle from "../components/ThemeToggle";
 import { IconAlertCircle, IconSchool } from "@tabler/icons-react";
@@ -17,9 +19,22 @@ import { useUserContext } from "../contexts/UserContext";
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const { setUser } = useUserContext();
+    const userContext = useUserContext();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Vérification de sécurité pour éviter les erreurs pendant le hot reload
+    if (!userContext) {
+        return (
+            <Container size="sm" py="xl">
+                <Center>
+                    <Loader color="violet" size="lg" />
+                </Center>
+            </Container>
+        );
+    }
+
+    const { setUser } = userContext;
 
     const handleLogin = async (email: string, password: string) => {
         setLoading(true);

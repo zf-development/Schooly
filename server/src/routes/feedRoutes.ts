@@ -13,8 +13,8 @@ import {
     deletePost,
     createFeedWithFilesController,
     downloadFileController,
-    toggleUpvoteController,
-    checkUpvoteController,
+    toggleLikeController,
+    checkLikeController,
     addCommentController,
     getCommentsController,
     updateCommentController,
@@ -46,7 +46,7 @@ const upload = multer({
             'application/vnd.ms-excel',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         ];
-        
+
         if (allowedTypes.includes(file.mimetype)) {
             cb(null, true);
         } else {
@@ -68,9 +68,9 @@ router.delete('/feeds/:id', deletePost);
 router.post('/feeds/with-files', upload.array('files', 5), createFeedWithFilesController);
 router.get('/files/:filePath(*)', downloadFileController);
 
-// Routes pour les upvotes
-router.post('/feeds/:postId/upvote', toggleUpvoteController);
-router.get('/feeds/:postId/upvote', checkUpvoteController);
+// Routes pour les likes
+router.post('/feeds/:postId/like', toggleLikeController);
+router.get('/feeds/:postId/like', checkLikeController);
 
 // Routes pour les commentaires
 router.post('/feeds/:postId/comments', addCommentController);

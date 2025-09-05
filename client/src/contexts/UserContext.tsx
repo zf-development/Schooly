@@ -19,6 +19,15 @@ interface User {
     email: string;
     name: string;
     avatar_url?: string; // Utiliser le même nom que l'API
+    institution?: {
+        id: string;
+        name: string;
+    };
+    subscriptions?: Array<{
+        id: string;
+        institution_id: string;
+        created_at: string;
+    }>;
 }
 
 // Interface pour le contexte
@@ -146,8 +155,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                     setUser({
                         id: userData.user.id,
                         email: userData.user.email,
-                        name: userData.user.name || "Utilisateur",
+                        name: userData.user.display_name || userData.user.name || "Utilisateur",
                         avatar_url: userData.user.avatar_url,
+                        institution: userData.user.institution,
                     });
                     setIsTokenExpired(false);
                 } else if (response.status === 401) {

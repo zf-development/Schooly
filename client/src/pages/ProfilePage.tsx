@@ -24,12 +24,14 @@ import {
     FileInput,
     Select,
     Switch,
+    ThemeIcon,
 } from "@mantine/core";
 import {
     IconAlertCircle,
     IconCheck,
     IconX,
     IconUser,
+    IconUserScan,
     IconEdit,
     IconCamera,
     IconSchool,
@@ -354,9 +356,27 @@ const ProfilePage: React.FC = () => {
         <MainLayout authProps={authProps}>
             <Container size="lg" py="xl">
                 <Stack gap="xl">
-                    <Title order={1} ta="center">
+                    {/* Header simple et cohérent */}
+                    <Box>
+                        <Group gap="md" align="center" mb="md">
+                            <ThemeIcon
+                                size="lg"
+                                radius="xl"
+                                color="violet"
+                                variant="light"
+                            >
+                                <IconUserScan size={20} />
+                            </ThemeIcon>
+                            <Box>
+                                <Title order={1} size="h1" fw={700} c="dark.8">
                         Mon Profil
                     </Title>
+                                <Text size="md" c="dimmed">
+                                    Gérez vos informations personnelles et vos préférences
+                                </Text>
+                            </Box>
+                        </Group>
+                    </Box>
 
                     {error && (
                         <Alert
@@ -408,12 +428,12 @@ const ProfilePage: React.FC = () => {
                             <Grid.Col span={{ base: 12, md: 4 }}>
                                 <Stack align="center" gap="md">
                                     <Box pos="relative">
-                                        <Avatar
+                        <Avatar
                                             src={profile?.avatar_url}
                                             size={120}
-                                            radius="xl"
-                                            alt="Votre avatar"
-                                        />
+                            radius="xl"
+                            alt="Votre avatar"
+                        />
                                         <Tooltip label="Changer l'avatar">
                                             <ActionIcon
                                                 variant="filled"
@@ -455,7 +475,7 @@ const ProfilePage: React.FC = () => {
                                                           )
                                                         : "2024"}
                                                 </Text>
-                                            </Text>
+                        </Text>
                                         </Group>
                                         <Badge variant="light" color="violet">
                                             <Group gap="xs" align="center">
@@ -487,8 +507,8 @@ const ProfilePage: React.FC = () => {
                                     />
                                     <TextInput
                                         label="Nom complet"
-                                        value={profile?.full_name || ""}
-                                        disabled
+                                    value={profile?.full_name || ""}
+                                    disabled
                                         leftSection={<IconUser size={16} />}
                                     />
                                     <TextInput
@@ -752,7 +772,7 @@ const ProfilePage: React.FC = () => {
                                                         </Stack>
                                                     </Card>
                                                 ))}
-                                            </Group>
+                        </Group>
                                         </Stack>
                                     </Card>
 
@@ -764,7 +784,7 @@ const ProfilePage: React.FC = () => {
                                             />
                                             <Text fw={600}>
                                                 Projets académiques
-                                            </Text>
+                        </Text>
                                         </Group>
                                         <Stack gap="xs">
                                             <Group gap="xs" wrap="wrap">
@@ -946,7 +966,7 @@ const ProfilePage: React.FC = () => {
                                                     </Text>
                                                     <Badge
                                                         size="lg"
-                                                        variant="filled"
+                                    variant="filled"
                                                         color="green"
                                                     >
                                                         {userStats.xp_points}
@@ -978,7 +998,7 @@ const ProfilePage: React.FC = () => {
                     {editMode && (
                         <Group justify="center" gap="md">
                             <Button
-                                variant="filled"
+                                    variant="filled"
                                                                                     color="violet"
                                 size="lg"
                                 onClick={handleSave}

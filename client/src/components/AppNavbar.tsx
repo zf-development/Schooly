@@ -14,27 +14,31 @@ import { useNavbarContext } from "../contexts/NavbarContext";
 import styles from "./AppNavbar.module.css";
 import {
     IconSchool,
-    IconUser,
+    IconUserScan,
     IconLogout,
     IconHome,
+    IconNews,
     IconNote,
     IconCalendar,
     IconFile,
     IconBuilding,
+    IconBuildingPlus,
     IconChevronLeft,
     IconChevronRight,
+    IconMessage,
 } from "@tabler/icons-react";
 
 const linksSections = {
     feed: {
         label: "Social",
         links: [
-            { route: "/feed", label: "Fil d'actualités", icon: IconHome },
+            { route: "/feed", label: "Fil d'actualités", icon: IconNews },
             {
                 route: "/subscriptions",
                 label: "Mes abonnements",
-                icon: IconBuilding,
+                icon: IconBuildingPlus,
             },
+            { route: "/messaging", label: "Messagerie", icon: IconMessage },
         ],
     },
     academic: {
@@ -48,7 +52,7 @@ const linksSections = {
     account: {
         label: "Mon compte",
         links: [
-            { route: "/profile", label: "Mon profil", icon: IconUser },
+            { route: "/profile", label: "Mon profil", icon: IconUserScan },
 
             { route: "/logout", label: "Se déconnecter", icon: IconLogout },
         ],

@@ -5,7 +5,7 @@
 // - DELETE /api/feed/:id - Supprimer un post
 
 import { Request, Response } from 'express';
-import { getPosts as getSupabasePosts, createPost as createSupabasePost, updatePost as updateSupabasePost, deletePost as deleteSupabasePost, canUserModifyPost, getUserById, getUserSubscriptions, getInstitutionDetails, supabase, uploadFileToStorage, createFeedWithFiles, togglePostUpvote, checkUserUpvote, getPostUpvotesCount, getPostsWithDetails, addPostComment, getPostComments, updatePostComment, deletePostComment } from '../services/supabaseService';
+import { getPosts as getSupabasePosts, createPost as createSupabasePost, updatePost as updateSupabasePost, deletePost as deleteSupabasePost, canUserModifyPost, getUserById, getUserSubscriptions, getInstitutionDetails, supabase, uploadFileToStorage, createFeedWithFiles, togglePostLike, checkUserLike, getPostLikesCount, getPostsWithDetails, addPostComment, getPostComments, updatePostComment, deletePostComment } from '../services/supabaseService';
 import { AuditService, extractRequestContext } from '../services/auditService';
 
 // Interface étendue pour inclure l'utilisateur authentifié
@@ -31,7 +31,7 @@ export const getPosts = async (req: AuthenticatedRequest, res: Response) => {
             });
         }
 
-        // Récupérer les posts de l'institution de l'utilisateur avec les upvotes
+        // Récupérer les posts de l'institution de l'utilisateur avec les likes
         const userInstitutionPosts = await getPostsWithDetails(user.institution_id, user.id);
 
         if (!userInstitutionPosts) {
@@ -49,7 +49,7 @@ export const getPosts = async (req: AuthenticatedRequest, res: Response) => {
         if (userSubscriptions && userSubscriptions.length > 0) {
             const followedInstitutionIds = userSubscriptions.map(sub => sub.institution_id);
 
-            // Récupérer les posts publics de chaque établissement suivi avec les upvotes
+            // Récupérer les posts publics de chaque établissement suivi avec les likes
             for (const institutionId of followedInstitutionIds) {
                 try {
                     const publicPosts = await getPostsWithDetails(institutionId, user.id, 'public');
@@ -87,7 +87,7 @@ export const getPosts = async (req: AuthenticatedRequest, res: Response) => {
             try {
                 // Récupérer les détails de l'auteur
                 const authorDetails = await getUserById(post.author_id);
-                
+
                 // Récupérer les détails de l'institution du post
                 const institutionDetails = await getInstitutionDetails(post.institution_id);
 
@@ -484,7 +484,7 @@ export const createFeedWithFilesController = async (req: Request, res: Response)
 
         // Upload des fichiers vers Supabase Storage
         const uploadedFiles = [];
-        
+
         if (files && files.length > 0) {
             for (const file of files) {
                 const uploadResult = await uploadFileToStorage(
@@ -591,7 +591,7 @@ export const downloadFileController = async (req: AuthenticatedRequest, res: Res
         }
 
         const { filePath } = req.params;
-        
+
         if (!filePath) {
             return res.status(400).json({
                 error: 'Chemin du fichier requis',
@@ -603,7 +603,7 @@ export const downloadFileController = async (req: AuthenticatedRequest, res: Res
 
         // Vérifier d'abord si le bucket existe
         const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-        
+
         if (bucketsError) {
             console.error("Erreur lors de la récupération des buckets:", bucketsError);
             return res.status(500).json({
@@ -628,7 +628,7 @@ export const downloadFileController = async (req: AuthenticatedRequest, res: Res
         const { data: files, error: listError } = await supabase.storage
             .from('post-files')
             .list();
-        
+
         if (listError) {
             console.error("Erreur lors de la liste des fichiers:", listError);
         }
@@ -648,7 +648,7 @@ export const downloadFileController = async (req: AuthenticatedRequest, res: Res
         // Déterminer le type MIME basé sur l'extension
         const fileExtension = filePath.split('.').pop()?.toLowerCase();
         let contentType = 'application/octet-stream';
-        
+
         if (fileExtension === 'pdf') contentType = 'application/pdf';
         else if (fileExtension === 'png') contentType = 'image/png';
         else if (fileExtension === 'jpg' || fileExtension === 'jpeg') contentType = 'image/jpeg';
@@ -670,8 +670,8 @@ export const downloadFileController = async (req: AuthenticatedRequest, res: Res
     }
 };
 
-// Contrôleur pour toggle upvote
-export const toggleUpvoteController = async (req: AuthenticatedRequest, res: Response) => {
+// Contrôleur pour toggle like
+export const toggleLikeController = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const user = req.user;
         if (!user) {
@@ -689,11 +689,11 @@ export const toggleUpvoteController = async (req: AuthenticatedRequest, res: Res
             });
         }
 
-        const result = await togglePostUpvote(postId, user.id);
+        const result = await togglePostLike(postId, user.id);
         if (!result) {
             return res.status(500).json({
-                error: 'Erreur lors du toggle upvote',
-                code: 'UPVOTE_ERROR'
+                error: 'Erreur lors du toggle like',
+                code: 'LIKE_ERROR'
             });
         }
 
@@ -712,8 +712,8 @@ export const toggleUpvoteController = async (req: AuthenticatedRequest, res: Res
     }
 };
 
-// Contrôleur pour vérifier si l'utilisateur a upvoté
-export const checkUpvoteController = async (req: AuthenticatedRequest, res: Response) => {
+// Contrôleur pour vérifier si l'utilisateur a liké
+export const checkLikeController = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const user = req.user;
         if (!user) {
@@ -731,19 +731,19 @@ export const checkUpvoteController = async (req: AuthenticatedRequest, res: Resp
             });
         }
 
-        const hasUpvoted = await checkUserUpvote(postId, user.id);
-        const upvotesCount = await getPostUpvotesCount(postId);
+        const hasLiked = await checkUserLike(postId, user.id);
+        const likesCount = await getPostLikesCount(postId);
 
         return res.status(200).json({
             success: true,
             data: {
-                hasUpvoted,
-                upvotesCount
+                hasLiked,
+                likesCount
             }
         });
 
     } catch (error) {
-        console.error("Erreur dans checkUpvoteController:", error);
+        console.error("Erreur dans checkLikeController:", error);
         return res.status(500).json({
             error: 'Erreur interne du serveur',
             code: 'SERVER_ERROR'
@@ -819,8 +819,8 @@ export const getCommentsController = async (req: AuthenticatedRequest, res: Resp
         }
 
         const result = await getPostComments(
-            postId, 
-            parseInt(limit as string), 
+            postId,
+            parseInt(limit as string),
             parseInt(offset as string)
         );
 

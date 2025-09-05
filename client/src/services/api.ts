@@ -37,12 +37,12 @@ class ApiService {
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
             const currentTime = Math.floor(Date.now() / 1000);
-            
+
             // Vérifier si le token est expiré (avec une marge de 5 minutes)
             if (payload.exp && payload.exp < (currentTime + 300)) {
                 return true;
             }
-            
+
             return false;
         } catch (error) {
             console.error("Erreur lors de la vérification du token:", error);
@@ -95,12 +95,12 @@ class ApiService {
                     if (token) {
                         console.log("Erreur 401 reçue - session expirée");
                         this.removeAuthToken();
-                        
+
                         // Déclencher la déconnexion automatique
                         if (onTokenExpired) {
                             onTokenExpired();
                         }
-                        
+
                         throw new Error('Session expirée. Veuillez vous reconnecter.');
                     } else {
                         // Pas de token = erreur d'authentification, afficher le vrai message
@@ -222,15 +222,15 @@ class ApiService {
         return this.request('/institutions');
     }
 
-    // Upvotes
-    async toggleUpvote(postId: string): Promise<ApiResponse<{ upvoted: boolean; upvotes_count: number }>> {
-        return this.request(`/feed/feeds/${postId}/upvote`, {
+    // Likes
+    async toggleLike(postId: string): Promise<ApiResponse<{ liked: boolean; likes_count: number }>> {
+        return this.request(`/feed/feeds/${postId}/like`, {
             method: 'POST',
         });
     }
 
-    async checkUpvote(postId: string): Promise<ApiResponse<{ hasUpvoted: boolean; upvotesCount: number }>> {
-        return this.request(`/feed/feeds/${postId}/upvote`);
+    async checkLike(postId: string): Promise<ApiResponse<{ hasLiked: boolean; likesCount: number }>> {
+        return this.request(`/feed/feeds/${postId}/like`);
     }
 
     // Commentaires

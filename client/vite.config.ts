@@ -12,5 +12,11 @@ export default defineConfig({
                 secure: false,
             }
         }
+    },
+    build: {
+        sourcemap: true
+    },
+    optimizeDeps: {
+        include: ['react', 'react-dom']
     }
 })

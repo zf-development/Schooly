@@ -122,9 +122,9 @@ const FeedList: React.FC<FeedListProps> = ({ posts, loading, onReport }) => {
                         visibility={post.visibility}
                         createdAt={post.createdAt}
                         files={post.files}
-                        upvotes={post.upvotes}
+                        likes={post.likes}
                         comments={post.comments}
-                        hasUpvoted={post.hasUpvoted}
+                        hasLiked={post.hasLiked}
                         onReport={onReport}
                     />
                 </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Stack, Title, Alert, Text, Box, Container } from "@mantine/core";
-import { IconAlertCircle } from "@tabler/icons-react";
+import { Stack, Title, Alert, Text, Box, Container, Group, ThemeIcon } from "@mantine/core";
+import { IconAlertCircle, IconNews } from "@tabler/icons-react";
 import MainLayout from "../layouts/MainLayout";
 import PostForm from "../components/PostForm";
 import FeedList from "../components/FeedList";
@@ -72,9 +72,9 @@ const FeedPage: React.FC = () => {
                         visibility: post.visibility,
                         createdAt: new Date(post.created_at),
                         files: transformedFiles,
-                        upvotes: post.upvotes_count || 0,
+                        likes: post.likes_count || 0,
                         comments: post.comments_count || 0,
-                        hasUpvoted: post.hasUpvoted || false,
+                        hasLiked: post.hasLiked || false,
                     };
                 });
 
@@ -136,7 +136,6 @@ const FeedPage: React.FC = () => {
                     content: response.content,
                     visibility: response.visibility,
                     createdAt: new Date(response.created_at),
-                    files: response.files || [],
                 };
 
                 // Ajouter le nouveau post au début de la liste
@@ -182,10 +181,29 @@ const FeedPage: React.FC = () => {
 
     return (
         <MainLayout authProps={authProps}>
-            <Container style={{ width: "100%" }}>
-                <Box>
-                    <Stack gap="xl" align="center">
-                        <Title order={1}>Fil d'actualité</Title>
+            <Container size="lg" py="xl">
+                <Stack gap="xl">
+                    {/* Header simple et cohérent */}
+                    <Box>
+                        <Group gap="md" align="center" mb="md">
+                            <ThemeIcon
+                                size="lg"
+                                radius="xl"
+                                color="violet"
+                                variant="light"
+                            >
+                                <IconNews size={20} />
+                            </ThemeIcon>
+                            <Box>
+                                <Title order={1} size="h1" fw={700} c="dark.8">
+                                    Fil d'actualité
+                                </Title>
+                                <Text size="md" c="dimmed">
+                                    Découvrez les dernières publications de vos établissements
+                                </Text>
+                            </Box>
+                        </Group>
+                    </Box>
 
                         {error && (
                             <Alert
@@ -200,23 +218,22 @@ const FeedPage: React.FC = () => {
                             </Alert>
                         )}
 
-                        <Box w="100%">
-                            <PostForm
-                                onSubmit={handleCreatePost}
-                                loading={loading}
-                                success={success}
-                            />
-                        </Box>
+                    <Box w="100%">
+                        <PostForm
+                            onSubmit={handleCreatePost}
+                            loading={loading}
+                            success={success}
+                        />
+                    </Box>
 
-                        <Box>
-                            <FeedList
-                                posts={posts}
-                                loading={loadingPosts}
-                                onReport={handleReportPost}
-                            />
-                        </Box>
-                    </Stack>
-                </Box>
+                    <Box>
+                        <FeedList
+                            posts={posts}
+                            loading={loadingPosts}
+                            onReport={handleReportPost}
+                        />
+                    </Box>
+                </Stack>
             </Container>
 
             <ReportPostModal
@@ -224,6 +241,7 @@ const FeedPage: React.FC = () => {
                 onClose={closeReportModal}
                 postId={reportingPost?.id || ""}
                 postTitle={reportingPost?.title}
+                type="post"
             />
         </MainLayout>
     );

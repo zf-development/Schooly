@@ -20,8 +20,8 @@ import {
     IconFlag,
     IconClock,
     IconBuilding,
-    IconArrowUp,
-    IconArrowBigUpFilled,
+    IconHeart,
+    IconHeartFilled,
     IconMessageCircle,
     IconDotsVertical,
     IconEye,
@@ -59,12 +59,12 @@ export interface PostCardProps {
         size: number;
         url: string;
     }>;
-    upvotes?: number;
+    likes?: number;
     comments?: number;
-    isUpvoted?: boolean;
-    hasUpvoted?: boolean; // Nouveau: état upvote depuis le serveur
+    isLiked?: boolean;
+    hasLiked?: boolean; // Nouveau: état like depuis le serveur
     onReport?: (postId: string, postTitle?: string) => void;
-    onUpvote?: (postId: string) => void;
+    onLike?: (postId: string) => void;
     onComment?: (postId: string) => void;
 }
 
@@ -76,28 +76,28 @@ const PostCard: React.FC<PostCardProps> = ({
     visibility,
     createdAt,
     files = [],
-    upvotes = 0,
+    likes = 0,
     comments = 0,
-    isUpvoted = false,
-    hasUpvoted = false,
+    isLiked = false,
+    hasLiked = false,
     onReport,
-    onUpvote,
+    onLike,
     onComment,
 }) => {
-    const [localUpvotes, setLocalUpvotes] = useState(upvotes);
-    const [localIsUpvoted, setLocalIsUpvoted] = useState(isUpvoted);
+    const [localLikes, setLocalLikes] = useState(likes);
+    const [localIsLiked, setLocalIsLiked] = useState(isLiked);
     const [localCommentsCount, setLocalCommentsCount] = useState(comments || 0);
     const [showComments, setShowComments] = useState(false);
 
     // Initialiser l'état avec les données du serveur
     useEffect(() => {
-        if (hasUpvoted !== undefined) {
-            setLocalIsUpvoted(hasUpvoted);
+        if (hasLiked !== undefined) {
+            setLocalIsLiked(hasLiked);
         }
-        if (upvotes !== undefined) {
-            setLocalUpvotes(upvotes);
+        if (likes !== undefined) {
+            setLocalLikes(likes);
         }
-    }, [hasUpvoted, upvotes]);
+    }, [hasLiked, likes]);
     const [imageModalOpened, setImageModalOpened] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string>("");
 
@@ -131,22 +131,22 @@ const PostCard: React.FC<PostCardProps> = ({
         return vis === "public" ? "Public" : "Privé";
     };
 
-    const handleUpvote = async () => {
+    const handleLike = async () => {
         try {
-            const result = await feedService.toggleUpvote(id);
+            const result = await feedService.toggleLike(id);
             
             // Gérer les deux structures possibles
-            const upvoteData = (result as any).data || result;
+            const likeData = (result as any).data || result;
             
-            setLocalUpvotes(upvoteData.upvotes_count);
-            setLocalIsUpvoted(upvoteData.upvoted);
+            setLocalLikes(likeData.likes_count);
+            setLocalIsLiked(likeData.liked);
 
             // Appeler le callback si fourni
-            if (onUpvote) {
-                onUpvote(id);
+            if (onLike) {
+                onLike(id);
             }
         } catch (error) {
-            console.error("Erreur lors du toggle upvote:", error);
+            console.error("Erreur lors du toggle like:", error);
         }
     };
 
@@ -389,31 +389,31 @@ const PostCard: React.FC<PostCardProps> = ({
             <Group justify="space-between" align="center" mt="md">
                 <Group gap="xs">
                     <Tooltip
-                        label={localIsUpvoted ? "Retirer l'upvote" : "Upvoter"}
+                        label={localIsLiked ? "Retirer le like" : "Aimer"}
                     >
                         <Button
                             variant="light"
-                            color={localIsUpvoted ? "violet" : "gray"}
+                            color={localIsLiked ? "violet" : "gray"}
                             size="sm"
                             leftSection={
-                                localIsUpvoted ? (
-                                    <IconArrowBigUpFilled size={16} />
+                                localIsLiked ? (
+                                    <IconHeartFilled size={16} />
                                 ) : (
-                                    <IconArrowUp size={16} />
+                                    <IconHeart size={16} />
                                 )
                             }
-                            onClick={handleUpvote}
+                            onClick={handleLike}
                             className={styles.actionButton}
                             style={{
-                                backgroundColor: localIsUpvoted
+                                backgroundColor: localIsLiked
                                     ? "var(--mantine-color-violet-0)"
                                     : "var(--mantine-color-gray-0)",
-                                borderColor: localIsUpvoted
+                                borderColor: localIsLiked
                                     ? "var(--mantine-color-violet-3)"
                                     : "var(--mantine-color-gray-3)",
                             }}
                         >
-                            {localUpvotes}
+                            {localLikes}
                         </Button>
                     </Tooltip>
 

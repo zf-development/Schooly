@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Group, Avatar, Menu, Text } from "@mantine/core";
-import { IconUser, IconLogout, IconLogin } from "@tabler/icons-react";
+import { IconUserScan, IconLogout, IconLogin } from "@tabler/icons-react";
 import type { AuthButtonProps } from "../types";
 
 export const AuthButton: React.FC<AuthButtonProps> = ({
@@ -41,7 +41,7 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
             </Menu.Target>
             <Menu.Dropdown>
                 <Menu.Item
-                    leftSection={<IconUser size={14} />}
+                    leftSection={<IconUserScan size={14} />}
                     onClick={onProfile}
                 >
                     Profil

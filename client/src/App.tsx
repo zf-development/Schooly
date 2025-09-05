@@ -10,40 +10,19 @@ import { ColorSchemeScript } from "@mantine/core";
 import LoginPage from "./pages/LoginPage";
 import FeedPage from "./pages/FeedPage";
 import ProfilePage from "./pages/ProfilePage";
+import SubscriptionsPage from "./pages/SubscriptionsPage";
+import CalendarPage from "./pages/CalendarPage";
+import FileExplorerPage from "./pages/FileExplorerPage";
+import NotesPage from "./pages/NotesPage";
+import MessagingPage from "./pages/MessagingPage";
 import { UserProvider } from "./contexts/UserContext";
 import { NavbarProvider } from "./contexts/NavbarContext";
 import { lightTheme, darkTheme } from "./theme";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
+import FloatingActionButtons from "./components/FloatingActionButtons";
 
-// Pages temporaires pour les routes manquantes
-const NotesPage = () => (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
-        <h1>📚 Mes Notes</h1>
-        <p>Page en cours de développement...</p>
-    </div>
-);
 
-const CalendarPage = () => (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
-        <h1>📅 Mon Calendrier</h1>
-        <p>Page en cours de développement...</p>
-    </div>
-);
-
-const FilesPage = () => (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
-        <h1>📁 Mes Fichiers</h1>
-        <p>Page en cours de développement...</p>
-    </div>
-);
-
-const SubscriptionsPage = () => (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
-        <h1>🏫 Mes Établissements</h1>
-        <p>Page en cours de développement...</p>
-    </div>
-);
 
 const App: React.FC = () => {
     return (
@@ -105,7 +84,16 @@ const App: React.FC = () => {
                                 path="/files"
                                 element={
                                     <ProtectedRoute>
-                                        <FilesPage />
+                                        <FileExplorerPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/messaging"
+                                element={
+                                    <ProtectedRoute>
+                                        <MessagingPage />
                                     </ProtectedRoute>
                                 }
                             />
@@ -128,6 +116,7 @@ const App: React.FC = () => {
                                 element={<Navigate to="/login" replace />}
                             />
                         </Routes>
+                        <FloatingActionButtons notificationCount={3} />
                     </Router>
                 </NavbarProvider>
             </UserProvider>

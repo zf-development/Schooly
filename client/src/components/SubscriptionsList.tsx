@@ -9,16 +9,10 @@ import {
     Button,
     Alert,
     Skeleton,
-    Divider,
-    TextInput,
     Card,
     Avatar,
-    ActionIcon,
 } from "@mantine/core";
 import {
-    IconSearch,
-    IconPlus,
-    IconX,
     IconSchool,
     IconUserCheck,
 } from "@tabler/icons-react";
@@ -28,6 +22,10 @@ import institutionService from "../services/institutionService";
 interface SubscriptionsListProps {
     onSubscriptionChange?: () => void;
     userInstitutionId?: string;
+    userInstitutionName?: string;
+    subscriptions?: Subscription[];
+    loading?: boolean;
+    error?: string | null;
 }
 
 interface Institution {
@@ -48,83 +46,102 @@ interface Subscription {
 const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
     onSubscriptionChange,
     userInstitutionId,
+    userInstitutionName,
+    subscriptions: propSubscriptions,
+    loading: propLoading,
+    error: propError,
 }) => {
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [allInstitutions, setAllInstitutions] = useState<Institution[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [followingLoading, setFollowingLoading] = useState<string | null>(
-        null
-    );
-    const [unfollowingLoading, setUnfollowingLoading] = useState<string | null>(
-        null
-    );
+    const [unfollowingLoading, setUnfollowingLoading] = useState<string | null>(null);
 
-    // Charger les données initiales
+    // Utiliser les props si disponibles, sinon les états locaux
+    const subscriptions = propSubscriptions || [];
+    const loadingState = propLoading !== undefined ? propLoading : loading;
+    
+    const errorState = propError !== undefined ? propError : error;
+
+    // Charger seulement les établissements si les abonnements sont fournis en props
     useEffect(() => {
-        loadData();
-    }, []);
+        if (!propSubscriptions) {
+            loadData();
+        } else {
+            loadInstitutions();
+        }
+    }, [propSubscriptions]);
+
+    const loadInstitutions = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const institutionsResponse = await fetch("http://localhost:3001/api/institutions", {
+                headers: {
+                    Authorization: "Bearer " + localStorage.getItem("authToken"),
+                },
+            }).then((r) => r.json());
+
+            if (institutionsResponse.success && institutionsResponse.data) {
+                const institutions = Array.isArray(institutionsResponse.data)
+                    ? institutionsResponse.data
+                    : [];
+                setAllInstitutions(institutions);
+            } else {
+                setAllInstitutions([]);
+            }
+
+            if (!institutionsResponse.success) {
+                setError(
+                    institutionsResponse.error ||
+                        "Erreur lors du chargement des établissements"
+                );
+            }
+        } catch (err) {
+            console.error("Erreur dans loadInstitutions:", err);
+            setError("Erreur lors du chargement des données");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const loadData = async () => {
         try {
             setLoading(true);
             setError(null);
 
-
-
             // Charger les abonnements et les établissements en parallèle
-            const [subscriptionsResponse, institutionsResponse] =
-                await Promise.all([
-                    subscriptionService.list(),
-                    // Appel direct à l'API pour diagnostiquer
-                    fetch("http://localhost:3001/api/institutions", {
-                        headers: {
-                            Authorization:
-                                "Bearer " + localStorage.getItem("authToken"),
-                        },
-                    }).then((r) => r.json()),
-                ]);
-
-            console.log("📡 Réponse abonnements:", subscriptionsResponse);
-            console.log("📡 Réponse établissements:", institutionsResponse);
+            const [subscriptionsResponse, institutionsResponse] = await Promise.all([
+                subscriptionService.list(),
+                fetch("http://localhost:3001/api/institutions", {
+                    headers: {
+                        Authorization: "Bearer " + localStorage.getItem("authToken"),
+                    },
+                }).then((r) => r.json()),
+            ]);
 
             // Gérer les deux structures possibles de l'API
-            let subscriptions = [];
+            let subscriptionsData = [];
             if (subscriptionsResponse.success && subscriptionsResponse.data) {
                 if (Array.isArray(subscriptionsResponse.data)) {
-                    // Structure : { success: true, data: [...] }
-                    subscriptions = subscriptionsResponse.data;
+                    subscriptionsData = subscriptionsResponse.data;
                 } else if ((subscriptionsResponse.data as any).subscriptions) {
-                    // Structure : { success: true, data: { subscriptions: [...], total: X } }
-                    subscriptions = Array.isArray(
-                        (subscriptionsResponse.data as any).subscriptions
-                    )
+                    subscriptionsData = Array.isArray((subscriptionsResponse.data as any).subscriptions)
                         ? (subscriptionsResponse.data as any).subscriptions
                         : [];
                 }
             } else if ((subscriptionsResponse as any).subscriptions) {
-                // Structure alternative : { subscriptions: [...], total: X }
-                subscriptions = Array.isArray(
-                    (subscriptionsResponse as any).subscriptions
-                )
+                subscriptionsData = Array.isArray((subscriptionsResponse as any).subscriptions)
                     ? (subscriptionsResponse as any).subscriptions
                     : [];
             }
 
-
-            setSubscriptions(subscriptions);
-
             if (institutionsResponse.success && institutionsResponse.data) {
-                // S'assurer que data est un tableau
                 const institutions = Array.isArray(institutionsResponse.data)
                     ? institutionsResponse.data
                     : [];
-
                 setAllInstitutions(institutions);
             } else {
-                // En cas d'échec, initialiser avec un tableau vide
-
                 setAllInstitutions([]);
             }
 
@@ -142,7 +159,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                 );
             }
         } catch (err) {
-            console.error("💥 Erreur dans loadData:", err);
+            console.error("Erreur dans loadData:", err);
             setError("Erreur lors du chargement des données");
         } finally {
             setLoading(false);
@@ -179,8 +196,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             const response = await subscriptionService.unfollow(institutionId);
 
             if (response.success) {
-                // Recharger les abonnements
-                await loadData();
+                // Notifier le parent pour recharger les données
                 onSubscriptionChange?.();
             } else {
                 setError(response.error || "Erreur lors du désabonnement");
@@ -202,56 +218,27 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
         return institutionId === userInstitutionId;
     };
 
-    // Debug: vérifier le type de allInstitutions et subscriptions
-    console.log(
-        "allInstitutions type:",
-        typeof allInstitutions,
-        "value:",
-        allInstitutions
-    );
-    console.log(
-        "subscriptions type:",
-        typeof subscriptions,
-        "value:",
-        subscriptions
-    );
 
-    const filteredInstitutions = Array.isArray(allInstitutions)
-        ? allInstitutions.filter(
-              (institution) =>
-                  // Exclure l'établissement de l'utilisateur et filtrer par nom
-                  institution.id !== userInstitutionId &&
-                  institution.name
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-          )
-        : [];
+
+    // Ce composant affiche seulement les abonnements actuels, pas la recherche
 
     if (loading) {
         return (
-            <Paper p="md" withBorder>
-                <Stack gap="md">
-                    <Skeleton height={30} width="40%" />
-                    <Skeleton height={20} width="60%" />
-                    <Skeleton height={100} />
-                    <Skeleton height={100} />
-                </Stack>
-            </Paper>
+            <Stack gap="md">
+                <Skeleton height={30} width="40%" />
+                <Skeleton height={20} width="60%" />
+                <Skeleton height={100} />
+                <Skeleton height={100} />
+            </Stack>
         );
     }
 
     return (
-        <Paper p="md" withBorder>
-            <Stack gap="lg">
+        <Stack gap="lg">
                 {/* Section des abonnements actuels */}
                 <div>
-                    <Title order={3} mb="md">
-                        <IconUserCheck size={20} style={{ marginRight: 8 }} />
-                        Mes Abonnements (
-                        {subscriptions ? subscriptions.length : 0})
-                    </Title>
 
-                    {loading ? (
+                    {loadingState ? (
                         <Stack gap="sm">
                             {[...Array(3)].map((_, index) => (
                                 <Card key={index} withBorder p="sm">
@@ -282,7 +269,39 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                         </Alert>
                     ) : (
                         <Stack gap="sm">
-                            {subscriptions.map((subscription) => {
+                            {/* Afficher l'établissement de l'utilisateur en premier */}
+                            {userInstitutionId && (
+                                <Card withBorder p="sm" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
+                                    <Group justify="space-between">
+                                        <Group gap="sm">
+                                            <Avatar
+                                                size="md"
+                                                color="green"
+                                            >
+                                                <IconSchool size={16} />
+                                            </Avatar>
+                                            <div>
+                                                <Text fw={500}>
+                                                    {userInstitutionName || "Mon établissement"}
+                                                </Text>
+                                                <Text size="sm" c="dimmed">
+                                                    Votre établissement principal
+                                                </Text>
+                                            </div>
+                                        </Group>
+                                        <Badge
+                                            color="green"
+                                            variant="light"
+                                        >
+                                            Établissement principal
+                                        </Badge>
+                                    </Group>
+                                </Card>
+                            )}
+                            
+                            {subscriptions
+                                .filter((subscription) => subscription.institution_id !== userInstitutionId)
+                                .map((subscription) => {
                                 const institution = allInstitutions
                                     ? allInstitutions.find(
                                           (inst) =>
@@ -323,23 +342,10 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                             </Group>
 
                                             <Group gap="xs">
-                                                {isUserInstitution(
-                                                    institution.id
-                                                ) && (
-                                                    <Badge
-                                                        color="green"
-                                                        variant="light"
-                                                    >
-                                                        Mon établissement
-                                                    </Badge>
-                                                )}
                                                 <Button
                                                     variant="light"
                                                     color="red"
                                                     size="sm"
-                                                    disabled={isUserInstitution(
-                                                        institution.id
-                                                    )}
                                                     loading={
                                                         unfollowingLoading ===
                                                         institution.id
@@ -361,174 +367,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                     )}
                 </div>
 
-                <Divider />
-
-                {/* Section pour découvrir de nouveaux établissements */}
-                <div>
-                    <Title order={3} mb="md">
-                        <IconPlus size={20} style={{ marginRight: 8 }} />
-                        Découvrir de Nouveaux Établissements
-                    </Title>
-
-                    <TextInput
-                        placeholder="Rechercher un établissement..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.currentTarget.value)}
-                        leftSection={<IconSearch size={16} />}
-                        rightSection={
-                            searchTerm && (
-                                <ActionIcon
-                                    variant="subtle"
-                                    onClick={() => setSearchTerm("")}
-                                    size="sm"
-                                >
-                                    <IconX size={16} />
-                                </ActionIcon>
-                            )
-                        }
-                        mb="md"
-                    />
-
-                    {error && (
-                        <Alert color="red" title="Erreur" mb="md">
-                            {error}
-                        </Alert>
-                    )}
-
-                    <Stack gap="sm">
-                        {loading ? (
-                            // Skeletons pour les institutions
-                            [...Array(4)].map((_, index) => (
-                                <Card key={index} withBorder p="sm">
-                                    <Group justify="space-between">
-                                        <Group gap="sm">
-                                            <Skeleton height={40} circle />
-                                            <div style={{ flex: 1 }}>
-                                                <Skeleton
-                                                    height={18}
-                                                    width="70%"
-                                                    mb={4}
-                                                />
-                                                <Skeleton
-                                                    height={14}
-                                                    width="50%"
-                                                />
-                                            </div>
-                                        </Group>
-                                        <Group gap="xs">
-                                            <Skeleton height={24} width={80} />
-                                            <Skeleton height={32} width={90} />
-                                        </Group>
-                                    </Group>
-                                </Card>
-                            ))
-                        ) : filteredInstitutions.length === 0 ? (
-                            <Alert color="yellow" title="Aucun résultat">
-                                Aucun établissement ne correspond à votre
-                                recherche.
-                            </Alert>
-                        ) : (
-                            filteredInstitutions.map((institution) => {
-                                const following = isFollowing(institution.id);
-                                const isOwnInstitution = isUserInstitution(
-                                    institution.id
-                                );
-
-                                return (
-                                    <Card
-                                        key={institution.id}
-                                        withBorder
-                                        p="sm"
-                                    >
-                                        <Group justify="space-between">
-                                            <Group gap="sm">
-                                                <Avatar
-                                                    src={institution.logoUrl}
-                                                    size="md"
-                                                    color="violet"
-                                                >
-                                                    <IconSchool size={16} />
-                                                </Avatar>
-                                                <div>
-                                                    <Text fw={500}>
-                                                        {institution.name}
-                                                    </Text>
-                                                    {institution.description && (
-                                                        <Text
-                                                            size="sm"
-                                                            c="dimmed"
-                                                            lineClamp={2}
-                                                        >
-                                                            {
-                                                                institution.description
-                                                            }
-                                                        </Text>
-                                                    )}
-                                                </div>
-                                            </Group>
-
-                                            <Group gap="xs">
-                                                {isOwnInstitution && (
-                                                    <Badge
-                                                        color="green"
-                                                        variant="light"
-                                                    >
-                                                        Mon établissement
-                                                    </Badge>
-                                                )}
-                                                {following &&
-                                                    !isOwnInstitution && (
-                                                        <Badge
-                                                            color="violet"
-                                                            variant="light"
-                                                        >
-                                                            Déjà abonné
-                                                        </Badge>
-                                                    )}
-                                                <Button
-                                                    variant={
-                                                        following
-                                                            ? "light"
-                                                            : "filled"
-                                                    }
-                                                    color={
-                                                        following
-                                                            ? "gray"
-                                                            : "violet"
-                                                    }
-                                                    size="sm"
-                                                    disabled={
-                                                        isOwnInstitution ||
-                                                        following
-                                                    }
-                                                    loading={
-                                                        followingLoading ===
-                                                        institution.id
-                                                    }
-                                                    onClick={() =>
-                                                        following
-                                                            ? handleUnfollow(
-                                                                  institution.id
-                                                              )
-                                                            : handleFollow(
-                                                                  institution.id
-                                                              )
-                                                    }
-                                                >
-                                                    {following
-                                                        ? "Se désabonner"
-                                                        : "S'abonner"}
-                                                </Button>
-                                            </Group>
-                                        </Group>
-                                    </Card>
-                                );
-                            })
-                        )}
-                    </Stack>
-                </div>
             </Stack>
-        </Paper>
     );
 };
 

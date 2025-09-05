@@ -67,6 +67,7 @@ export const getUserById = async (userId: string): Promise<User | null> => {
     }
 };
 
+
 // Fonction pour authentifier un utilisateur
 export const authenticateUser = async (email: string, password: string): Promise<{
     success: boolean;
@@ -594,9 +595,9 @@ export const getPostsWithDetails = async (userInstitutionId: string, userId?: st
         if (data && data.length > 0) {
             const postIds = data.map(post => post.id);
 
-            // Récupérer les statistiques d'upvotes pour tous les posts
-            const { data: upvotesStats, error: upvotesError } = await supabase
-                .from('post_upvotes')
+            // Récupérer les statistiques de likes pour tous les posts
+            const { data: likesStats, error: likesError } = await supabase
+                .from('post_likes')
                 .select('post_id')
                 .in('post_id', postIds);
 
@@ -606,28 +607,28 @@ export const getPostsWithDetails = async (userInstitutionId: string, userId?: st
                 .select('post_id')
                 .in('post_id', postIds);
 
-            // Récupérer les upvotes de l'utilisateur si userId est fourni
-            let userUpvotes: any[] = [];
+            // Récupérer les likes de l'utilisateur si userId est fourni
+            let userLikes: any[] = [];
             if (userId) {
-                const { data: userUpvotesData, error: userUpvotesError } = await supabase
-                    .from('post_upvotes')
+                const { data: userLikesData, error: userLikesError } = await supabase
+                    .from('post_likes')
                     .select('post_id')
                     .eq('user_id', userId)
                     .in('post_id', postIds);
 
-                if (!userUpvotesError && userUpvotesData) {
-                    userUpvotes = userUpvotesData;
+                if (!userLikesError && userLikesData) {
+                    userLikes = userLikesData;
                 }
             }
 
-            // Compter les upvotes et commentaires par post
-            const upvotesCount = new Map();
+            // Compter les likes et commentaires par post
+            const likesCount = new Map();
             const commentsCount = new Map();
-            const userUpvotedPosts = new Set(userUpvotes.map(upvote => upvote.post_id));
+            const userLikedPosts = new Set(userLikes.map(like => like.post_id));
 
-            if (!upvotesError && upvotesStats) {
-                upvotesStats.forEach(upvote => {
-                    upvotesCount.set(upvote.post_id, (upvotesCount.get(upvote.post_id) || 0) + 1);
+            if (!likesError && likesStats) {
+                likesStats.forEach(like => {
+                    likesCount.set(like.post_id, (likesCount.get(like.post_id) || 0) + 1);
                 });
             }
 
@@ -639,9 +640,9 @@ export const getPostsWithDetails = async (userInstitutionId: string, userId?: st
 
             // Ajouter les statistiques à chaque post
             data.forEach(post => {
-                post.upvotes_count = upvotesCount.get(post.id) || 0;
+                post.likes_count = likesCount.get(post.id) || 0;
                 post.comments_count = commentsCount.get(post.id) || 0;
-                post.hasUpvoted = userUpvotedPosts.has(post.id);
+                post.hasLiked = userLikedPosts.has(post.id);
             });
         }
 
@@ -751,38 +752,38 @@ export const createFeedWithFiles = async (feedData: {
     }
 };
 
-// Fonctions pour les upvotes
-export const togglePostUpvote = async (postId: string, userId: string): Promise<{ upvoted: boolean; upvotes_count: number } | null> => {
+// Fonctions pour les likes
+export const togglePostLike = async (postId: string, userId: string): Promise<{ liked: boolean; likes_count: number } | null> => {
     try {
-        // Vérifier si l'utilisateur a déjà upvoté ce post
-        const { data: existingUpvote, error: checkError } = await supabase
-            .from('post_upvotes')
+        // Vérifier si l'utilisateur a déjà liké ce post
+        const { data: existingLike, error: checkError } = await supabase
+            .from('post_likes')
             .select('id')
             .eq('post_id', postId)
             .eq('user_id', userId)
             .single();
 
         if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
-            console.error('Erreur lors de la vérification de l\'upvote:', checkError);
+            console.error('Erreur lors de la vérification du like:', checkError);
             return null;
         }
 
-        if (existingUpvote) {
-            // Supprimer l'upvote existant
+        if (existingLike) {
+            // Supprimer le like existant
             const { error: deleteError } = await supabase
-                .from('post_upvotes')
+                .from('post_likes')
                 .delete()
                 .eq('post_id', postId)
                 .eq('user_id', userId);
 
             if (deleteError) {
-                console.error('Erreur lors de la suppression de l\'upvote:', deleteError);
+                console.error('Erreur lors de la suppression du like:', deleteError);
                 return null;
             }
         } else {
-            // Ajouter un nouvel upvote
+            // Ajouter un nouveau like
             const { error: insertError } = await supabase
-                .from('post_upvotes')
+                .from('post_likes')
                 .insert({
                     post_id: postId,
                     user_id: userId,
@@ -790,68 +791,68 @@ export const togglePostUpvote = async (postId: string, userId: string): Promise<
                 });
 
             if (insertError) {
-                console.error('Erreur lors de l\'ajout de l\'upvote:', insertError);
+                console.error('Erreur lors de l\'ajout du like:', insertError);
                 return null;
             }
         }
 
-        // Récupérer le nouveau nombre d'upvotes
+        // Récupérer le nouveau nombre de likes
         const { count, error: countError } = await supabase
-            .from('post_upvotes')
+            .from('post_likes')
             .select('*', { count: 'exact', head: true })
             .eq('post_id', postId);
 
         if (countError) {
-            console.error('Erreur lors du comptage des upvotes:', countError);
+            console.error('Erreur lors du comptage des likes:', countError);
             return null;
         }
 
         return {
-            upvoted: !existingUpvote,
-            upvotes_count: count || 0
+            liked: !existingLike,
+            likes_count: count || 0
         };
     } catch (error) {
-        console.error('Erreur lors du toggle upvote:', error);
+        console.error('Erreur lors du toggle like:', error);
         return null;
     }
 };
 
-export const checkUserUpvote = async (postId: string, userId: string): Promise<boolean> => {
+export const checkUserLike = async (postId: string, userId: string): Promise<boolean> => {
     try {
         const { data, error } = await supabase
-            .from('post_upvotes')
+            .from('post_likes')
             .select('id')
             .eq('post_id', postId)
             .eq('user_id', userId)
             .single();
 
         if (error && error.code !== 'PGRST116') {
-            console.error('Erreur lors de la vérification de l\'upvote:', error);
+            console.error('Erreur lors de la vérification du like:', error);
             return false;
         }
 
         return !!data;
     } catch (error) {
-        console.error('Erreur lors de la vérification de l\'upvote:', error);
+        console.error('Erreur lors de la vérification du like:', error);
         return false;
     }
 };
 
-export const getPostUpvotesCount = async (postId: string): Promise<number> => {
+export const getPostLikesCount = async (postId: string): Promise<number> => {
     try {
         const { count, error } = await supabase
-            .from('post_upvotes')
+            .from('post_likes')
             .select('*', { count: 'exact', head: true })
             .eq('post_id', postId);
 
         if (error) {
-            console.error('Erreur lors du comptage des upvotes:', error);
+            console.error('Erreur lors du comptage des likes:', error);
             return 0;
         }
 
         return count || 0;
     } catch (error) {
-        console.error('Erreur lors du comptage des upvotes:', error);
+        console.error('Erreur lors du comptage des likes:', error);
         return 0;
     }
 };

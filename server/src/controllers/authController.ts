@@ -5,7 +5,7 @@
 // - POST /api/auth/register - Inscription utilisateur
 
 import { Request, Response } from 'express';
-import { createUser, getUserById, authenticateUser } from '../services/supabaseService';
+import { createUser, getUserById, authenticateUser, getSupabaseInstitutionById } from '../services/supabaseService';
 
 // Interface étendue pour inclure l'utilisateur authentifié
 interface AuthenticatedRequest extends Request {
@@ -125,6 +125,12 @@ export const getCurrentUser = async (req: AuthenticatedRequest, res: Response) =
             });
         }
 
+        // Récupérer les informations de l'institution si l'utilisateur en a une
+        let institution = null;
+        if (userDetails.institution_id) {
+            institution = await getSupabaseInstitutionById(userDetails.institution_id);
+        }
+
         res.status(200).json({
             user: {
                 id: userDetails.id,
@@ -132,7 +138,11 @@ export const getCurrentUser = async (req: AuthenticatedRequest, res: Response) =
                 institution_id: userDetails.institution_id,
                 display_name: userDetails.display_name,
                 avatar_url: userDetails.avatar_url,
-                created_at: userDetails.created_at
+                created_at: userDetails.created_at,
+                institution: institution ? {
+                    id: institution.id,
+                    name: institution.name
+                } : null
             }
         });
     } catch (error) {

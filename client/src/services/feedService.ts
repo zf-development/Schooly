@@ -27,9 +27,9 @@ export interface Post {
             name: string;
         };
     };
-    upvotes_count?: number;
+    likes_count?: number;
     comments_count?: number;
-    hasUpvoted?: boolean; // Nouveau: indique si l'utilisateur actuel a upvoté ce post
+    hasLiked?: boolean; // Nouveau: indique si l'utilisateur actuel a liké ce post
 }
 
 export interface CreatePostData {
@@ -61,9 +61,9 @@ export interface Comment {
     };
 }
 
-export interface UpvoteResponse {
-    upvoted: boolean;
-    upvotes_count: number;
+export interface LikeResponse {
+    liked: boolean;
+    likes_count: number;
 }
 
 export interface CommentsResponse {
@@ -81,17 +81,17 @@ class FeedService {
     async getPosts(limit: number = 20, offset: number = 0): Promise<PostsResponse> {
         try {
             const response = await apiService.getPosts();
-            
+
             if (response.success && response.data) {
                 // Le nouveau contrôleur retourne directement les posts
                 const serverData = response.data as any;
-                
+
                 // Transformer la réponse pour correspondre à PostsResponse
                 const result = {
                     posts: serverData.posts || [],
                     total_count: serverData.total_posts || 0
                 };
-    
+
                 return result;
             } else {
                 throw new Error(response.error || 'Erreur lors de la récupération des posts');
@@ -125,12 +125,12 @@ class FeedService {
     async createPostWithFiles(data: CreatePostData, files: File[]): Promise<Post> {
         try {
             const formData = new FormData();
-            
+
             // Ajouter les données du post
             formData.append('title', data.title || '');
             formData.append('content', data.content);
             formData.append('visibility', data.visibility || 'public');
-            
+
             // Ajouter les fichiers
             files.forEach((file, index) => {
                 formData.append('files', file);
@@ -148,33 +148,33 @@ class FeedService {
         }
     }
 
-    // Toggle upvote pour un post
-    async toggleUpvote(postId: string): Promise<UpvoteResponse> {
+    // Toggle like pour un post
+    async toggleLike(postId: string): Promise<LikeResponse> {
         try {
-            const response = await apiService.toggleUpvote(postId);
-            
+            const response = await apiService.toggleLike(postId);
+
             if (response.success && response.data) {
                 return response.data;
             } else {
-                throw new Error(response.error || 'Erreur lors du toggle upvote');
+                throw new Error(response.error || 'Erreur lors du toggle like');
             }
         } catch (error) {
-            console.error('Erreur lors du toggle upvote:', error);
+            console.error('Erreur lors du toggle like:', error);
             throw error;
         }
     }
 
-    // Vérifier si l'utilisateur a upvoté un post
-    async checkUpvote(postId: string): Promise<{ hasUpvoted: boolean; upvotesCount: number }> {
+    // Vérifier si l'utilisateur a liké un post
+    async checkLike(postId: string): Promise<{ hasLiked: boolean; likesCount: number }> {
         try {
-            const response = await apiService.checkUpvote(postId);
+            const response = await apiService.checkLike(postId);
             if (response.success && response.data) {
                 return response.data;
             } else {
-                throw new Error(response.error || 'Erreur lors de la vérification de l\'upvote');
+                throw new Error(response.error || 'Erreur lors de la vérification du like');
             }
         } catch (error) {
-            console.error('Erreur lors de la vérification de l\'upvote:', error);
+            console.error('Erreur lors de la vérification du like:', error);
             throw error;
         }
     }
