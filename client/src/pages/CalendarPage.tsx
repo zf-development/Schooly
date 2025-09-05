@@ -56,6 +56,7 @@ const CalendarPage: React.FC = () => {
     const { user, isLoading } = useUserContext();
     const [events, setEvents] = useState<Event[]>([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [clickedDate, setClickedDate] = useState<Date | null>(null);
     const [modalOpened, setModalOpened] = useState(false);
     const [editingEvent, setEditingEvent] = useState<Event | null>(null);
     const [loading, setLoading] = useState(false);
@@ -74,12 +75,13 @@ const CalendarPage: React.FC = () => {
     // Données d'exemple
     useEffect(() => {
         const sampleEvents: Event[] = [
+            // Événements académiques - Septembre 2025
             {
                 id: '1',
                 title: 'Examen de Mathématiques',
-                description: 'Examen final de calcul différentiel',
-                startDate: new Date(2024, 11, 15, 9, 0),
-                endDate: new Date(2024, 11, 15, 12, 0),
+                description: 'Examen final de calcul différentiel et intégral - Chapitres 1 à 8',
+                startDate: new Date(2025, 8, 15, 9, 0), // 15 septembre 2025
+                endDate: new Date(2025, 8, 15, 12, 0),
                 location: 'Salle 201',
                 type: 'academic',
                 reminder: true,
@@ -88,23 +90,350 @@ const CalendarPage: React.FC = () => {
             },
             {
                 id: '2',
-                title: 'Réunion de projet',
-                description: 'Discussion sur le projet de fin d\'études',
-                startDate: new Date(2024, 11, 18, 14, 0),
-                endDate: new Date(2024, 11, 18, 16, 0),
-                location: 'Bibliothèque',
+                title: 'Cours de Physique',
+                description: 'Mécanique quantique - Introduction aux concepts fondamentaux',
+                startDate: new Date(2025, 8, 16, 10, 0), // 16 septembre 2025
+                endDate: new Date(2025, 8, 16, 12, 0),
+                location: 'Amphithéâtre A',
                 type: 'academic',
                 reminder: true,
                 createdBy: user?.id || '',
                 createdAt: new Date()
             },
             {
+                id: '2b',
+                title: 'Réunion d\'équipe',
+                description: 'Préparation du projet de recherche - Équipe de 5 personnes',
+                startDate: new Date(2025, 8, 16, 14, 0), // 16 septembre 2025 - après-midi
+                endDate: new Date(2025, 8, 16, 16, 0),
+                location: 'Salle de réunion 3B',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '2c',
+                title: 'Séance de sport',
+                description: 'Entraînement de natation - Piscine universitaire',
+                startDate: new Date(2025, 8, 16, 18, 0), // 16 septembre 2025 - soir
+                endDate: new Date(2025, 8, 16, 19, 30),
+                location: 'Piscine universitaire',
+                type: 'personal',
+                reminder: false,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
                 id: '3',
-                title: 'Événement institutionnel',
-                description: 'Conférence sur l\'innovation',
-                startDate: new Date(2024, 11, 20, 18, 0),
-                endDate: new Date(2024, 11, 20, 20, 0),
+                title: 'Laboratoire de Chimie',
+                description: 'Synthèse organique - Expérience sur les réactions d\'estérification',
+                startDate: new Date(2025, 8, 17, 14, 0), // 17 septembre 2025
+                endDate: new Date(2025, 8, 17, 17, 0),
+                location: 'Laboratoire 3B',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '4',
+                title: 'Rendu de projet',
+                description: 'Projet de programmation web - Site e-commerce avec React et Node.js',
+                startDate: new Date(2025, 8, 18, 23, 59), // 18 septembre 2025
+                endDate: new Date(2025, 8, 18, 23, 59),
+                location: 'Plateforme en ligne',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '5',
+                title: 'Séminaire de recherche',
+                description: 'Présentation des travaux de recherche en intelligence artificielle',
+                startDate: new Date(2025, 8, 19, 15, 0), // 19 septembre 2025
+                endDate: new Date(2025, 8, 19, 17, 0),
+                location: 'Salle de conférence',
+                type: 'academic',
+                reminder: false,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            // Événements personnels
+            {
+                id: '6',
+                title: 'Anniversaire de Marie',
+                description: 'Fête d\'anniversaire - Restaurant Le Bistrot',
+                startDate: new Date(2025, 8, 20, 19, 0), // 20 septembre 2025
+                endDate: new Date(2025, 8, 20, 23, 0),
+                location: 'Restaurant Le Bistrot, 123 rue de la Paix',
+                type: 'personal',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '6b',
+                title: 'Cours de Mathématiques',
+                description: 'Calcul différentiel - Chapitre 3: Dérivées partielles',
+                startDate: new Date(2025, 8, 20, 9, 0), // 20 septembre 2025 - matin
+                endDate: new Date(2025, 8, 20, 11, 0),
+                location: 'Salle 201',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '6c',
+                title: 'Atelier de programmation',
+                description: 'Introduction à React - Hooks et composants',
+                startDate: new Date(2025, 8, 20, 14, 0), // 20 septembre 2025 - après-midi
+                endDate: new Date(2025, 8, 20, 17, 0),
+                location: 'Salle informatique 1',
+                type: 'academic',
+                reminder: false,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '7',
+                title: 'Rendez-vous médical',
+                description: 'Contrôle de routine chez le médecin généraliste',
+                startDate: new Date(2025, 8, 22, 14, 30), // 22 septembre 2025
+                endDate: new Date(2025, 8, 22, 15, 30),
+                location: 'Cabinet Dr. Martin, 45 avenue des Champs',
+                type: 'personal',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '8',
+                title: 'Séance de sport',
+                description: 'Entraînement au gymnase - Musculation et cardio',
+                startDate: new Date(2025, 8, 23, 18, 0), // 23 septembre 2025
+                endDate: new Date(2025, 8, 23, 20, 0),
+                location: 'Gymnase universitaire',
+                type: 'personal',
+                reminder: false,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            // Événements institutionnels
+            {
+                id: '9',
+                title: 'Conférence sur l\'innovation',
+                description: 'L\'avenir de la technologie dans l\'éducation - Conférencier invité',
+                startDate: new Date(2025, 8, 21, 18, 0), // 21 septembre 2025
+                endDate: new Date(2025, 8, 21, 20, 0),
                 location: 'Amphithéâtre principal',
+                type: 'institution',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '10',
+                title: 'Journée portes ouvertes',
+                description: 'Découverte des programmes d\'études - Visite guidée du campus',
+                startDate: new Date(2025, 8, 24, 9, 0), // 24 septembre 2025
+                endDate: new Date(2025, 8, 24, 16, 0),
+                location: 'Hall principal et salles de cours',
+                type: 'institution',
+                reminder: false,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '11',
+                title: 'Réunion de projet',
+                description: 'Discussion sur le projet de fin d\'études - Équipe de 4 personnes',
+                startDate: new Date(2025, 8, 25, 14, 0), // 25 septembre 2025
+                endDate: new Date(2025, 8, 25, 16, 0),
+                location: 'Bibliothèque - Salle de travail en groupe',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '11b',
+                title: 'Cours de Français',
+                description: 'Littérature française - Analyse de "Les Misérables"',
+                startDate: new Date(2025, 8, 25, 9, 0), // 25 septembre 2025 - matin
+                endDate: new Date(2025, 8, 25, 11, 0),
+                location: 'Salle 105',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '11c',
+                title: 'Déjeuner avec les amis',
+                description: 'Repas au restaurant universitaire - Discussion sur les cours',
+                startDate: new Date(2025, 8, 25, 12, 0), // 25 septembre 2025 - midi
+                endDate: new Date(2025, 8, 25, 13, 30),
+                location: 'Restaurant universitaire',
+                type: 'personal',
+                reminder: false,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '11d',
+                title: 'Séance de révision',
+                description: 'Révision pour l\'examen de mathématiques - Bibliothèque',
+                startDate: new Date(2025, 8, 25, 18, 0), // 25 septembre 2025 - soir
+                endDate: new Date(2025, 8, 25, 20, 0),
+                location: 'Bibliothèque - Zone silencieuse',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '12',
+                title: 'Examen de Français',
+                description: 'Épreuve de littérature française - Analyse de texte et dissertation',
+                startDate: new Date(2025, 8, 26, 8, 30), // 26 septembre 2025
+                endDate: new Date(2025, 8, 26, 11, 30),
+                location: 'Salle 105',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '13',
+                title: 'Atelier de programmation',
+                description: 'Introduction à Python - Session pratique avec exercices',
+                startDate: new Date(2025, 8, 27, 10, 0), // 27 septembre 2025
+                endDate: new Date(2025, 8, 27, 12, 0),
+                location: 'Salle informatique 2',
+                type: 'academic',
+                reminder: false,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '14',
+                title: 'Soirée culturelle',
+                description: 'Spectacle de théâtre étudiant - Pièce "Les Misérables"',
+                startDate: new Date(2025, 8, 28, 19, 30), // 28 septembre 2025
+                endDate: new Date(2025, 8, 28, 22, 0),
+                location: 'Théâtre de l\'université',
+                type: 'institution',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '14b',
+                title: 'Cours de Physique',
+                description: 'Mécanique quantique - Exercices pratiques',
+                startDate: new Date(2025, 8, 28, 10, 0), // 28 septembre 2025 - matin
+                endDate: new Date(2025, 8, 28, 12, 0),
+                location: 'Amphithéâtre A',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '14c',
+                title: 'Laboratoire de Chimie',
+                description: 'Analyse spectroscopique - Utilisation des instruments',
+                startDate: new Date(2025, 8, 28, 14, 0), // 28 septembre 2025 - après-midi
+                endDate: new Date(2025, 8, 28, 17, 0),
+                location: 'Laboratoire 2A',
+                type: 'academic',
+                reminder: false,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '14d',
+                title: 'Rendez-vous coiffeur',
+                description: 'Coupe et soins - Salon de coiffure du centre-ville',
+                startDate: new Date(2025, 8, 28, 16, 0), // 28 septembre 2025 - fin d'après-midi
+                endDate: new Date(2025, 8, 28, 17, 30),
+                location: 'Salon Coiffure Moderne, 45 rue du Centre',
+                type: 'personal',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '15',
+                title: 'Rendez-vous avec le conseiller',
+                description: 'Planification du parcours académique - Orientation professionnelle',
+                startDate: new Date(2025, 8, 29, 15, 0), // 29 septembre 2025
+                endDate: new Date(2025, 8, 29, 16, 0),
+                location: 'Bureau des conseillers - Bâtiment administratif',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            // Événements d'octobre 2025
+            {
+                id: '16',
+                title: 'Examen de mi-session',
+                description: 'Examen de mi-session - Toutes les matières',
+                startDate: new Date(2025, 9, 2, 9, 0), // 2 octobre 2025
+                endDate: new Date(2025, 9, 2, 17, 0),
+                location: 'Salles d\'examen - Bâtiment principal',
+                type: 'academic',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '16b',
+                title: 'Petit-déjeuner d\'équipe',
+                description: 'Repas avant l\'examen - Café universitaire',
+                startDate: new Date(2025, 9, 2, 7, 30), // 2 octobre 2025 - très tôt
+                endDate: new Date(2025, 9, 2, 8, 30),
+                location: 'Café universitaire',
+                type: 'personal',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '16c',
+                title: 'Séance de révision finale',
+                description: 'Révision intensive avant l\'examen - Bibliothèque',
+                startDate: new Date(2025, 9, 2, 18, 0), // 2 octobre 2025 - après l'examen
+                endDate: new Date(2025, 9, 2, 20, 0),
+                location: 'Bibliothèque - Zone silencieuse',
+                type: 'academic',
+                reminder: false,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '17',
+                title: 'Week-end de détente',
+                description: 'Sortie en groupe - Randonnée dans les montagnes',
+                startDate: new Date(2025, 9, 5, 8, 0), // 5 octobre 2025
+                endDate: new Date(2025, 9, 6, 18, 0),
+                location: 'Parc national des Laurentides',
+                type: 'personal',
+                reminder: true,
+                createdBy: user?.id || '',
+                createdAt: new Date()
+            },
+            {
+                id: '18',
+                title: 'Conférence sur l\'environnement',
+                description: 'Changements climatiques et solutions durables',
+                startDate: new Date(2025, 9, 10, 19, 0), // 10 octobre 2025
+                endDate: new Date(2025, 9, 10, 21, 0),
+                location: 'Auditorium des sciences',
                 type: 'institution',
                 reminder: false,
                 createdBy: user?.id || '',
@@ -116,7 +445,7 @@ const CalendarPage: React.FC = () => {
 
     if (!user) {
         return (
-            <MainLayout>
+            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -126,7 +455,7 @@ const CalendarPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <MainLayout>
+            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -200,6 +529,10 @@ const CalendarPage: React.FC = () => {
         setEvents(events.filter(e => e.id !== eventId));
     };
 
+    const handleDateClick = (date: Date) => {
+        setClickedDate(date);
+    };
+
     const getEventTypeColor = (type: string) => {
         switch (type) {
             case 'academic': return 'blue';
@@ -249,7 +582,7 @@ const CalendarPage: React.FC = () => {
     });
 
     return (
-        <MainLayout>
+        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
             <Container size="xl" py="md">
                 {/* En-tête */}
                 <Group justify="space-between" align="center" mb="xl">
@@ -315,17 +648,22 @@ const CalendarPage: React.FC = () => {
                                         return eventDate.toDateString() === date.toDateString();
                                     });
 
+                                    const isClicked = clickedDate && clickedDate.toDateString() === date.toDateString();
+
                                     return (
                                         <Paper
                                             key={i}
                                             p="xs"
                                             ta="center"
-                                            bg={isToday ? 'violet.0' : isCurrentMonth ? 'white' : 'gray.1'}
+                                            bg={isClicked ? 'blue.0' : isToday ? 'violet.0' : isCurrentMonth ? 'white' : 'gray.1'}
                                             style={{ 
                                                 minHeight: 80,
                                                 cursor: 'pointer',
-                                                border: isToday ? '2px solid var(--mantine-color-violet-3)' : '1px solid var(--mantine-color-gray-2)'
+                                                border: isClicked ? '2px solid var(--mantine-color-blue-3)' : 
+                                                        isToday ? '2px solid var(--mantine-color-violet-3)' : 
+                                                        '1px solid var(--mantine-color-gray-2)'
                                             }}
+                                            onClick={() => handleDateClick(date)}
                                         >
                                             <Text 
                                                 size="sm" 
@@ -363,6 +701,86 @@ const CalendarPage: React.FC = () => {
                     {/* Panneau latéral */}
                     <Grid.Col span={4}>
                         <Stack>
+                            {/* Événements de la date sélectionnée */}
+                            <Card shadow="sm" padding="lg" radius="md" withBorder>
+                                <Title order={4} mb="md">
+                                    {clickedDate ? 
+                                        `Événements du ${clickedDate.toLocaleDateString('fr-FR', { 
+                                            weekday: 'long', 
+                                            day: 'numeric', 
+                                            month: 'long' 
+                                        })}` : 
+                                        'Sélectionnez une date'
+                                    }
+                                </Title>
+                                {clickedDate ? (
+                                    (() => {
+                                        const clickedDateEvents = events.filter(event => {
+                                            const eventDate = new Date(event.startDate);
+                                            return eventDate.toDateString() === clickedDate.toDateString();
+                                        });
+                                        
+                                        return clickedDateEvents.length > 0 ? (
+                                            <Stack gap="sm">
+                                                {clickedDateEvents.map(event => (
+                                                    <Paper key={event.id} p="sm" bg="gray.0">
+                                                        <Group justify="space-between" align="flex-start">
+                                                            <Box style={{ flex: 1 }}>
+                                                                <Text fw={500} size="sm">
+                                                                    {event.title}
+                                                                </Text>
+                                                                <Text size="xs" c="dimmed">
+                                                                    {formatTime(event.startDate)} - {formatTime(event.endDate)}
+                                                                </Text>
+                                                                {event.location && (
+                                                                    <Text size="xs" c="dimmed">
+                                                                        <IconMapPin size={12} style={{ marginRight: 4 }} />
+                                                                        {event.location}
+                                                                    </Text>
+                                                                )}
+                                                                {event.description && (
+                                                                    <Text size="xs" c="dimmed" mt="xs">
+                                                                        {event.description}
+                                                                    </Text>
+                                                                )}
+                                                            </Box>
+                                                            <Group gap="xs">
+                                                                <Badge size="xs" color={getEventTypeColor(event.type)}>
+                                                                    {getEventTypeLabel(event.type)}
+                                                                </Badge>
+                                                                <ActionIcon
+                                                                    size="sm"
+                                                                    variant="subtle"
+                                                                    onClick={() => handleEditEvent(event)}
+                                                                >
+                                                                    <IconEdit size={12} />
+                                                                </ActionIcon>
+                                                                <ActionIcon
+                                                                    size="sm"
+                                                                    variant="subtle"
+                                                                    color="red"
+                                                                    onClick={() => handleDeleteEvent(event.id)}
+                                                                >
+                                                                    <IconTrash size={12} />
+                                                                </ActionIcon>
+                                                            </Group>
+                                                        </Group>
+                                                    </Paper>
+                                                ))}
+                                            </Stack>
+                                        ) : (
+                                            <Text size="sm" c="dimmed" ta="center">
+                                                Aucun événement ce jour
+                                            </Text>
+                                        );
+                                    })()
+                                ) : (
+                                    <Text size="sm" c="dimmed" ta="center">
+                                        Cliquez sur une date du calendrier pour voir ses événements
+                                    </Text>
+                                )}
+                            </Card>
+
                             {/* Événements d'aujourd'hui */}
                             <Card shadow="sm" padding="lg" radius="md" withBorder>
                                 <Title order={4} mb="md">
@@ -370,7 +788,7 @@ const CalendarPage: React.FC = () => {
                                 </Title>
                                 {todayEvents.length > 0 ? (
                                     <Stack gap="sm">
-                                        {todayEvents.map(event => (
+                                        {todayEvents.slice(0, 3).map(event => (
                                             <Paper key={event.id} p="sm" bg="gray.0">
                                                 <Group justify="space-between" align="flex-start">
                                                     <Box style={{ flex: 1 }}>
@@ -380,12 +798,6 @@ const CalendarPage: React.FC = () => {
                                                         <Text size="xs" c="dimmed">
                                                             {formatTime(event.startDate)} - {formatTime(event.endDate)}
                                                         </Text>
-                                                        {event.location && (
-                                                            <Text size="xs" c="dimmed">
-                                                                <IconMapPin size={12} style={{ marginRight: 4 }} />
-                                                                {event.location}
-                                                            </Text>
-                                                        )}
                                                     </Box>
                                                     <Badge size="xs" color={getEventTypeColor(event.type)}>
                                                         {getEventTypeLabel(event.type)}
@@ -393,59 +805,15 @@ const CalendarPage: React.FC = () => {
                                                 </Group>
                                             </Paper>
                                         ))}
+                                        {todayEvents.length > 3 && (
+                                            <Text size="xs" c="dimmed" ta="center">
+                                                +{todayEvents.length - 3} autres événements
+                                            </Text>
+                                        )}
                                     </Stack>
                                 ) : (
                                     <Text size="sm" c="dimmed" ta="center">
                                         Aucun événement aujourd'hui
-                                    </Text>
-                                )}
-                            </Card>
-
-                            {/* Événements du mois */}
-                            <Card shadow="sm" padding="lg" radius="md" withBorder>
-                                <Title order={4} mb="md">
-                                    Ce mois
-                                </Title>
-                                {currentMonthEvents.length > 0 ? (
-                                    <Stack gap="sm">
-                                        {currentMonthEvents.slice(0, 5).map(event => (
-                                            <Paper key={event.id} p="sm" bg="gray.0">
-                                                <Group justify="space-between" align="flex-start">
-                                                    <Box style={{ flex: 1 }}>
-                                                        <Text fw={500} size="sm">
-                                                            {event.title}
-                                                        </Text>
-                                                        <Text size="xs" c="dimmed">
-                                                            {formatDate(event.startDate)}
-                                                        </Text>
-                                                    </Box>
-                                                    <Group gap="xs">
-                                                        <Badge size="xs" color={getEventTypeColor(event.type)}>
-                                                            {getEventTypeLabel(event.type)}
-                                                        </Badge>
-                                                        <ActionIcon
-                                                            size="sm"
-                                                            variant="subtle"
-                                                            onClick={() => handleEditEvent(event)}
-                                                        >
-                                                            <IconEdit size={12} />
-                                                        </ActionIcon>
-                                                        <ActionIcon
-                                                            size="sm"
-                                                            variant="subtle"
-                                                            color="red"
-                                                            onClick={() => handleDeleteEvent(event.id)}
-                                                        >
-                                                            <IconTrash size={12} />
-                                                        </ActionIcon>
-                                                    </Group>
-                                                </Group>
-                                            </Paper>
-                                        ))}
-                                    </Stack>
-                                ) : (
-                                    <Text size="sm" c="dimmed" ta="center">
-                                        Aucun événement ce mois
                                     </Text>
                                 )}
                             </Card>

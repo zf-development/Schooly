@@ -181,29 +181,24 @@ const FeedPage: React.FC = () => {
 
     return (
         <MainLayout authProps={authProps}>
-            <Container size="lg" py="xl">
+            <Container size="xl" py="md">
                 <Stack gap="xl">
-                    {/* Header simple et cohérent */}
-                    <Box>
-                        <Group gap="md" align="center" mb="md">
-                            <ThemeIcon
-                                size="lg"
-                                radius="xl"
-                                color="violet"
-                                variant="light"
-                            >
-                                <IconNews size={20} />
+                    {/* En-tête */}
+                    <Group justify="space-between" align="center" mb="xl">
+                        <Group>
+                            <ThemeIcon size={40} radius="md" color="violet">
+                                <IconNews size={24} />
                             </ThemeIcon>
-                            <Box>
-                                <Title order={1} size="h1" fw={700} c="dark.8">
+                            <div>
+                                <Title order={1} size="h2">
                                     Fil d'actualité
                                 </Title>
-                                <Text size="md" c="dimmed">
+                                <Text c="dimmed" size="sm">
                                     Découvrez les dernières publications de vos établissements
                                 </Text>
-                            </Box>
+                            </div>
                         </Group>
-                    </Box>
+                    </Group>
 
                         {error && (
                             <Alert

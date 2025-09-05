@@ -91,29 +91,24 @@ const SubscriptionsPage: React.FC = () => {
 
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Container size="lg" py="xl">
+            <Container size="xl" py="md">
                 <Stack gap="xl">
-                    {/* Header simple et cohérent */}
-                    <Box>
-                        <Group gap="md" align="center" mb="md">
-                            <ThemeIcon
-                                size="lg"
-                                radius="xl"
-                                color="violet"
-                                variant="light"
-                            >
-                                <IconBuildingPlus size={20} />
+                    {/* En-tête */}
+                    <Group justify="space-between" align="center" mb="xl">
+                        <Group>
+                            <ThemeIcon size={40} radius="md" color="violet">
+                                <IconBuildingPlus size={24} />
                             </ThemeIcon>
-                            <Box>
-                                <Title order={1} size="h1" fw={700} c="dark.8">
+                            <div>
+                                <Title order={1} size="h2">
                                     Mes Abonnements
                                 </Title>
-                                <Text size="md" c="dimmed">
+                                <Text c="dimmed" size="sm">
                                     Gérez vos abonnements aux institutions et découvrez de nouveaux établissements
                                 </Text>
-                            </Box>
+                            </div>
                         </Group>
-                    </Box>
+                    </Group>
 
                     {/* Statistiques avec design sobre */}
                     <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
