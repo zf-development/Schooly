@@ -55,6 +55,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [unfollowingLoading, setUnfollowingLoading] = useState<string | null>(null);
+    const [followingLoading, setFollowingLoading] = useState<string | null>(null);
 
     // Utiliser les props si disponibles, sinon les états locaux
     const subscriptions = propSubscriptions || [];

@@ -6,13 +6,21 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc -b && vite build",
-        "preview": "vite preview --port 5173"
+        "preview": "vite preview --port 5173",
+        "lint": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 200",
+        "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+        "lint:strict": "eslint . --ext .ts,.tsx,.js,.jsx",
+        "type-check": "tsc --noEmit",
+        "check": "pnpm type-check && pnpm lint",
+        "check:strict": "pnpm type-check && pnpm lint:strict"
     },
     "dependencies": {
         "@emotion/react": "^11.11.4",
-        "@mantine/core": "^7.9.1",
-        "@mantine/hooks": "^7.9.1",
+        "@mantine/core": "^8.3.1",
+        "@mantine/hooks": "^8.3.1",
+        "@supabase/supabase-js": "^2.57.4",
         "@tabler/icons-react": "^3.6.0",
+        "@types/node": "^24.3.1",
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",
         "react": "^18.2.0",
@@ -20,9 +28,15 @@
         "react-router-dom": "^7.8.2"
     },
     "devDependencies": {
+        "@eslint/js": "^9.35.0",
         "@types/react": "^18.3.23",
         "@types/react-dom": "^18.3.7",
+        "@typescript-eslint/eslint-plugin": "^8.43.0",
+        "@typescript-eslint/parser": "^8.43.0",
         "@vitejs/plugin-react": "^4.3.1",
+        "eslint": "^9.35.0",
+        "eslint-plugin-react": "^7.37.5",
+        "eslint-plugin-react-hooks": "^5.2.0",
         "typescript": "^5.5.4",
         "vite": "^5.4.1"
     }

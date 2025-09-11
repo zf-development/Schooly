@@ -189,7 +189,7 @@ const FileExplorerPage: React.FC = () => {
 
     if (!user) {
         return (
-            <MainLayout>
+            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -199,7 +199,7 @@ const FileExplorerPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <MainLayout>
+            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -326,7 +326,7 @@ const FileExplorerPage: React.FC = () => {
     });
 
     return (
-        <MainLayout>
+        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
             <Container size="xl" py="md">
                 {/* En-tête */}
                 <Group justify="space-between" align="center" mb="xl">

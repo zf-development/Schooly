@@ -52,6 +52,7 @@ import {
 } from '@tabler/icons-react';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
+import { useNavigate } from 'react-router-dom';
 
 interface Message {
     id: string;
@@ -90,6 +91,7 @@ interface Participant {
 
 const MessagingPage: React.FC = () => {
     const { user, isLoading } = useUserContext();
+    const navigate = useNavigate();
     const theme = useMantineTheme();
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
@@ -101,6 +103,12 @@ const MessagingPage: React.FC = () => {
     const [newConversationName, setNewConversationName] = useState('');
     const [newConversationType, setNewConversationType] = useState<'direct' | 'group'>('direct');
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const handleStartVideoCall = () => {
+        if (selectedConversation) {
+            navigate('/video-call');
+        }
+    };
 
     // Données d'exemple
     useEffect(() => {
@@ -594,7 +602,13 @@ const MessagingPage: React.FC = () => {
                                             <ActionIcon variant="light" color="gray" radius="md">
                                                 <IconPhone size={16} />
                                             </ActionIcon>
-                                            <ActionIcon variant="light" color="gray" radius="md">
+                                            <ActionIcon 
+                                                variant="light" 
+                                                color="blue" 
+                                                radius="md"
+                                                onClick={handleStartVideoCall}
+                                                disabled={!selectedConversation}
+                                            >
                                                 <IconVideo size={16} />
                                             </ActionIcon>
                                             <ActionIcon variant="light" color="gray" radius="md">

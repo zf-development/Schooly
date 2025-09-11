@@ -15,6 +15,10 @@ export interface Post {
     content: string;
     visibility: 'public' | 'private';
     createdAt: string | Date;
+    files?: any[];
+    likes?: number;
+    comments?: number;
+    hasLiked?: boolean;
 }
 
 export interface AuthButtonProps {

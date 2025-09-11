@@ -7,6 +7,7 @@ import {
     Text,
     Tooltip,
     ActionIcon,
+    Badge,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
@@ -26,6 +27,9 @@ import {
     IconChevronLeft,
     IconChevronRight,
     IconMessage,
+    IconBookUpload,
+    IconUsers,
+    IconBook,
 } from "@tabler/icons-react";
 
 const linksSections = {
@@ -47,6 +51,9 @@ const linksSections = {
             { route: "/notes", label: "Mes notes", icon: IconNote },
             { route: "/calendar", label: "Mon calendrier", icon: IconCalendar },
             { route: "/files", label: "Mes fichiers", icon: IconFile },
+            { route: "/homework", label: "Devoirs", icon: IconBookUpload, badge: "WIP" },
+            { route: "/projects", label: "Projets", icon: IconUsers, badge: "WIP" },
+            { route: "/course-notes", label: "Notes de cours", icon: IconBook, badge: "WIP" },
         ],
     },
     account: {
@@ -102,7 +109,14 @@ const AppNavbar = React.memo(() => {
                         onClick={() => handleNavigation(item.route)}
                     >
                         <item.icon className={styles.linkIcon} stroke={1.5} />
-                        <span className={styles.linkText}>{item.label}</span>
+                        <Group justify="space-between" style={{ flex: 1 }}>
+                            <span className={styles.linkText}>{item.label}</span>
+                            {item.badge && (
+                                <Badge size="xs" color="orange" variant="light">
+                                    {item.badge}
+                                </Badge>
+                            )}
+                        </Group>
                     </div>
                 ))}
             </div>
@@ -111,7 +125,16 @@ const AppNavbar = React.memo(() => {
                 {sectionData.links.map((item: any, index: number) => (
                     <Tooltip
                         key={index}
-                        label={item.label}
+                        label={
+                            <Group gap="xs">
+                                <Text>{item.label}</Text>
+                                {item.badge && (
+                                    <Badge size="xs" color="orange" variant="light">
+                                        {item.badge}
+                                    </Badge>
+                                )}
+                            </Group>
+                        }
                         position="right"
                         withArrow
                         openDelay={150}

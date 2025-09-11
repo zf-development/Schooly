@@ -15,6 +15,10 @@ import CalendarPage from "./pages/CalendarPage";
 import FileExplorerPage from "./pages/FileExplorerPage";
 import NotesPage from "./pages/NotesPage";
 import MessagingPage from "./pages/MessagingPage";
+import HomeworkSubmissionPage from "./pages/HomeworkSubmissionPage";
+import ProjectsPage from "./pages/ProjectsPage";
+import CourseNotesPage from "./pages/CourseNotesPage";
+import VideoCallPage from "./pages/VideoCallPage";
 import { UserProvider } from "./contexts/UserContext";
 import { NavbarProvider } from "./contexts/NavbarContext";
 import { lightTheme, darkTheme } from "./theme";
@@ -103,6 +107,42 @@ const App: React.FC = () => {
                                 element={
                                     <ProtectedRoute>
                                         <SubscriptionsPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/homework"
+                                element={
+                                    <ProtectedRoute>
+                                        <HomeworkSubmissionPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/projects"
+                                element={
+                                    <ProtectedRoute>
+                                        <ProjectsPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/course-notes"
+                                element={
+                                    <ProtectedRoute>
+                                        <CourseNotesPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/video-call"
+                                element={
+                                    <ProtectedRoute>
+                                        <VideoCallPage />
                                     </ProtectedRoute>
                                 }
                             />

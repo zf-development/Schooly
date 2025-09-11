@@ -244,4 +244,6 @@ Contenu de votre post"
     );
 });
 
+PostFormAreaEditor.displayName = 'PostFormAreaEditor';
+
 export default PostFormAreaEditor;
