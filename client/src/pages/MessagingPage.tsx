@@ -25,7 +25,11 @@ import {
     Modal,
     Tabs,
     Paper,
-    SimpleGrid
+    SimpleGrid,
+    Grid,
+    Card,
+    List,
+    Collapse
 } from '@mantine/core';
 import {
     IconMessage,
@@ -48,301 +52,289 @@ import {
     IconVideo,
     IconInfoCircle,
     IconX,
-    IconEdit
+    IconSettings,
+    IconBell,
+    IconBellOff,
+    IconVolume,
+    IconVolumeOff,
+    IconEdit,
+    IconCopy,
+    IconShare,
+    IconDownload,
+    IconStar,
+    IconStarFilled,
+    IconHeart,
+    IconThumbUp,
+    IconThumbDown,
+    IconFlag,
+    IconFlagFilled,
+    IconDotsVertical,
+    IconChevronDown,
+    IconChevronRight,
+    IconFolder,
+    IconFolderOpen,
+    IconRefresh,
+    IconSortAscending,
+    IconSortDescending
 } from '@tabler/icons-react';
-import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
-import { useNavigate } from 'react-router-dom';
 
-interface Message {
-    id: string;
-    content: string;
-    senderId: string;
-    senderName: string;
-    senderAvatar?: string;
-    timestamp: Date;
-    isRead: boolean;
-    type: 'text' | 'image' | 'file';
-}
-
-interface Conversation {
-    id: string;
-    name: string;
-    type: 'direct' | 'group';
-    participants: Participant[];
-    lastMessage?: Message;
-    unreadCount: number;
-    isPinned: boolean;
-    isArchived: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    avatar?: string;
-    isOnline?: boolean;
-}
-
-interface Participant {
+// Types
+interface User {
     id: string;
     name: string;
     avatar?: string;
     isOnline: boolean;
     lastSeen?: Date;
-    role?: 'admin' | 'member';
 }
 
+interface Message {
+    id: string;
+    content: string;
+    senderId: string;
+    sender: User;
+    timestamp: Date;
+    status: 'sending' | 'sent' | 'delivered' | 'read';
+    type: 'text' | 'image' | 'file' | 'voice';
+    replyTo?: Message;
+    reactions?: { emoji: string; users: string[] }[];
+    isEdited?: boolean;
+    editedAt?: Date;
+}
+
+interface Conversation {
+    id: string;
+    name: string;
+    avatar?: string;
+    isGroup: boolean;
+    participants: User[];
+    lastMessage?: Message;
+    unreadCount: number;
+    isPinned: boolean;
+    isArchived: boolean;
+    isMuted: boolean;
+    updatedAt: Date;
+    createdAt: Date;
+    type: 'direct' | 'group' | 'channel';
+    description?: string;
+    admins?: string[];
+}
+
+// Données placeholder
+const currentUser: User = {
+    id: '1',
+    name: 'Moi',
+    avatar: '',
+    isOnline: true
+};
+
+const mockUsers: User[] = [
+    { id: '2', name: 'Marie Martin', avatar: '', isOnline: true },
+    { id: '3', name: 'Pierre Dubois', avatar: '', isOnline: false, lastSeen: new Date(Date.now() - 1000 * 60 * 30) },
+    { id: '4', name: 'Sophie Leroy', avatar: '', isOnline: true },
+    { id: '5', name: 'Thomas Moreau', avatar: '', isOnline: false, lastSeen: new Date(Date.now() - 1000 * 60 * 60 * 2) },
+    { id: '6', name: 'Emma Rousseau', avatar: '', isOnline: true },
+    { id: '7', name: 'Lucas Petit', avatar: '', isOnline: false, lastSeen: new Date(Date.now() - 1000 * 60 * 60 * 24) },
+];
+
+const mockConversations: Conversation[] = [
+    {
+        id: '1',
+        name: 'Marie Martin',
+        avatar: '',
+        isGroup: false,
+        participants: [currentUser, mockUsers[0]],
+        lastMessage: {
+            id: '1',
+            content: 'Salut ! Comment ça va ?',
+            senderId: '2',
+            sender: mockUsers[0],
+            timestamp: new Date(Date.now() - 1000 * 60 * 5),
+            status: 'read',
+            type: 'text'
+        },
+        unreadCount: 0,
+        isPinned: true,
+        isArchived: false,
+        isMuted: false,
+        updatedAt: new Date(Date.now() - 1000 * 60 * 5),
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
+        type: 'direct'
+    },
+    {
+        id: '2',
+        name: 'Groupe Projet Final',
+        avatar: '',
+        isGroup: true,
+        participants: [currentUser, mockUsers[1], mockUsers[2], mockUsers[3]],
+        lastMessage: {
+            id: '2',
+            content: 'On se retrouve demain à 14h pour la présentation ?',
+            senderId: '3',
+            sender: mockUsers[1],
+            timestamp: new Date(Date.now() - 1000 * 60 * 15),
+            status: 'delivered',
+            type: 'text'
+        },
+        unreadCount: 3,
+        isPinned: false,
+        isArchived: false,
+        isMuted: false,
+        updatedAt: new Date(Date.now() - 1000 * 60 * 15),
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
+        type: 'group',
+        description: 'Discussion pour le projet de fin d\'études',
+        admins: ['1', '3']
+    },
+    {
+        id: '3',
+        name: 'Sophie Leroy',
+        avatar: '',
+        isGroup: false,
+        participants: [currentUser, mockUsers[2]],
+        lastMessage: {
+            id: '3',
+            content: 'Merci pour les notes !',
+            senderId: '4',
+            sender: mockUsers[2],
+            timestamp: new Date(Date.now() - 1000 * 60 * 30),
+            status: 'read',
+            type: 'text'
+        },
+        unreadCount: 0,
+        isPinned: false,
+        isArchived: false,
+        isMuted: false,
+        updatedAt: new Date(Date.now() - 1000 * 60 * 30),
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
+        type: 'direct'
+    },
+    {
+        id: '4',
+        name: 'Cours Mathématiques',
+        avatar: '',
+        isGroup: true,
+        participants: [currentUser, mockUsers[4], mockUsers[5], mockUsers[0]],
+        lastMessage: {
+            id: '4',
+            content: 'L\'examen est reporté à la semaine prochaine',
+            senderId: '6',
+            sender: mockUsers[4],
+            timestamp: new Date(Date.now() - 1000 * 60 * 60),
+            status: 'delivered',
+            type: 'text'
+        },
+        unreadCount: 1,
+        isPinned: true,
+        isArchived: false,
+        isMuted: true,
+        updatedAt: new Date(Date.now() - 1000 * 60 * 60),
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14),
+        type: 'channel',
+        description: 'Canal officiel du cours de mathématiques',
+        admins: ['6']
+    },
+    {
+        id: '5',
+        name: 'Thomas Moreau',
+        avatar: '',
+        isGroup: false,
+        participants: [currentUser, mockUsers[3]],
+        lastMessage: {
+            id: '5',
+            content: 'À bientôt !',
+            senderId: '5',
+            sender: mockUsers[3],
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
+            status: 'read',
+            type: 'text'
+        },
+        unreadCount: 0,
+        isPinned: false,
+        isArchived: false,
+        isMuted: false,
+        updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
+        type: 'direct'
+    }
+];
+
+const mockMessages: { [conversationId: string]: Message[] } = {
+    '1': [
+        {
+            id: '1',
+            content: 'Salut ! Comment ça va ?',
+            senderId: '2',
+            sender: mockUsers[0],
+            timestamp: new Date(Date.now() - 1000 * 60 * 5),
+            status: 'read',
+            type: 'text'
+        },
+        {
+            id: '2',
+            content: 'Ça va bien merci ! Et toi ?',
+            senderId: '1',
+            sender: currentUser,
+            timestamp: new Date(Date.now() - 1000 * 60 * 4),
+            status: 'read',
+            type: 'text'
+        },
+        {
+            id: '3',
+            content: 'Très bien aussi ! Tu viens à la réunion demain ?',
+            senderId: '2',
+            sender: mockUsers[0],
+            timestamp: new Date(Date.now() - 1000 * 60 * 3),
+            status: 'read',
+            type: 'text'
+        }
+    ],
+    '2': [
+        {
+            id: '1',
+            content: 'Salut tout le monde !',
+            senderId: '1',
+            sender: currentUser,
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
+            status: 'read',
+            type: 'text'
+        },
+        {
+            id: '2',
+            content: 'Salut !',
+            senderId: '3',
+            sender: mockUsers[1],
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
+            status: 'read',
+            type: 'text'
+        },
+        {
+            id: '3',
+            content: 'On se retrouve demain à 14h pour la présentation ?',
+            senderId: '3',
+            sender: mockUsers[1],
+            timestamp: new Date(Date.now() - 1000 * 60 * 15),
+            status: 'delivered',
+            type: 'text'
+        }
+    ]
+};
+
 const MessagingPage: React.FC = () => {
-    const { user, isLoading } = useUserContext();
-    const navigate = useNavigate();
-    const theme = useMantineTheme();
-    const [conversations, setConversations] = useState<Conversation[]>([]);
     const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'pinned'>('all');
     const [newMessage, setNewMessage] = useState('');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [activeTab, setActiveTab] = useState<string>('all');
+    const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
+    const [messages, setMessages] = useState<{ [conversationId: string]: Message[] }>(mockMessages);
     const [modalOpened, setModalOpened] = useState(false);
     const [newConversationName, setNewConversationName] = useState('');
     const [newConversationType, setNewConversationType] = useState<'direct' | 'group'>('direct');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const handleStartVideoCall = () => {
-        if (selectedConversation) {
-            navigate('/video-call');
-        }
-    };
-
-    // Données d'exemple
-    useEffect(() => {
-        const sampleConversations: Conversation[] = [
-            {
-                id: '1',
-                name: 'Marie Dubois',
-                type: 'direct',
-                participants: [
-                    {
-                        id: '2',
-                        name: 'Marie Dubois',
-                        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-                        isOnline: true,
-                        lastSeen: new Date()
-                    }
-                ],
-                lastMessage: {
-                    id: 'm1',
-                    content: 'Salut ! Comment ça va ?',
-                    senderId: '2',
-                    senderName: 'Marie Dubois',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-                    isRead: false,
-                    type: 'text'
-                },
-                unreadCount: 2,
-                isPinned: true,
-                isArchived: false,
-                createdAt: new Date('2024-11-01'),
-                updatedAt: new Date(Date.now() - 1000 * 60 * 30),
-                isOnline: true
-            },
-            {
-                id: '2',
-                name: 'Projet Web',
-                type: 'group',
-                participants: [
-                    {
-                        id: '3',
-                        name: 'Pierre Martin',
-                        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-                        isOnline: false,
-                        lastSeen: new Date(Date.now() - 1000 * 60 * 60 * 2),
-                        role: 'admin'
-                    },
-                    {
-                        id: '4',
-                        name: 'Sophie Laurent',
-                        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-                        isOnline: true,
-                        lastSeen: new Date(),
-                        role: 'member'
-                    }
-                ],
-                lastMessage: {
-                    id: 'm2',
-                    content: 'J\'ai terminé la partie backend, vous pouvez tester !',
-                    senderId: '3',
-                    senderName: 'Pierre Martin',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60),
-                    isRead: true,
-                    type: 'text'
-                },
-                unreadCount: 0,
-                isPinned: false,
-                isArchived: false,
-                createdAt: new Date('2024-11-05'),
-                updatedAt: new Date(Date.now() - 1000 * 60 * 60),
-                avatar: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=150&h=150&fit=crop&crop=face'
-            },
-            {
-                id: '3',
-                name: 'Équipe Design',
-                type: 'group',
-                participants: [
-                    {
-                        id: '5',
-                        name: 'Lucas Moreau',
-                        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-                        isOnline: true,
-                        lastSeen: new Date(),
-                        role: 'admin'
-                    }
-                ],
-                lastMessage: {
-                    id: 'm3',
-                    content: 'Nouveaux mockups disponibles !',
-                    senderId: '5',
-                    senderName: 'Lucas Moreau',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3),
-                    isRead: true,
-                    type: 'text'
-                },
-                unreadCount: 0,
-                isPinned: false,
-                isArchived: false,
-                createdAt: new Date('2024-11-10'),
-                updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
-                avatar: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=150&h=150&fit=crop&crop=face'
-            }
-        ];
-
-        setConversations(sampleConversations);
-    }, []);
-
-    // Messages d'exemple
-    useEffect(() => {
-        if (selectedConversation) {
-            const sampleMessages: Message[] = [
-                {
-                    id: 'm1',
-                    content: 'Salut ! Comment ça va ?',
-                    senderId: '2',
-                    senderName: 'Marie Dubois',
-                    senderAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-                    isRead: true,
-                    type: 'text'
-                },
-                {
-                    id: 'm2',
-                    content: 'Ça va bien merci ! Et toi ?',
-                    senderId: user?.id || '1',
-                    senderName: user?.name || 'Moi',
-                    senderAvatar: user?.avatar_url,
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1.5),
-                    isRead: true,
-                    type: 'text'
-                },
-                {
-                    id: 'm3',
-                    content: 'Très bien aussi ! Tu as vu le nouveau projet qu\'on doit faire ?',
-                    senderId: '2',
-                    senderName: 'Marie Dubois',
-                    senderAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60),
-                    isRead: true,
-                    type: 'text'
-                }
-            ];
-            setMessages(sampleMessages);
-        }
-    }, [selectedConversation, user]);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
-
-    if (!user) {
-        return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                <Center h="100vh">
-                    <Loader size="lg" />
-                </Center>
-            </MainLayout>
-        );
-    }
-
-    if (isLoading) {
-        return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                <Center h="100vh">
-                    <Loader size="lg" />
-                </Center>
-            </MainLayout>
-        );
-    }
-
-    const handleSendMessage = () => {
-        if (!newMessage.trim() || !selectedConversation) return;
-
-        const message: Message = {
-            id: Date.now().toString(),
-            content: newMessage,
-            senderId: user.id,
-            senderName: user.name || 'Moi',
-            senderAvatar: user.avatar_url,
-            timestamp: new Date(),
-            isRead: false,
-            type: 'text'
-        };
-
-        setMessages([...messages, message]);
-        setNewMessage('');
-
-        setConversations(conversations.map(conv => 
-            conv.id === selectedConversation.id 
-                ? { ...conv, lastMessage: message, updatedAt: new Date() }
-                : conv
-        ));
-    };
-
-    const handleCreateConversation = () => {
-        if (!newConversationName.trim()) return;
-
-        const newConversation: Conversation = {
-            id: Date.now().toString(),
-            name: newConversationName,
-            type: newConversationType,
-            participants: [],
-            unreadCount: 0,
-            isPinned: false,
-            isArchived: false,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
-        setConversations([newConversation, ...conversations]);
-        setNewConversationName('');
-        setModalOpened(false);
-    };
-
-    const handleTogglePin = (conversationId: string) => {
-        setConversations(conversations.map(conv => 
-            conv.id === conversationId ? { ...conv, isPinned: !conv.isPinned } : conv
-        ));
-    };
-
-    const handleArchiveConversation = (conversationId: string) => {
-        setConversations(conversations.map(conv => 
-            conv.id === conversationId ? { ...conv, isArchived: !conv.isArchived } : conv
-        ));
-    };
-
-    const handleDeleteConversation = (conversationId: string) => {
-        setConversations(conversations.filter(conv => conv.id !== conversationId));
-        if (selectedConversation?.id === conversationId) {
-            setSelectedConversation(null);
-        }
-    };
-
+    // Filtrage des conversations
     const filteredConversations = conversations.filter(conv => {
-        const matchesSearch = conv.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = conv.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesTab = activeTab === 'all' || 
                           (activeTab === 'unread' && conv.unreadCount > 0) ||
                           (activeTab === 'pinned' && conv.isPinned);
@@ -372,331 +364,366 @@ const MessagingPage: React.FC = () => {
         });
     };
 
+    const handleSendMessage = () => {
+        if (!newMessage.trim() || !selectedConversation) return;
+
+        const message: Message = {
+            id: Date.now().toString(),
+            content: newMessage,
+            senderId: currentUser.id,
+            sender: currentUser,
+            timestamp: new Date(),
+            status: 'sending',
+            type: 'text'
+        };
+
+        setMessages(prev => ({
+            ...prev,
+            [selectedConversation.id]: [...(prev[selectedConversation.id] || []), message]
+        }));
+
+        setNewMessage('');
+
+        // Simuler l'envoi
+        setTimeout(() => {
+            setMessages(prev => ({
+                ...prev,
+                [selectedConversation.id]: prev[selectedConversation.id].map(m => 
+                    m.id === message.id ? { ...m, status: 'sent' } : m
+                )
+            }));
+        }, 1000);
+    };
+
+    const handleStartVideoCall = () => {
+        // Rediriger vers la page d'appel vidéo
+        window.location.href = '/video-call';
+    };
+
+    const handleCreateConversation = () => {
+        if (!newConversationName.trim()) return;
+
+        const newConv: Conversation = {
+            id: Date.now().toString(),
+            name: newConversationName,
+            isGroup: newConversationType === 'group',
+            participants: [currentUser],
+            unreadCount: 0,
+            isPinned: false,
+            isArchived: false,
+            isMuted: false,
+            updatedAt: new Date(),
+            createdAt: new Date(),
+            type: newConversationType === 'group' ? 'group' : 'direct'
+        };
+
+        setConversations(prev => [newConv, ...prev]);
+        setNewConversationName('');
+        setModalOpened(false);
+    };
+
+    const handlePinConversation = (conversationId: string) => {
+        setConversations(prev => prev.map(conv => 
+            conv.id === conversationId ? { ...conv, isPinned: !conv.isPinned } : conv
+        ));
+    };
+
+    const handleArchiveConversation = (conversationId: string) => {
+        setConversations(prev => prev.map(conv => 
+            conv.id === conversationId ? { ...conv, isArchived: true } : conv
+        ));
+    };
+
+    const handleMuteConversation = (conversationId: string) => {
+        setConversations(prev => prev.map(conv => 
+            conv.id === conversationId ? { ...conv, isMuted: !conv.isMuted } : conv
+        ));
+    };
+
+    // Auto-scroll vers le bas des messages
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [selectedConversation, messages]);
+
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Container size="xl" py="md">
-                {/* En-tête cohérent avec le reste de la plateforme */}
-                <Group mb="xl">
-                    <ThemeIcon size={40} radius="md" color="violet">
-                        <IconMessage size={24} />
-                    </ThemeIcon>
-                    <div>
-                        <Title order={1} size="h2">
-                            Messagerie
-                        </Title>
-                        <Text c="dimmed" size="sm">
-                            Communiquez avec vos collègues et amis
-                        </Text>
-                    </div>
+                {/* En-tête */}
+                <Group justify="space-between" align="center" mb="md" px="md">
+                    <Group>
+                        <ThemeIcon size={40} radius="md" color="violet">
+                            <IconMessage size={24} />
+                        </ThemeIcon>
+                        <div>
+                            <Title order={1} size="h2">
+                                Messagerie
+                            </Title>
+                            <Text c="dimmed" size="sm">
+                                Communiquez avec vos collègues et amis
+                            </Text>
+                        </div>
+                    </Group>
+                    <Group>
+                        <Button
+                            leftSection={<IconPlus size={16} />}
+                            onClick={() => setModalOpened(true)}
+                            variant="light"
+                        >
+                            Nouvelle conversation
+                        </Button>
+                    </Group>
                 </Group>
 
-                {/* Interface de messagerie - 2 sections flottantes séparées */}
-                <Flex gap="md" h="calc(100vh - 200px)">
-                    {/* Section 1: Liste des conversations - Carte flottante */}
-                    <Paper 
-                        shadow="lg" 
-                        radius="lg" 
-                        w="350px"
-                        h="100%"
-                        style={{ 
-                            background: theme.white,
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {/* Barre de recherche */}
-                        <Box p="md" style={{ borderBottom: `1px solid ${theme.colors.gray[2]}` }}>
-                            <TextInput
-                                placeholder="Rechercher..."
-                                leftSection={<IconSearch size={16} />}
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                radius="md"
-                                size="sm"
-                            />
+                {/* Interface de messagerie - 2 colonnes */}
+                <Grid gutter={0} style={{ height: 'calc(100vh - 200px)' }}>
+                    {/* Colonne 1: Liste des conversations */}
+                    <Grid.Col span={4} style={{ borderRight: '1px solid var(--mantine-color-gray-3)' }}>
+                        <Paper p="md" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                            <Stack gap="md" h="100%">
+                                {/* Barre de recherche */}
+                                <TextInput
+                                    placeholder="Rechercher une conversation..."
+                                    leftSection={<IconSearch size={16} />}
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    size="sm"
+                                />
 
-                            <Tabs value={activeTab} onChange={(value) => setActiveTab(value || 'all')} mt="md">
-                                <Tabs.List>
-                                    <Tabs.Tab value="all" size="sm">Toutes</Tabs.Tab>
-                                    <Tabs.Tab value="unread" size="sm">Non lues</Tabs.Tab>
-                                    <Tabs.Tab value="pinned" size="sm">Épinglées</Tabs.Tab>
-                                </Tabs.List>
-                            </Tabs>
-                        </Box>
+                                {/* Onglets de filtrage */}
+                                <Tabs value={activeTab} onChange={(value) => setActiveTab((value as 'all' | 'unread' | 'pinned') || 'all')}>
+                                    <Tabs.List>
+                                        <Tabs.Tab value="all">Toutes</Tabs.Tab>
+                                        <Tabs.Tab value="unread">Non lues</Tabs.Tab>
+                                        <Tabs.Tab value="pinned">Épinglées</Tabs.Tab>
+                                    </Tabs.List>
+                                </Tabs>
 
-                        {/* Liste des conversations */}
-                        <ScrollArea h="calc(100% - 120px)">
-                            <Stack gap={0}>
-                                {sortedConversations.map((conversation) => (
-                                    <UnstyledButton
-                                        key={conversation.id}
-                                        onClick={() => setSelectedConversation(conversation)}
-                                        style={{
-                                            padding: '12px 16px',
-                                            borderBottom: `1px solid ${theme.colors.gray[1]}`,
-                                            backgroundColor: selectedConversation?.id === conversation.id 
-                                                ? theme.colors.violet[0] 
-                                                : 'transparent',
-                                            transition: 'all 0.2s ease'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (selectedConversation?.id !== conversation.id) {
-                                                e.currentTarget.style.backgroundColor = theme.colors.gray[0];
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (selectedConversation?.id !== conversation.id) {
-                                                e.currentTarget.style.backgroundColor = 'transparent';
-                                            }
-                                        }}
-                                    >
-                                        <Group justify="space-between" align="flex-start">
-                                            <Group gap="sm" style={{ flex: 1, minWidth: 0 }}>
-                                                <Box style={{ position: 'relative' }}>
-                                                    <Avatar
-                                                        src={conversation.avatar || conversation.participants[0]?.avatar}
-                                                        size="md"
-                                                        radius="md"
-                                                    >
-                                                        {conversation.type === 'group' ? (
-                                                            <IconUsers size={20} />
-                                                        ) : (
-                                                            <IconUser size={20} />
-                                                        )}
-                                                    </Avatar>
-                                                    {conversation.isOnline && (
-                                                        <Box
-                                                            style={{
-                                                                position: 'absolute',
-                                                                bottom: 0,
-                                                                right: 0,
-                                                                width: 12,
-                                                                height: 12,
-                                                                backgroundColor: theme.colors.green[6],
-                                                                borderRadius: '50%',
-                                                                border: `2px solid ${theme.white}`
-                                                            }}
-                                                        />
-                                                    )}
-                                                </Box>
-                                                
-                                                <Box style={{ flex: 1, minWidth: 0 }}>
-                                                    <Group justify="space-between" align="center" mb={4}>
-                                                        <Text fw={500} size="sm" truncate>
-                                                            {conversation.name}
-                                                        </Text>
-                                                        <Group gap="xs">
-                                                            {conversation.isPinned && (
-                                                                <IconPinFilled size={12} color={theme.colors.violet[6]} />
-                                                            )}
-                                                            <Text size="xs" c="dimmed">
-                                                                {formatTime(conversation.lastMessage?.timestamp || conversation.updatedAt)}
+                                {/* Liste des conversations */}
+                                <ScrollArea style={{ flex: 1 }}>
+                                    <Stack gap={0}>
+                                        {sortedConversations.map((conv) => (
+                                            <UnstyledButton
+                                                key={conv.id}
+                                                onClick={() => setSelectedConversation(conv)}
+                                                style={{
+                                                    padding: '12px',
+                                                    backgroundColor: selectedConversation?.id === conv.id ? 
+                                                        'var(--mantine-color-blue-0)' : 'transparent',
+                                                    borderLeft: selectedConversation?.id === conv.id ? 
+                                                        '3px solid var(--mantine-color-blue-6)' : '3px solid transparent',
+                                                    borderBottom: '1px solid var(--mantine-color-gray-2)',
+                                                    transition: 'all 0.2s ease',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    if (selectedConversation?.id !== conv.id) {
+                                                        e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-0)';
+                                                    }
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    if (selectedConversation?.id !== conv.id) {
+                                                        e.currentTarget.style.backgroundColor = 'transparent';
+                                                    }
+                                                }}
+                                            >
+                                                <Group justify="space-between" align="flex-start">
+                                                    <Group gap="md" style={{ flex: 1, minWidth: 0 }}>
+                                                        <Avatar size="md" radius="xl" src={conv.avatar}>
+                                                            {conv.name.charAt(0)}
+                                                        </Avatar>
+                                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                                            <Group justify="space-between" align="center" mb="xs">
+                                                                <Text fw={conv.unreadCount > 0 ? 600 : 400} size="sm" truncate>
+                                                                    {conv.name}
+                                                                </Text>
+                                                                <Group gap="xs">
+                                                                    {conv.isPinned && (
+                                                                        <IconPinFilled size={14} color="var(--mantine-color-yellow-6)" />
+                                                                    )}
+                                                                    {conv.isMuted && (
+                                                                        <IconBellOff size={14} color="var(--mantine-color-gray-5)" />
+                                                                    )}
+                                                                    <Text size="xs" c="dimmed">
+                                                                        {formatTime(conv.updatedAt)}
+                                                                    </Text>
+                                                                </Group>
+                                                            </Group>
+                                                            <Text size="sm" c="dimmed" lineClamp={1}>
+                                                                {conv.lastMessage?.content || 'Aucun message'}
                                                             </Text>
-                                                        </Group>
+                                                            {conv.isGroup && (
+                                                                <Group gap="xs" mt="xs">
+                                                                    <IconUsers size={12} />
+                                                                    <Text size="xs" c="dimmed">
+                                                                        {conv.participants.length} membres
+                                                                    </Text>
+                                                                </Group>
+                                                            )}
+                                                        </div>
                                                     </Group>
-                                                    
-                                                    <Text size="xs" c="dimmed" truncate>
-                                                        {conversation.lastMessage?.senderName}: {conversation.lastMessage?.content}
-                                                    </Text>
-                                                </Box>
-                                            </Group>
-                                            
-                                            <Group gap="xs">
-                                                {conversation.unreadCount > 0 && (
-                                                    <Badge size="sm" color="violet" variant="filled" radius="xl">
-                                                        {conversation.unreadCount}
-                                                    </Badge>
-                                                )}
-                                                <Menu>
-                                                    <Menu.Target>
-                                                        <ActionIcon size="sm" variant="subtle" color="gray">
-                                                            <IconDots size={12} />
-                                                        </ActionIcon>
-                                                    </Menu.Target>
-                                                    <Menu.Dropdown>
-                                                        <Menu.Item 
-                                                            leftSection={conversation.isPinned ? <IconPin size={14} /> : <IconPinFilled size={14} />}
-                                                            onClick={() => handleTogglePin(conversation.id)}
-                                                        >
-                                                            {conversation.isPinned ? 'Désépingler' : 'Épingler'}
-                                                        </Menu.Item>
-                                                        <Menu.Item 
-                                                            leftSection={<IconArchive size={14} />}
-                                                            onClick={() => handleArchiveConversation(conversation.id)}
-                                                        >
-                                                            Archiver
-                                                        </Menu.Item>
-                                                        <Menu.Divider />
-                                                        <Menu.Item 
-                                                            leftSection={<IconTrash size={14} />}
-                                                            color="red"
-                                                            onClick={() => handleDeleteConversation(conversation.id)}
-                                                        >
-                                                            Supprimer
-                                                        </Menu.Item>
-                                                    </Menu.Dropdown>
-                                                </Menu>
-                                            </Group>
-                                        </Group>
-                                    </UnstyledButton>
-                                ))}
+                                                    <Group gap="xs">
+                                                        {conv.unreadCount > 0 && (
+                                                            <Badge size="sm" color="blue" variant="filled">
+                                                                {conv.unreadCount}
+                                                            </Badge>
+                                                        )}
+                                                        <Menu shadow="md" width={200}>
+                                                            <Menu.Target>
+                                                                <ActionIcon
+                                                                    variant="subtle"
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                >
+                                                                    <IconDots size={16} />
+                                                                </ActionIcon>
+                                                            </Menu.Target>
+                                                            <Menu.Dropdown>
+                                                                <Menu.Item
+                                                                    leftSection={<IconPin size={16} />}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handlePinConversation(conv.id);
+                                                                    }}
+                                                                >
+                                                                    {conv.isPinned ? 'Désépingler' : 'Épingler'}
+                                                                </Menu.Item>
+                                                                <Menu.Item
+                                                                    leftSection={conv.isMuted ? <IconBell size={16} /> : <IconBellOff size={16} />}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleMuteConversation(conv.id);
+                                                                    }}
+                                                                >
+                                                                    {conv.isMuted ? 'Activer les notifications' : 'Désactiver les notifications'}
+                                                                </Menu.Item>
+                                                                <Menu.Item
+                                                                    leftSection={<IconArchive size={16} />}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleArchiveConversation(conv.id);
+                                                                    }}
+                                                                >
+                                                                    Archiver
+                                                                </Menu.Item>
+                                                                <Menu.Divider />
+                                                                <Menu.Item
+                                                                    leftSection={<IconTrash size={16} />}
+                                                                    color="red"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        // Supprimer la conversation
+                                                                    }}
+                                                                >
+                                                                    Supprimer
+                                                                </Menu.Item>
+                                                            </Menu.Dropdown>
+                                                        </Menu>
+                                                    </Group>
+                                                </Group>
+                                            </UnstyledButton>
+                                        ))}
+                                    </Stack>
+                                </ScrollArea>
                             </Stack>
-                        </ScrollArea>
-                    </Paper>
+                        </Paper>
+                    </Grid.Col>
 
-                    {/* Section 2: Zone de chat - Carte flottante */}
-                    <Paper 
-                        shadow="lg" 
-                        radius="lg" 
-                        style={{ 
-                            flex: 1,
-                            background: theme.white,
-                            overflow: 'hidden',
-                            display: 'flex',
-                            flexDirection: 'column'
-                        }}
-                    >
-                        {selectedConversation ? (
-                            <>
-                                {/* En-tête de conversation */}
-                                <Box p="md" style={{ borderBottom: `1px solid ${theme.colors.gray[2]}` }}>
+                    {/* Colonne 2: Chat */}
+                    <Grid.Col span={8}>
+                        <Paper p="md" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                            {selectedConversation ? (
+                                <Stack gap="md" h="100%">
+                                    {/* En-tête du chat */}
                                     <Group justify="space-between" align="center">
-                                        <Group gap="sm">
-                                            <Box style={{ position: 'relative' }}>
-                                                <Avatar
-                                                    src={selectedConversation.avatar || selectedConversation.participants[0]?.avatar}
-                                                    size="md"
-                                                    radius="md"
-                                                >
-                                                    {selectedConversation.type === 'group' ? (
-                                                        <IconUsers size={20} />
-                                                    ) : (
-                                                        <IconUser size={20} />
-                                                    )}
-                                                </Avatar>
-                                                {selectedConversation.isOnline && (
-                                                    <Box
-                                                        style={{
-                                                            position: 'absolute',
-                                                            bottom: 0,
-                                                            right: 0,
-                                                            width: 12,
-                                                            height: 12,
-                                                            backgroundColor: theme.colors.green[6],
-                                                            borderRadius: '50%',
-                                                            border: `2px solid ${theme.white}`
-                                                        }}
-                                                    />
-                                                )}
-                                            </Box>
-                                            <Box>
-                                                <Text fw={500} size="lg">
+                                        <Group gap="md">
+                                            <Avatar size="md" radius="xl" src={selectedConversation.avatar}>
+                                                {selectedConversation.name.charAt(0)}
+                                            </Avatar>
+                                            <div>
+                                                <Text fw={600} size="sm">
                                                     {selectedConversation.name}
                                                 </Text>
-                                                <Text size="sm" c="dimmed">
-                                                    {selectedConversation.isOnline ? 'En ligne' : 'Hors ligne'} • 
-                                                    {selectedConversation.type === 'group' ? 'Groupe' : 'Message privé'}
+                                                <Text size="xs" c="dimmed">
+                                                    {selectedConversation.isGroup ? 
+                                                        `${selectedConversation.participants.length} membres` : 
+                                                        'En ligne'
+                                                    }
                                                 </Text>
-                                            </Box>
+                                            </div>
                                         </Group>
                                         <Group gap="xs">
-                                            <ActionIcon variant="light" color="gray" radius="md">
+                                            <ActionIcon variant="subtle">
                                                 <IconPhone size={16} />
                                             </ActionIcon>
-                                            <ActionIcon 
-                                                variant="light" 
-                                                color="blue" 
-                                                radius="md"
-                                                onClick={handleStartVideoCall}
-                                                disabled={!selectedConversation}
-                                            >
+                                            <ActionIcon variant="subtle" onClick={handleStartVideoCall}>
                                                 <IconVideo size={16} />
                                             </ActionIcon>
-                                            <ActionIcon variant="light" color="gray" radius="md">
+                                            <ActionIcon variant="subtle">
                                                 <IconInfoCircle size={16} />
                                             </ActionIcon>
                                         </Group>
                                     </Group>
-                                </Box>
 
-                                {/* Messages */}
-                                <ScrollArea 
-                                    style={{ 
-                                        flex: 1,
-                                        background: theme.colors.gray[0]
-                                    }} 
-                                    p="md"
-                                >
-                                    <Stack gap="md">
-                                        {messages.map((message) => (
-                                            <Group
-                                                key={message.id}
-                                                justify={message.senderId === user.id ? 'flex-end' : 'flex-start'}
-                                                align="flex-start"
-                                                gap="sm"
-                                            >
-                                                {message.senderId !== user.id && (
-                                                    <Avatar
-                                                        src={message.senderAvatar}
-                                                        size="sm"
-                                                        radius="md"
-                                                    />
-                                                )}
-                                                <Box
-                                                    style={{
-                                                        maxWidth: '70%',
-                                                        backgroundColor: message.senderId === user.id 
-                                                            ? theme.colors.violet[6]
-                                                            : theme.white,
-                                                        color: message.senderId === user.id ? theme.white : theme.black,
-                                                        padding: '12px 16px',
-                                                        borderRadius: message.senderId === user.id 
-                                                            ? '18px 18px 4px 18px'
-                                                            : '18px 18px 18px 4px',
-                                                        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-                                                    }}
+                                    <Divider />
+
+                                    {/* Zone des messages */}
+                                    <ScrollArea style={{ flex: 1 }} ref={messagesEndRef}>
+                                        <Stack gap="md" pb="md">
+                                            {(messages[selectedConversation.id] || []).map((message) => (
+                                                <Group
+                                                    key={message.id}
+                                                    justify={message.senderId === currentUser.id ? 'flex-end' : 'flex-start'}
+                                                    align="flex-start"
+                                                    gap="sm"
                                                 >
-                                                    <Text size="sm" style={{ lineHeight: 1.4 }}>
-                                                        {message.content}
-                                                    </Text>
-                                                    <Group justify="space-between" align="center" mt="xs" gap="xs">
-                                                        <Text size="xs" c={message.senderId === user.id ? 'rgba(255,255,255,0.7)' : 'dimmed'}>
-                                                            {formatMessageTime(message.timestamp)}
+                                                    {message.senderId !== currentUser.id && (
+                                                        <Avatar size="sm" radius="xl" src={message.sender.avatar}>
+                                                            {message.sender.name.charAt(0)}
+                                                        </Avatar>
+                                                    )}
+                                                    <Box
+                                                        style={{
+                                                            maxWidth: '70%',
+                                                            backgroundColor: message.senderId === currentUser.id ? 
+                                                                'var(--mantine-color-blue-6)' : 
+                                                                'var(--mantine-color-gray-1)',
+                                                            color: message.senderId === currentUser.id ? 
+                                                                'white' : 'var(--mantine-color-gray-8)',
+                                                            padding: '8px 12px',
+                                                            borderRadius: '12px',
+                                                            borderBottomRightRadius: message.senderId === currentUser.id ? '4px' : '12px',
+                                                            borderBottomLeftRadius: message.senderId === currentUser.id ? '12px' : '4px',
+                                                        }}
+                                                    >
+                                                        <Text size="sm" style={{ wordBreak: 'break-word' }}>
+                                                            {message.content}
                                                         </Text>
-                                                        {message.senderId === user.id && (
-                                                            <Group gap="xs">
-                                                                {message.isRead ? (
-                                                                    <IconChecks size={12} color="rgba(255,255,255,0.8)" />
-                                                                ) : (
-                                                                    <IconCheck size={12} color="rgba(255,255,255,0.6)" />
-                                                                )}
-                                                            </Group>
-                                                        )}
-                                                    </Group>
-                                                </Box>
-                                                {message.senderId === user.id && (
-                                                    <Avatar
-                                                        src={message.senderAvatar}
-                                                        size="sm"
-                                                        radius="md"
-                                                    />
-                                                )}
-                                            </Group>
-                                        ))}
-                                        <div ref={messagesEndRef} />
-                                    </Stack>
-                                </ScrollArea>
+                                                        <Group justify="space-between" align="center" mt="xs">
+                                                            <Text size="xs" c={message.senderId === currentUser.id ? 'rgba(255,255,255,0.7)' : 'dimmed'}>
+                                                                {formatMessageTime(message.timestamp)}
+                                                            </Text>
+                                                            {message.senderId === currentUser.id && (
+                                                                <Group gap="xs">
+                                                                    {message.status === 'sending' && <Loader size="xs" />}
+                                                                    {message.status === 'sent' && <IconCheck size={12} />}
+                                                                    {message.status === 'delivered' && <IconChecks size={12} />}
+                                                                    {message.status === 'read' && <IconChecks size={12} color="var(--mantine-color-blue-6)" />}
+                                                                </Group>
+                                                            )}
+                                                        </Group>
+                                                    </Box>
+                                                </Group>
+                                            ))}
+                                            <div ref={messagesEndRef} />
+                                        </Stack>
+                                    </ScrollArea>
 
-                                {/* Zone de saisie */}
-                                <Box p="md" style={{ borderTop: `1px solid ${theme.colors.gray[2]}` }}>
-                                    <Group align="flex-end" gap="sm">
-                                        <ActionIcon variant="light" color="gray" radius="md">
+                                    <Divider />
+
+                                    {/* Zone de saisie */}
+                                    <Group gap="sm" align="flex-end">
+                                        <ActionIcon variant="subtle">
                                             <IconPaperclip size={16} />
                                         </ActionIcon>
-                                        <ActionIcon variant="light" color="gray" radius="md">
+                                        <ActionIcon variant="subtle">
                                             <IconPhoto size={16} />
-                                        </ActionIcon>
-                                        <ActionIcon variant="light" color="gray" radius="md">
-                                            <IconMoodSmile size={16} />
                                         </ActionIcon>
                                         <Textarea
                                             placeholder="Tapez votre message..."
@@ -712,47 +739,41 @@ const MessagingPage: React.FC = () => {
                                             minRows={1}
                                             maxRows={4}
                                             autosize
-                                            radius="md"
-                                            size="sm"
                                         />
+                                        <ActionIcon variant="subtle">
+                                            <IconMoodSmile size={16} />
+                                        </ActionIcon>
                                         <ActionIcon
                                             variant="filled"
-                                            color="violet"
-                                            radius="md"
+                                            color="blue"
                                             onClick={handleSendMessage}
                                             disabled={!newMessage.trim()}
-                                            size="lg"
                                         >
                                             <IconSend size={16} />
                                         </ActionIcon>
                                     </Group>
-                                </Box>
-                            </>
-                        ) : (
-                            <Center h="100%" style={{ background: theme.colors.gray[0] }}>
-                                <Stack align="center" gap="md">
-                                    <ThemeIcon size={80} radius="md" color="gray" variant="light">
-                                        <IconMessage size={40} />
-                                    </ThemeIcon>
-                                    <Text size="xl" fw={500} c="dimmed">
+                                </Stack>
+                            ) : (
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center', 
+                                    height: '100%',
+                                    flexDirection: 'column',
+                                    gap: 'md'
+                                }}>
+                                    <IconMessage size={48} color="var(--mantine-color-gray-4)" />
+                                    <Text c="dimmed" size="lg">
                                         Sélectionnez une conversation
                                     </Text>
-                                    <Text size="sm" c="dimmed" ta="center" maw={300}>
+                                    <Text c="dimmed" size="sm" ta="center">
                                         Choisissez une conversation dans la liste pour commencer à discuter
                                     </Text>
-                                    <Button
-                                        leftSection={<IconPlus size={16} />}
-                                        onClick={() => setModalOpened(true)}
-                                        color="violet"
-                                        radius="md"
-                                    >
-                                        Nouvelle conversation
-                                    </Button>
-                                </Stack>
-                            </Center>
-                        )}
-                    </Paper>
-                </Flex>
+                                </div>
+                            )}
+                        </Paper>
+                    </Grid.Col>
+                </Grid>
 
                 {/* Modal de nouvelle conversation */}
                 <Modal
@@ -760,7 +781,6 @@ const MessagingPage: React.FC = () => {
                     onClose={() => setModalOpened(false)}
                     title="Nouvelle conversation"
                     size="sm"
-                    radius="md"
                 >
                     <Stack gap="md">
                         <TextInput
@@ -769,7 +789,6 @@ const MessagingPage: React.FC = () => {
                             value={newConversationName}
                             onChange={(e) => setNewConversationName(e.target.value)}
                             required
-                            radius="md"
                         />
 
                         <Tabs value={newConversationType} onChange={(value) => setNewConversationType(value as 'direct' | 'group')}>
@@ -784,16 +803,15 @@ const MessagingPage: React.FC = () => {
                         </Tabs>
 
                         <Group justify="flex-end" mt="md">
-                            <Button variant="light" onClick={() => setModalOpened(false)} radius="md">
+                            <Button variant="light" onClick={() => setModalOpened(false)}>
                                 Annuler
                             </Button>
-                            <Button onClick={handleCreateConversation} color="violet" radius="md">
+                            <Button onClick={handleCreateConversation} color="violet">
                                 Créer
                             </Button>
                         </Group>
                     </Stack>
                 </Modal>
-            </Container>
         </MainLayout>
     );
 };

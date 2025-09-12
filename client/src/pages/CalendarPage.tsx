@@ -639,7 +639,6 @@ const CalendarPage: React.FC = () => {
 
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Container size="xl" py="md">
                 {/* En-tête */}
                 <Group justify="space-between" align="center" mb="xl">
                     <Group>
@@ -1168,7 +1167,6 @@ const CalendarPage: React.FC = () => {
                         </Group>
                     </Stack>
                 </Modal>
-            </Container>
         </MainLayout>
     );
 };

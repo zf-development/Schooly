@@ -30,6 +30,9 @@ import {
     IconBookUpload,
     IconUsers,
     IconBook,
+    IconChartLine,
+    IconBrain,
+    IconMail,
 } from "@tabler/icons-react";
 
 const linksSections = {
@@ -42,18 +45,21 @@ const linksSections = {
                 label: "Mes abonnements",
                 icon: IconBuildingPlus,
             },
-            { route: "/messaging", label: "Messagerie", icon: IconMessage },
+            { route: "/messaging", label: "Messagerie", icon: IconMessage, badge: "WIP" },
         ],
     },
     academic: {
         label: "Académique",
         links: [
             { route: "/notes", label: "Mes notes", icon: IconNote },
+            { route: "/my-session", label: "Ma session", icon: IconChartLine, badge: "WIP" },
             { route: "/calendar", label: "Mon calendrier", icon: IconCalendar },
             { route: "/files", label: "Mes fichiers", icon: IconFile },
             { route: "/homework", label: "Devoirs", icon: IconBookUpload, badge: "WIP" },
             { route: "/projects", label: "Projets", icon: IconUsers, badge: "WIP" },
             { route: "/course-notes", label: "Notes de cours", icon: IconBook, badge: "WIP" },
+            { route: "/quizzes", label: "Quiz", icon: IconBrain, badge: "WIP" },
+            { route: "/emails", label: "Courriels", icon: IconMail, badge: "WIP" },
         ],
     },
     account: {
@@ -203,7 +209,7 @@ const AppNavbar = React.memo(() => {
                             </Group>
 
                             <Group className={styles.versionGroup}>
-                                <Code style={{ fontSize: "10px" }}>v1.0.0</Code>
+                                <Code style={{ fontSize: "10px" }}>M.V.P</Code>
                             </Group>
                         </Group>
                     </div>

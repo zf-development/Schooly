@@ -590,56 +590,24 @@ const CourseNotesPage: React.FC = () => {
 
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Container size="xl" py="md">
+                {/* En-tête */}
+                <Group justify="space-between" align="center" mb="xl">
+                    <Group>
+                        <ThemeIcon size={40} radius="md" color="violet">
+                            <IconBook size={24} />
+                        </ThemeIcon>
+                        <div>
+                            <Title order={1} size="h2">
+                                Notes de cours
+                            </Title>
+                            <Text c="dimmed" size="sm">
+                                Documents et ressources partagés par vos professeurs
+                            </Text>
+                        </div>
+                    </Group>
+                </Group>
+
                 <Stack gap="xl">
-                    {/* En-tête avec informations contextuelles */}
-                    <Paper withBorder p="lg" radius="md">
-                        <Group justify="space-between" align="flex-start">
-                            <div>
-                                <Title order={1} size="h2" mb="xs">
-                                    Notes de cours
-                                </Title>
-                                <Text size="sm" c="dimmed" mb="md">
-                                    Documents et ressources partagés par vos professeurs
-                                </Text>
-                                
-                                {/* Informations contextuelles */}
-                                <Group gap="xl">
-                                    <div>
-                                        <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                                            Cours suivis
-                                        </Text>
-                                        <Text size="sm" fw={500}>
-                                            {enrolledCourses.length} cours
-                                        </Text>
-                                    </div>
-                                    <div>
-                                        <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                                            Notes disponibles
-                                        </Text>
-                                        <Text size="sm" fw={500}>
-                                            {stats.totalNotes} documents
-                                        </Text>
-                                    </div>
-                                    <div>
-                                        <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                                            Dernière mise à jour
-                                        </Text>
-                                        <Text size="sm" fw={500}>
-                                            {enrolledCourses.length > 0 ? formatDate(enrolledCourses[0].lastUpdate) : 'Aucune'}
-                                        </Text>
-                                    </div>
-                                </Group>
-                            </div>
-                            <Button
-                                leftSection={<IconPlus size={16} />}
-                                variant="light"
-                                disabled
-                            >
-                                Partager (Professeurs)
-                            </Button>
-                        </Group>
-                    </Paper>
 
                     {/* Statistiques des notes */}
                     <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="lg">
@@ -1141,7 +1109,6 @@ const CourseNotesPage: React.FC = () => {
                         </Tabs>
                     </Card>
                 </Stack>
-            </Container>
         </MainLayout>
     );
 };

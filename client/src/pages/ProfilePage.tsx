@@ -320,7 +320,6 @@ const ProfilePage: React.FC = () => {
     if (loading) {
         return (
             <MainLayout authProps={authProps}>
-                <Container size="lg" py="xl">
                     <Stack gap="xl">
                         <Skeleton height={40} width="60%" mx="auto" />
                         <Paper p="xl" withBorder radius="lg">
@@ -347,14 +346,12 @@ const ProfilePage: React.FC = () => {
                             </Stack>
                         </Paper>
                     </Stack>
-                </Container>
             </MainLayout>
         );
     }
 
     return (
         <MainLayout authProps={authProps}>
-            <Container size="xl" py="md">
                 <Stack gap="xl">
                     {/* En-tête */}
                     <Group justify="space-between" align="center" mb="xl">
@@ -1017,7 +1014,6 @@ const ProfilePage: React.FC = () => {
                         </Group>
                     )}
                 </Stack>
-            </Container>
 
             {/* Modal pour changer l'avatar */}
             <Modal

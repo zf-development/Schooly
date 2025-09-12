@@ -313,27 +313,24 @@ const ProjectsPage: React.FC = () => {
 
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Container size="xl" py="md">
+                {/* En-tête */}
+                <Group justify="space-between" align="center" mb="xl">
+                    <Group>
+                        <ThemeIcon size={40} radius="md" color="violet">
+                            <IconUsers size={24} />
+                        </ThemeIcon>
+                        <div>
+                            <Title order={1} size="h2">
+                                Projets
+                            </Title>
+                            <Text c="dimmed" size="sm">
+                                Gérez vos projets d'études en collaboration
+                            </Text>
+                        </div>
+                    </Group>
+                </Group>
+
                 <Stack gap="xl">
-                    <Paper withBorder p="lg" radius="md">
-                        <Group justify="space-between" align="flex-start">
-                            <div>
-                                <Title order={1} size="h2" mb="xs">
-                                    Projets collaboratifs
-                                </Title>
-                                <Text size="sm" c="dimmed" mb="md">
-                                    Gérez vos projets d'études en collaboration avec d'autres étudiants
-                                </Text>
-                            </div>
-                            <Button
-                                leftSection={<IconPlus size={16} />}
-                                variant="light"
-                                disabled
-                            >
-                                Nouveau projet
-                            </Button>
-                        </Group>
-                    </Paper>
 
                     <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="lg">
                         <Card withBorder p="lg" radius="md">
@@ -603,7 +600,6 @@ const ProjectsPage: React.FC = () => {
                         </Tabs.Panel>
                     </Tabs>
                 </Stack>
-            </Container>
         </MainLayout>
     );
 };

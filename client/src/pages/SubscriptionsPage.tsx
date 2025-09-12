@@ -48,11 +48,9 @@ const SubscriptionsPage: React.FC = () => {
     if (!userContext) {
         return (
             <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                <Container size="md" py="xl">
                     <Center>
                         <Loader color="violet" size="lg" />
                     </Center>
-                </Container>
             </MainLayout>
         );
     }
@@ -63,11 +61,9 @@ const SubscriptionsPage: React.FC = () => {
     if (userLoading) {
         return (
             <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                <Container size="md" py="xl">
                     <Center>
                         <Loader color="violet" size="lg" />
                     </Center>
-                </Container>
             </MainLayout>
         );
     }
@@ -75,7 +71,6 @@ const SubscriptionsPage: React.FC = () => {
     if (!user) {
         return (
                     <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Container size="md" py="xl">
                 <Alert
                     icon={<IconAlertCircle size={16} />}
                     title="Accès non autorisé"
@@ -84,14 +79,12 @@ const SubscriptionsPage: React.FC = () => {
                 >
                     Vous devez être connecté pour accéder à cette page.
                 </Alert>
-            </Container>
         </MainLayout>
         );
     }
 
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Container size="xl" py="md">
                 <Stack gap="xl">
                     {/* En-tête */}
                     <Group justify="space-between" align="center" mb="xl">
@@ -194,7 +187,6 @@ const SubscriptionsPage: React.FC = () => {
                         </Tabs>
                     </Paper>
                 </Stack>
-            </Container>
         </MainLayout>
     );
 };

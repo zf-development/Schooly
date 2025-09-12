@@ -181,7 +181,6 @@ const FeedPage: React.FC = () => {
 
     return (
         <MainLayout authProps={authProps}>
-            <Container size="xl" py="md">
                 <Stack gap="xl">
                     {/* En-tête */}
                     <Group justify="space-between" align="center" mb="xl">
@@ -229,7 +228,6 @@ const FeedPage: React.FC = () => {
                         />
                     </Box>
                 </Stack>
-            </Container>
 
             <ReportPostModal
                 opened={reportModalOpened}

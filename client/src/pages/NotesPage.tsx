@@ -50,8 +50,13 @@ import {
     IconCalendar,
     IconClock,
     IconFolder,
-    IconFolderPlus
+    IconFolderPlus,
+    IconCheck,
+    IconX
 } from '@tabler/icons-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
 
@@ -87,242 +92,107 @@ const NotesPage: React.FC = () => {
     const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState<'modified' | 'created' | 'title'>('modified');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-    const [modalOpened, setModalOpened] = useState(false);
-    const [editingNote, setEditingNote] = useState<Note | null>(null);
     const [activeTab, setActiveTab] = useState<string>('all');
+    const [editingContent, setEditingContent] = useState('');
+    const [editingTags, setEditingTags] = useState('');
+    const [isEditingTags, setIsEditingTags] = useState(false);
+    const [currentTagInput, setCurrentTagInput] = useState('');
 
-    // État du formulaire
+    // État du formulaire pour la création de notes
     const [formData, setFormData] = useState({
         title: '',
         content: '',
         tags: '',
         folder: '',
         color: '#ffffff',
-        isPinned: false,
-        isStarred: false
     });
 
-    // Données d'exemple
+    // Données placeholder
     useEffect(() => {
-        const sampleNotes: Note[] = [
+        const mockNotes: Note[] = [
             {
                 id: '1',
                 title: 'Notes de cours - Mathématiques',
-                content: '# Chapitre 1: Calcul différentiel\n\n## Définition\nLe calcul différentiel est une branche des mathématiques qui étudie les taux de changement.\n\n## Formules importantes\n- Dérivée d\'une fonction: f\'(x) = lim(h→0) [f(x+h) - f(x)]/h\n- Règle de la chaîne: (f∘g)\'(x) = f\'(g(x)) × g\'(x)\n\n## Exemples\n1. f(x) = x² → f\'(x) = 2x\n2. f(x) = sin(x) → f\'(x) = cos(x)',
-                tags: ['mathématiques', 'cours', 'calcul'],
+                content: '# Équations du second degré\n\nLes équations du second degré sont de la forme **ax² + bx + c = 0**.\n\n## Discriminant\nLe discriminant Δ = b² - 4ac détermine la nature des solutions :\n\n- Si Δ > 0 : deux solutions réelles distinctes\n- Si Δ = 0 : une solution double\n- Si Δ < 0 : aucune solution réelle\n\n## Exemple\n```\nRésoudre : x² - 5x + 6 = 0\nΔ = 25 - 24 = 1 > 0\nx₁ = (5 + 1)/2 = 3\nx₂ = (5 - 1)/2 = 2\n```',
+                tags: ['maths', 'cours', 'équations'],
                 isPinned: true,
-                isStarred: true,
+                isStarred: false,
                 isArchived: false,
                 folder: 'Cours',
-                createdAt: new Date('2024-11-01'),
-                modifiedAt: new Date('2024-11-15'),
-                color: '#e3f2fd',
-                wordCount: 156
+                createdAt: new Date('2024-01-15'),
+                modifiedAt: new Date('2024-01-20'),
+                color: '#fff3cd',
+                wordCount: 150
             },
             {
                 id: '2',
-                title: 'Idées de projet',
-                content: '## Projet de fin d\'études\n\n### Sujet proposé\nDéveloppement d\'une application web pour la gestion des notes d\'étudiants.\n\n### Fonctionnalités\n- Authentification sécurisée\n- Interface intuitive\n- Export en PDF\n- Notifications\n\n### Technologies\n- Frontend: React + TypeScript\n- Backend: Node.js + Express\n- Base de données: PostgreSQL\n- Déploiement: Docker',
-                tags: ['projet', 'développement', 'web'],
+                title: 'Idées pour le projet final',
+                content: '# Projet Final - Application Web\n\n## Objectif\nCréer une application web moderne avec **React** et **TypeScript**.\n\n## Fonctionnalités principales\n- [x] Authentification sécurisée\n- [ ] Interface intuitive\n- [ ] Export en PDF\n- [ ] Notifications temps réel\n\n## Technologies\n- **Frontend**: React + TypeScript\n- **Backend**: Node.js + Express\n- **Base de données**: PostgreSQL\n- **Déploiement**: Docker\n\n> **Note**: Commencer par le MVP avec les fonctionnalités essentielles.',
+                tags: ['projet', 'web', 'react'],
                 isPinned: false,
                 isStarred: true,
                 isArchived: false,
                 folder: 'Projets',
-                createdAt: new Date('2024-11-05'),
-                modifiedAt: new Date('2024-11-12'),
-                color: '#f3e5f5',
-                wordCount: 89
+                createdAt: new Date('2024-01-10'),
+                modifiedAt: new Date('2024-01-18'),
+                color: '#d1ecf1',
+                wordCount: 200
             },
             {
                 id: '3',
-                title: 'Liste de tâches',
-                content: '## Tâches à faire\n\n### Urgent\n- [ ] Terminer le rapport de stage\n- [ ] Préparer la présentation\n- [ ] Réviser pour l\'examen\n\n### Important\n- [ ] Mettre à jour le CV\n- [ ] Postuler aux offres d\'emploi\n- [ ] Organiser les documents\n\n### Moins urgent\n- [ ] Nettoyer l\'espace de travail\n- [ ] Archiver les anciens fichiers',
-                tags: ['tâches', 'organisation', 'urgent'],
-                isPinned: false,
-                isStarred: false,
-                isArchived: false,
-                folder: 'Organisation',
-                createdAt: new Date('2024-11-08'),
-                modifiedAt: new Date('2024-11-16'),
-                color: '#fff3e0',
-                wordCount: 67
-            },
-            {
-                id: '4',
-                title: 'Recettes de cuisine',
-                content: '## Pâtes carbonara\n\n### Ingrédients\n- 400g de pâtes\n- 200g de lardons\n- 3 œufs\n- 100g de parmesan\n- Poivre noir\n\n### Préparation\n1. Cuire les pâtes selon les instructions\n2. Faire revenir les lardons\n3. Mélanger les œufs avec le parmesan\n4. Ajouter les pâtes aux lardons\n5. Incorporer le mélange œufs-parmesan\n6. Servir avec du poivre',
-                tags: ['cuisine', 'recette', 'pâtes'],
+                title: 'Liste de tâches - Semaine',
+                content: '# Tâches de la semaine\n\n## Urgent\n- [ ] Finir le rapport de stage\n- [ ] Préparer la présentation\n- [ ] Réviser pour l\'examen de physique\n\n## Important\n- [ ] Appeler le professeur\n- [ ] Mettre à jour le CV\n- [ ] Postuler aux offres d\'emploi\n\n## Moins urgent\n- [ ] Nettoyer l\'espace de travail\n- [ ] Archiver les anciens fichiers',
+                tags: ['tâches', 'organisation'],
                 isPinned: false,
                 isStarred: false,
                 isArchived: false,
                 folder: 'Personnel',
-                createdAt: new Date('2024-11-10'),
-                modifiedAt: new Date('2024-11-14'),
-                color: '#e8f5e8',
-                wordCount: 78
+                createdAt: new Date('2024-01-12'),
+                modifiedAt: new Date('2024-01-19'),
+                color: '#f8d7da',
+                wordCount: 45
+            },
+            {
+                id: '4',
+                title: 'Recette de cookies',
+                content: '# Cookies aux pépites de chocolat\n\n## Ingrédients\n- 200g de farine\n- 100g de beurre\n- 80g de sucre\n- 1 œuf\n- 100g de pépites de chocolat\n\n## Instructions\n1. **Préchauffer** le four à 180°C\n2. **Mélanger** le beurre et le sucre\n3. **Ajouter** l\'œuf et mélanger\n4. **Incorporer** la farine progressivement\n5. **Ajouter** les pépites de chocolat\n6. **Former** des boules et les déposer sur la plaque\n7. **Cuire** 12-15 minutes\n\n> **Astuce**: Ne pas trop cuire pour garder les cookies moelleux !',
+                tags: ['cuisine', 'recette'],
+                isPinned: false,
+                isStarred: false,
+                isArchived: true,
+                folder: 'Cuisine',
+                createdAt: new Date('2024-01-05'),
+                modifiedAt: new Date('2024-01-05'),
+                color: '#d4edda',
+                wordCount: 80
             }
         ];
 
-        const sampleFolders: Folder[] = [
-            {
-                id: 'f1',
-                name: 'Cours',
-                color: '#e3f2fd',
-                noteCount: 1,
-                createdAt: new Date('2024-10-01')
-            },
-            {
-                id: 'f2',
-                name: 'Projets',
-                color: '#f3e5f5',
-                noteCount: 1,
-                createdAt: new Date('2024-10-05')
-            },
-            {
-                id: 'f3',
-                name: 'Organisation',
-                color: '#fff3e0',
-                noteCount: 1,
-                createdAt: new Date('2024-10-08')
-            },
-            {
-                id: 'f4',
-                name: 'Personnel',
-                color: '#e8f5e8',
-                noteCount: 1,
-                createdAt: new Date('2024-10-10')
-            }
+        const mockFolders: Folder[] = [
+            { id: '1', name: 'Cours', color: '#667eea', noteCount: 1, createdAt: new Date('2024-01-01') },
+            { id: '2', name: 'Projets', color: '#f093fb', noteCount: 1, createdAt: new Date('2024-01-02') },
+            { id: '3', name: 'Personnel', color: '#4facfe', noteCount: 1, createdAt: new Date('2024-01-03') },
+            { id: '4', name: 'Cuisine', color: '#43e97b', noteCount: 1, createdAt: new Date('2024-01-04') }
         ];
 
-        setNotes(sampleNotes);
-        setFolders(sampleFolders);
+        setNotes(mockNotes);
+        setFolders(mockFolders);
     }, []);
 
-    if (!user) {
-        return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                <Center h="100vh">
-                    <Loader size="lg" />
-                </Center>
-            </MainLayout>
-        );
-    }
-
-    if (isLoading) {
-        return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                <Center h="100vh">
-                    <Loader size="lg" />
-                </Center>
-            </MainLayout>
-        );
-    }
-
-    const handleCreateNote = () => {
-        setEditingNote(null);
-        setFormData({
-            title: '',
-            content: '',
-            tags: '',
-            folder: '',
-            color: '#ffffff',
-            isPinned: false,
-            isStarred: false
-        });
-        setModalOpened(true);
-    };
-
-    const handleEditNote = (note: Note) => {
-        setEditingNote(note);
-        setFormData({
-            title: note.title,
-            content: note.content,
-            tags: note.tags.join(', '),
-            folder: note.folder || '',
-            color: note.color || '#ffffff',
-            isPinned: note.isPinned,
-            isStarred: note.isStarred
-        });
-        setModalOpened(true);
-    };
-
-    const handleSaveNote = () => {
-        if (!formData.title.trim()) return;
-
-        const wordCount = formData.content.split(/\s+/).filter(word => word.length > 0).length;
-        const tags = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-
-        const newNote: Note = {
-            id: editingNote?.id || Date.now().toString(),
-            title: formData.title,
-            content: formData.content,
-            tags,
-            isPinned: formData.isPinned,
-            isStarred: formData.isStarred,
-            isArchived: false,
-            folder: formData.folder || undefined,
-            createdAt: editingNote?.createdAt || new Date(),
-            modifiedAt: new Date(),
-            color: formData.color,
-            wordCount
-        };
-
-        if (editingNote) {
-            setNotes(notes.map(n => n.id === editingNote.id ? newNote : n));
-        } else {
-            setNotes([newNote, ...notes]);
-        }
-
-        setModalOpened(false);
-        setFormData({
-            title: '',
-            content: '',
-            tags: '',
-            folder: '',
-            color: '#ffffff',
-            isPinned: false,
-            isStarred: false
-        });
-    };
-
-    const handleDeleteNote = (noteId: string) => {
-        setNotes(notes.filter(n => n.id !== noteId));
-        if (selectedNote?.id === noteId) {
-            setSelectedNote(null);
-        }
-    };
-
-    const handleTogglePin = (noteId: string) => {
-        setNotes(notes.map(n => 
-            n.id === noteId ? { ...n, isPinned: !n.isPinned } : n
-        ));
-    };
-
-    const handleToggleStar = (noteId: string) => {
-        setNotes(notes.map(n => 
-            n.id === noteId ? { ...n, isStarred: !n.isStarred } : n
-        ));
-    };
-
-    const handleArchiveNote = (noteId: string) => {
-        setNotes(notes.map(n => 
-            n.id === noteId ? { ...n, isArchived: !n.isArchived } : n
-        ));
-    };
-
+    // Filtrage et tri des notes
     const filteredNotes = notes.filter(note => {
         const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
         
+        const matchesTab = activeTab === 'all' || 
+                          (activeTab === 'starred' && note.isStarred) ||
+                          (activeTab === 'pinned' && note.isPinned) ||
+                          (activeTab === 'archived' && note.isArchived);
+        
         const matchesFolder = !selectedFolder || note.folder === selectedFolder;
         
-        const matchesTab = activeTab === 'all' || 
-                          (activeTab === 'pinned' && note.isPinned) ||
-                          (activeTab === 'starred' && note.isStarred) ||
-                          (activeTab === 'archived' && note.isArchived);
-
-        return matchesSearch && matchesFolder && matchesTab && !note.isArchived;
+        return matchesSearch && matchesTab && matchesFolder;
     });
 
     const sortedNotes = [...filteredNotes].sort((a, b) => {
@@ -344,6 +214,153 @@ const NotesPage: React.FC = () => {
         return sortOrder === 'asc' ? comparison : -comparison;
     });
 
+    // Handlers
+    const handleCreateNote = () => {
+        const newNote: Note = {
+            id: Date.now().toString(),
+            title: 'Nouvelle note',
+            content: '# Nouvelle note\n\nCommencez à écrire...',
+            tags: [],
+            isPinned: false,
+            isStarred: false,
+            isArchived: false,
+            folder: selectedFolder || undefined,
+            createdAt: new Date(),
+            modifiedAt: new Date(),
+            color: '#ffffff',
+            wordCount: 0
+        };
+        
+        setNotes([newNote, ...notes]);
+        setSelectedNote(newNote);
+        setEditingContent(newNote.content);
+        setEditingTags(newNote.tags.join(', '));
+    };
+
+    const handleEditNote = (note: Note) => {
+        setSelectedNote(note);
+        setEditingContent(note.content);
+        setEditingTags(note.tags.join(', '));
+        setCurrentTagInput('');
+    };
+
+    const handleSaveNote = () => {
+        if (!selectedNote) return;
+        
+        const updatedNote = {
+            ...selectedNote,
+            content: editingContent,
+            tags: editingTags.split(',').map(tag => tag.trim()).filter(tag => tag),
+            modifiedAt: new Date(),
+            wordCount: editingContent.split(' ').length
+        };
+        
+        setNotes(notes.map(note => note.id === selectedNote.id ? updatedNote : note));
+        setSelectedNote(updatedNote);
+    };
+
+    const handleSaveTags = () => {
+        if (!selectedNote) return;
+        
+        const updatedNote = {
+            ...selectedNote,
+            tags: editingTags.split(',').map(tag => tag.trim()).filter(tag => tag),
+            modifiedAt: new Date()
+        };
+        
+        setNotes(notes.map(note => note.id === selectedNote.id ? updatedNote : note));
+        setSelectedNote(updatedNote);
+        setIsEditingTags(false);
+    };
+
+    const handleCancelEditTags = () => {
+        setEditingTags(selectedNote?.tags.join(', ') || '');
+        setCurrentTagInput('');
+        setIsEditingTags(false);
+    };
+
+    const handleAddTag = (tag: string) => {
+        if (tag.trim() && !editingTags.split(',').map(t => t.trim()).includes(tag.trim())) {
+            const newTags = editingTags ? `${editingTags}, ${tag.trim()}` : tag.trim();
+            setEditingTags(newTags);
+        }
+        setCurrentTagInput('');
+    };
+
+    const handleRemoveTag = (tagToRemove: string) => {
+        const tags = editingTags.split(',').map(tag => tag.trim()).filter(tag => tag !== tagToRemove);
+        setEditingTags(tags.join(', '));
+    };
+
+    const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if ((e.key === ' ' || e.key === 'Tab' || e.key === 'Enter') && currentTagInput.trim()) {
+            e.preventDefault();
+            handleAddTag(currentTagInput);
+        } else if (e.key === 'Backspace' && !currentTagInput && editingTags) {
+            // Si on appuie sur Backspace et qu'il n'y a pas de texte dans l'input, supprimer le dernier tag
+            const tags = editingTags.split(',').map(tag => tag.trim());
+            if (tags.length > 0) {
+                tags.pop();
+                setEditingTags(tags.join(', '));
+            }
+        }
+    };
+
+    const handleTagInputBlur = () => {
+        // Sauvegarder automatiquement quand on perd le focus
+        if (currentTagInput.trim()) {
+            handleAddTag(currentTagInput);
+        }
+        handleSaveTags();
+    };
+
+    const handleDeleteNote = (id: string) => {
+        setNotes(notes.filter(note => note.id !== id));
+        if (selectedNote?.id === id) {
+            setSelectedNote(null);
+        }
+    };
+
+    const handleToggleStar = (id: string) => {
+        setNotes(notes.map(note => 
+            note.id === id ? { ...note, isStarred: !note.isStarred } : note
+        ));
+    };
+
+    const handleTogglePin = (id: string) => {
+        setNotes(notes.map(note => 
+            note.id === id ? { ...note, isPinned: !note.isPinned } : note
+        ));
+    };
+
+    const handleArchiveNote = (id: string) => {
+        setNotes(notes.map(note => 
+            note.id === id ? { ...note, isArchived: !note.isArchived } : note
+        ));
+    };
+
+    const handleShareNote = (id: string) => {
+        console.log('Partager la note:', id);
+    };
+
+    const handleDuplicateNote = (id: string) => {
+        const note = notes.find(n => n.id === id);
+        if (note) {
+            const duplicatedNote = {
+                ...note,
+                id: Date.now().toString(),
+                title: `${note.title} (Copie)`,
+                createdAt: new Date(),
+                modifiedAt: new Date()
+            };
+            setNotes([duplicatedNote, ...notes]);
+        }
+    };
+
+    const handleExportNote = (id: string) => {
+        console.log('Exporter la note:', id);
+    };
+
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('fr-FR', {
             day: 'numeric',
@@ -352,442 +369,534 @@ const NotesPage: React.FC = () => {
         });
     };
 
-    const formatTime = (date: Date) => {
-        return date.toLocaleTimeString('fr-FR', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
+    if (isLoading) {
+        return (
+            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+                <Center h="100vh">
+                    <Loader color="violet" size="lg" />
+                </Center>
+            </MainLayout>
+        );
+    }
 
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Container size="xl" py="md">
-                {/* En-tête */}
-                <Group justify="space-between" align="center" mb="xl">
-                    <Group>
-                        <ThemeIcon size={40} radius="md" color="violet">
-                            <IconNotes size={24} />
-                        </ThemeIcon>
-                        <div>
-                            <Title order={1} size="h2">
-                                Notes Personnels
-                            </Title>
-                            <Text c="dimmed" size="sm">
-                                Organisez vos idées et vos pensées
-                            </Text>
-                        </div>
-                    </Group>
-                    <Button
-                        leftSection={<IconPlus size={16} />}
-                        onClick={handleCreateNote}
-                        color="violet"
-                    >
-                        Nouvelle note
-                    </Button>
+            {/* En-tête */}
+            <Group justify="space-between" align="center" mb="xl">
+                <Group>
+                    <ThemeIcon size={40} radius="md" color="violet">
+                        <IconNotes size={24} />
+                    </ThemeIcon>
+                    <div>
+                        <Title order={1} size="h2">
+                            Mes Notes
+                        </Title>
+                        <Text c="dimmed" size="sm">
+                            Organisez vos idées et vos pensées
+                        </Text>
+                    </div>
                 </Group>
+            </Group>
 
-                <Grid>
-                    {/* Panneau latéral */}
-                    <Grid.Col span={3}>
-                        {/* Tags de filtrage */}
-                        <Card shadow="sm" padding="md" radius="md" withBorder h="100%">
-                            <TextInput
-                                placeholder="Rechercher dans les notes..."
-                                leftSection={<IconSearch size={16} />}
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                mb="lg"
-                            />
+            {/* Interface 12 colonnes */}
+            <Grid gutter="lg" style={{ height: 'calc(100vh - 200px)' }}>
+                {/* Colonnes 1-3: Filtres consolidés */}
+                <Grid.Col span={3}>
+                    <Card shadow="sm" padding="lg" radius="lg" withBorder h="100%">
+                        <Stack gap="lg" h="100%">
+                            {/* Barre de recherche */}
+                            <div>
+                                <Text fw={600} size="lg" mb="md" c="dark">Recherche</Text>
+                                <TextInput
+                                    placeholder="Rechercher dans vos notes..."
+                                    leftSection={<IconSearch size={18} />}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    size="md"
+                                    radius="xl"
+                                />
+                            </div>
 
-                            <Text fw={500} mb="md">Filtrer par</Text>
-                            <Group gap="xs" justify="center">
-                                <Badge
-                                    size="md"
-                                    variant={activeTab === 'all' ? 'filled' : 'light'}
-                                    color="violet"
-                                    style={{ cursor: 'pointer', padding: '7px 14px', textTransform: 'lowercase' }}
-                                    onClick={() => setActiveTab('all')}
-                                >
-                                    Toutes
-                                </Badge>
-                                <Badge
-                                    size="md"
-                                    variant={activeTab === 'pinned' ? 'filled' : 'light'}
-                                    color="blue"
-                                    style={{ cursor: 'pointer', padding: '7px 14px', textTransform: 'lowercase' }}
-                                    onClick={() => setActiveTab('pinned')}
-                                >
-                                    Épinglées
-                                </Badge>
-                                <Badge
-                                    size="md"
-                                    variant={activeTab === 'starred' ? 'filled' : 'light'}
-                                    color="yellow"
-                                    style={{ cursor: 'pointer', padding: '7px 14px', textTransform: 'lowercase' }}
-                                    onClick={() => setActiveTab('starred')}
-                                >
-                                    Favorites
-                                </Badge>
-                                <Badge
-                                    size="md"
-                                    variant={activeTab === 'archived' ? 'filled' : 'light'}
-                                    color="gray"
-                                    style={{ cursor: 'pointer', padding: '7px 14px', textTransform: 'lowercase' }}
-                                    onClick={() => setActiveTab('archived')}
-                                >
-                                    Archivées
-                                </Badge>
-                            </Group>
-
-                            <Divider m="lg" />
-
-                            <Group justify="space-between" mb="md">
-                                <Text fw={500}>Dossiers</Text>
-                                <ActionIcon size="sm" variant="light">
-                                    <IconFolderPlus size={14} />
-                                </ActionIcon>
-                            </Group>
-                            <Stack gap="xs">
-                                <Button
-                                    variant={selectedFolder === null ? 'light' : 'subtle'}
-                                    justify="flex-start"
-                                    leftSection={<IconFolder size={16} />}
-                                    onClick={() => setSelectedFolder(null)}
-                                >
-                                    Tous les dossiers
-                                </Button>
-                                {folders.map(folder => (
+                            {/* Filtres */}
+                            <div>
+                                <Text fw={600} size="lg" mb="md" c="dark">Filtres</Text>
+                                <Stack gap="xs">
                                     <Button
-                                        key={folder.id}
-                                        variant={selectedFolder === folder.name ? 'light' : 'subtle'}
+                                        variant={activeTab === 'all' ? 'light' : 'subtle'}
+                                        justify="flex-start"
+                                        leftSection={<IconNotes size={16} />}
+                                        onClick={() => setActiveTab('all')}
+                                        size="md"
+                                        radius="xl"
+                                        fullWidth
+                                    >
+                                        Toutes les notes
+                                    </Button>
+                                    <Button
+                                        variant={activeTab === 'starred' ? 'light' : 'subtle'}
+                                        justify="flex-start"
+                                        leftSection={<IconStarFilled size={16} />}
+                                        onClick={() => setActiveTab('starred')}
+                                        size="md"
+                                        radius="xl"
+                                        fullWidth
+                                    >
+                                        Favorites
+                                    </Button>
+                                    <Button
+                                        variant={activeTab === 'pinned' ? 'light' : 'subtle'}
+                                        justify="flex-start"
+                                        leftSection={<IconPinFilled size={16} />}
+                                        onClick={() => setActiveTab('pinned')}
+                                        size="md"
+                                        radius="xl"
+                                        fullWidth
+                                    >
+                                        Épinglées
+                                    </Button>
+                                    <Button
+                                        variant={activeTab === 'archived' ? 'light' : 'subtle'}
+                                        justify="flex-start"
+                                        leftSection={<IconArchive size={16} />}
+                                        onClick={() => setActiveTab('archived')}
+                                        size="md"
+                                        radius="xl"
+                                        fullWidth
+                                    >
+                                        Archivées
+                                    </Button>
+                                </Stack>
+                            </div>
+
+                            <Divider />
+
+                            {/* Dossiers */}
+                            <div>
+                                <Group justify="space-between" mb="md">
+                                    <Text fw={600} size="lg" c="dark">Dossiers</Text>
+                                    <ActionIcon variant="light" color="violet" size="sm">
+                                        <IconFolderPlus size={16} />
+                                    </ActionIcon>
+                                </Group>
+                                <Stack gap="xs">
+                                    <Button
+                                        variant={selectedFolder === null ? 'light' : 'subtle'}
                                         justify="flex-start"
                                         leftSection={<IconFolder size={16} />}
-                                        onClick={() => setSelectedFolder(folder.name)}
+                                        onClick={() => setSelectedFolder(null)}
+                                        size="md"
+                                        radius="xl"
+                                        fullWidth
                                     >
-                                        {folder.name} ({folder.noteCount})
+                                        Tous les dossiers
                                     </Button>
+                                    {folders.map(folder => (
+                                        <Button
+                                            key={folder.id}
+                                            variant={selectedFolder === folder.name ? 'light' : 'subtle'}
+                                            justify="flex-start"
+                                            leftSection={<IconFolder size={16} />}
+                                            onClick={() => setSelectedFolder(folder.name)}
+                                            size="md"
+                                            radius="xl"
+                                            fullWidth
+                                        >
+                                            {folder.name} ({folder.noteCount})
+                                        </Button>
+                                    ))}
+                                </Stack>
+                            </div>
+
+                            <Divider />
+
+                            {/* Options de tri */}
+                            <div>
+                                <Text fw={600} size="lg" mb="md" c="dark">Trier par</Text>
+                                <Stack gap="xs">
+                                    <Button
+                                        variant={sortBy === 'modified' ? 'light' : 'subtle'}
+                                        justify="flex-start"
+                                        leftSection={<IconClock size={16} />}
+                                        onClick={() => setSortBy('modified')}
+                                        size="md"
+                                        radius="xl"
+                                        fullWidth
+                                    >
+                                        Date de modification
+                                    </Button>
+                                    <Button
+                                        variant={sortBy === 'created' ? 'light' : 'subtle'}
+                                        justify="flex-start"
+                                        leftSection={<IconCalendar size={16} />}
+                                        onClick={() => setSortBy('created')}
+                                        size="md"
+                                        radius="xl"
+                                        fullWidth
+                                    >
+                                        Date de création
+                                    </Button>
+                                    <Button
+                                        variant={sortBy === 'title' ? 'light' : 'subtle'}
+                                        justify="flex-start"
+                                        leftSection={<IconSortAscending size={16} />}
+                                        onClick={() => setSortBy('title')}
+                                        size="md"
+                                        radius="xl"
+                                        fullWidth
+                                    >
+                                        Titre
+                                    </Button>
+                                    <Button
+                                        variant="subtle"
+                                        justify="flex-start"
+                                        leftSection={sortOrder === 'asc' ? <IconSortAscending size={16} /> : <IconSortDescending size={16} />}
+                                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                                        size="md"
+                                        radius="xl"
+                                        fullWidth
+                                    >
+                                        {sortOrder === 'asc' ? 'Croissant' : 'Décroissant'}
+                                    </Button>
+                                </Stack>
+                            </div>
+                        </Stack>
+                    </Card>
+                </Grid.Col>
+
+                {/* Colonnes 4-6: Liste des notes */}
+                <Grid.Col span={3}>
+                    <Card shadow="sm" padding="lg" radius="lg" withBorder h="100%">
+                        <Group justify="space-between" mb="lg">
+                            <Text fw={600} size="lg" c="dark">
+                                {sortedNotes.length} note{sortedNotes.length !== 1 ? 's' : ''}
+                            </Text>
+                            <ActionIcon
+                                variant="light"
+                                color="violet"
+                                size="lg"
+                                radius="xl"
+                                onClick={handleCreateNote}
+                            >
+                                <IconPlus size={18} />
+                            </ActionIcon>
+                        </Group>
+                        
+                        <ScrollArea h="calc(100% - 60px)">
+                            <Stack gap="md">
+                                {sortedNotes.map(note => (
+                                    <Paper
+                                        key={note.id}
+                                        p="md"
+                                        radius="lg"
+                                        style={{
+                                            cursor: 'pointer',
+                                            border: selectedNote?.id === note.id ? '2px solid #667eea' : '1px solid #e9ecef',
+                                            backgroundColor: note.color || '#ffffff',
+                                            transition: 'all 0.2s ease',
+                                            boxShadow: selectedNote?.id === note.id ? '0 8px 25px rgba(102, 126, 234, 0.15)' : '0 2px 8px rgba(0,0,0,0.05)'
+                                        }}
+                                        onClick={() => {
+                                            setSelectedNote(note);
+                                            setEditingContent(note.content);
+                                            setEditingTags(note.tags.join(', '));
+                                            setCurrentTagInput('');
+                                        }}
+                                    >
+                                        <Group justify="space-between" align="flex-start" mb="sm">
+                                            <Text fw={600} size="sm" truncate style={{ flex: 1 }}>
+                                                {note.title}
+                                            </Text>
+                                            <Group gap="xs">
+                                                {note.isPinned && (
+                                                    <IconPinFilled size={14} color="#667eea" />
+                                                )}
+                                                {note.isStarred && (
+                                                    <IconStarFilled size={14} color="#f39c12" />
+                                                )}
+                                            </Group>
+                                        </Group>
+                                        <Text size="xs" c="dimmed" lineClamp={2} mb="sm" style={{ lineHeight: 1.4 }}>
+                                            {note.content.replace(/[#*`]/g, '').substring(0, 80)}...
+                                        </Text>
+                                        <Group justify="space-between" align="center">
+                                            <Group gap="xs">
+                                                {note.tags.slice(0, 2).map(tag => (
+                                                    <Badge key={tag} size="xs" variant="light" color="violet" radius="xl">
+                                                        {tag}
+                                                    </Badge>
+                                                ))}
+                                                {note.tags.length > 2 && (
+                                                    <Badge size="xs" variant="light" color="gray" radius="xl">
+                                                        +{note.tags.length - 2}
+                                                    </Badge>
+                                                )}
+                                            </Group>
+                                            <Text size="xs" c="dimmed">
+                                                {formatDate(note.modifiedAt)}
+                                            </Text>
+                                        </Group>
+                                    </Paper>
                                 ))}
                             </Stack>
+                        </ScrollArea>
+                    </Card>
+                </Grid.Col>
 
-                            <Divider m="lg" />
-
-                            <Text fw={500} mb="md">Trier par</Text>
-                            <Stack gap="xs">
-                                <Button
-                                    variant={sortBy === 'modified' ? 'light' : 'subtle'}
-                                    justify="flex-start"
-                                    leftSection={<IconClock size={16} />}
-                                    onClick={() => setSortBy('modified')}
-                                >
-                                    Date de modification
-                                </Button>
-                                <Button
-                                    variant={sortBy === 'created' ? 'light' : 'subtle'}
-                                    justify="flex-start"
-                                    leftSection={<IconCalendar size={16} />}
-                                    onClick={() => setSortBy('created')}
-                                >
-                                    Date de création
-                                </Button>
-                                <Button
-                                    variant={sortBy === 'title' ? 'light' : 'subtle'}
-                                    justify="flex-start"
-                                    leftSection={<IconSortAscending size={16} />}
-                                    onClick={() => setSortBy('title')}
-                                >
-                                    Titre
-                                </Button>
-                                <Button
-                                    variant="subtle"
-                                    justify="flex-start"
-                                    leftSection={sortOrder === 'asc' ? <IconSortAscending size={16} /> : <IconSortDescending size={16} />}
-                                    onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                                >
-                                    {sortOrder === 'asc' ? 'Croissant' : 'Décroissant'}
-                                </Button>
-                            </Stack>
-                        </Card>
-                    </Grid.Col>
-
-                    {/* Liste des notes */}
-                    <Grid.Col span={4}>
-                        <Card shadow="sm" padding="md" radius="md" withBorder h="100%">
-                            <Group justify="space-between" mb="md">
-                                <Text fw={500}>
-                                    {sortedNotes.length} note{sortedNotes.length !== 1 ? 's' : ''}
-                                </Text>
-                            </Group>
-                            
-                            <ScrollArea h="calc(100vh - 200px)">
-                                <Stack gap="sm">
-                                    {sortedNotes.map(note => (
-                                        <Paper
-                                            key={note.id}
-                                            p="md"
-                                            radius="md"
-                                            style={{
-                                                cursor: 'pointer',
-                                                border: selectedNote?.id === note.id ? '2px solid var(--mantine-color-violet-3)' : '1px solid var(--mantine-color-gray-3)',
-                                                backgroundColor: note.color || '#ffffff'
-                                            }}
-                                            onClick={() => setSelectedNote(note)}
-                                        >
-                                            <Group justify="space-between" align="flex-start" mb="sm">
-                                                <Text fw={500} size="sm" truncate>
-                                                    {note.title}
-                                                </Text>
-                                                <Group gap="xs">
-                                                    {note.isPinned && (
-                                                        <IconPinFilled size={14} color="var(--mantine-color-violet-6)" />
-                                                    )}
-                                                    {note.isStarred && (
-                                                        <IconStarFilled size={14} color="var(--mantine-color-yellow-6)" />
-                                                    )}
-                                                    <Menu>
-                                                        <Menu.Target>
-                                                            <ActionIcon size="sm" variant="subtle">
-                                                                <IconDots size={12} />
-                                                            </ActionIcon>
-                                                        </Menu.Target>
-                                                        <Menu.Dropdown>
-                                                            <Menu.Item 
-                                                                leftSection={<IconEdit size={14} />}
-                                                                onClick={() => handleEditNote(note)}
-                                                            >
-                                                                Modifier
-                                                            </Menu.Item>
-                                                            <Menu.Item 
-                                                                leftSection={note.isPinned ? <IconPin size={14} /> : <IconPinFilled size={14} />}
-                                                                onClick={() => handleTogglePin(note.id)}
-                                                            >
-                                                                {note.isPinned ? 'Désépingler' : 'Épingler'}
-                                                            </Menu.Item>
-                                                            <Menu.Item 
-                                                                leftSection={note.isStarred ? <IconStar size={14} /> : <IconStarFilled size={14} />}
-                                                                onClick={() => handleToggleStar(note.id)}
-                                                            >
-                                                                {note.isStarred ? 'Retirer des favorites' : 'Ajouter aux favorites'}
-                                                            </Menu.Item>
-                                                            <Menu.Item 
-                                                                leftSection={<IconArchive size={14} />}
-                                                                onClick={() => handleArchiveNote(note.id)}
-                                                            >
-                                                                Archiver
-                                                            </Menu.Item>
-                                                            <Menu.Divider />
-                                                            <Menu.Item 
-                                                                leftSection={<IconTrash size={14} />}
-                                                                color="red"
-                                                                onClick={() => handleDeleteNote(note.id)}
-                                                            >
-                                                                Supprimer
-                                                            </Menu.Item>
-                                                        </Menu.Dropdown>
-                                                    </Menu>
-                                                </Group>
-                                            </Group>
-                                            
-                                            <Text size="xs" c="dimmed" lineClamp={2} mb="sm">
-                                                {note.content.replace(/[#*`]/g, '').substring(0, 100)}...
+                {/* Colonnes 7-12: Éditeur de notes */}
+                <Grid.Col span={6}>
+                    <Card shadow="sm" padding="lg" radius="lg" withBorder h="100%">
+                        {selectedNote ? (
+                            <Stack gap="lg" h="100%">
+                                {/* En-tête de la note */}
+                                <Group justify="space-between" align="flex-start">
+                                    <div style={{ flex: 1 }}>
+                                        <Group gap="xs" mb="md">
+                                            {selectedNote.isPinned && (
+                                                <IconPinFilled size={18} color="#667eea" />
+                                            )}
+                                            {selectedNote.isStarred && (
+                                                <IconStarFilled size={18} color="#f39c12" />
+                                            )}
+                                            <Text fw={700} size="xl" c="dark">
+                                                {selectedNote.title}
                                             </Text>
-                                            
-                                            <Group justify="space-between" align="center">
-                                                <Group gap="xs">
-                                                    {note.tags.slice(0, 2).map(tag => (
-                                                        <Badge key={tag} size="xs" variant="light">
+                                        </Group>
+                                        <Group gap="xs" mb="lg" align="center">
+                                            {isEditingTags ? (
+                                                <Box style={{ flex: 1 }}>
+                                                    <Paper
+                                                        p="xs"
+                                                        radius="md"
+                                                        withBorder
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexWrap: 'wrap',
+                                                            gap: '4px',
+                                                            alignItems: 'center',
+                                                            minHeight: '32px',
+                                                            cursor: 'text'
+                                                        }}
+                                                        onClick={() => {
+                                                            // Focus sur l'input quand on clique sur le container
+                                                            const input = document.getElementById('tag-input');
+                                                            if (input) input.focus();
+                                                        }}
+                                                    >
+                                                        {editingTags.split(',').map(tag => tag.trim()).filter(tag => tag).map(tag => (
+                                                            <Badge
+                                                                key={tag}
+                                                                size="xs"
+                                                                variant="light"
+                                                                color="violet"
+                                                                radius="xl"
+                                                                rightSection={
+                                                                    <ActionIcon
+                                                                        size="xs"
+                                                                        variant="transparent"
+                                                                        color="violet"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleRemoveTag(tag);
+                                                                        }}
+                                                                    >
+                                                                        <IconX size={8} />
+                                                                    </ActionIcon>
+                                                                }
+                                                            >
+                                                                {tag}
+                                                            </Badge>
+                                                        ))}
+                                                        <TextInput
+                                                            id="tag-input"
+                                                            value={currentTagInput}
+                                                            onChange={(e) => setCurrentTagInput(e.target.value)}
+                                                            onKeyDown={handleTagInputKeyDown}
+                                                            onBlur={handleTagInputBlur}
+                                                            placeholder="Ajouter un tag..."
+                                                            size="xs"
+                                                            variant="unstyled"
+                                                            style={{
+                                                                flex: 1,
+                                                                minWidth: '120px',
+                                                                border: 'none',
+                                                                outline: 'none',
+                                                                fontSize: '12px'
+                                                            }}
+                                                        />
+                                                    </Paper>
+                                                    <Group gap="xs" mt="xs">
+                                                        <ActionIcon
+                                                            variant="light"
+                                                            color="green"
+                                                            size="sm"
+                                                            onClick={handleSaveTags}
+                                                        >
+                                                            <IconCheck size={14} />
+                                                        </ActionIcon>
+                                                        <ActionIcon
+                                                            variant="light"
+                                                            color="red"
+                                                            size="sm"
+                                                            onClick={handleCancelEditTags}
+                                                        >
+                                                            <IconX size={14} />
+                                                        </ActionIcon>
+                                                    </Group>
+                                                </Box>
+                                            ) : (
+                                                <>
+                                                    {selectedNote.tags.map(tag => (
+                                                        <Badge key={tag} size="md" variant="light" color="violet" radius="xl">
                                                             {tag}
                                                         </Badge>
                                                     ))}
-                                                    {note.tags.length > 2 && (
-                                                        <Text size="xs" c="dimmed">
-                                                            +{note.tags.length - 2}
-                                                        </Text>
-                                                    )}
-                                                </Group>
-                                                <Text size="xs" c="dimmed">
-                                                    {formatDate(note.modifiedAt)}
-                                                </Text>
-                                            </Group>
-                                        </Paper>
-                                    ))}
-                                </Stack>
-                            </ScrollArea>
-                        </Card>
-                    </Grid.Col>
-
-                    {/* Aperçu de la note */}
-                    <Grid.Col span={5}>
-                        <Card shadow="sm" padding="md" radius="md" withBorder h="100%">
-                            {selectedNote ? (
-                                <Stack h="100%">
-                                    <Group justify="space-between" align="flex-start">
-                                        <Title order={3} size="h4">
-                                            {selectedNote.title}
-                                        </Title>
-                                        <Group gap="xs">
-                                            <ActionIcon
-                                                variant={selectedNote.isPinned ? 'filled' : 'light'}
-                                                color="violet"
-                                                onClick={() => handleTogglePin(selectedNote.id)}
-                                            >
-                                                {selectedNote.isPinned ? <IconPinFilled size={16} /> : <IconPin size={16} />}
-                                            </ActionIcon>
-                                            <ActionIcon
-                                                variant={selectedNote.isStarred ? 'filled' : 'light'}
-                                                color="yellow"
-                                                onClick={() => handleToggleStar(selectedNote.id)}
-                                            >
-                                                {selectedNote.isStarred ? <IconStarFilled size={16} /> : <IconStar size={16} />}
-                                            </ActionIcon>
-                                            <ActionIcon
-                                                variant="light"
-                                                onClick={() => handleEditNote(selectedNote)}
-                                            >
-                                                <IconEdit size={16} />
-                                            </ActionIcon>
+                                                    <ActionIcon
+                                                        variant="light"
+                                                        color="violet"
+                                                        size="sm"
+                                                        onClick={() => setIsEditingTags(true)}
+                                                    >
+                                                        <IconEdit size={14} />
+                                                    </ActionIcon>
+                                                </>
+                                            )}
                                         </Group>
+                                    </div>
+                                    <Group gap="xs">
+                                        <ActionIcon
+                                            variant="light"
+                                            color="violet"
+                                            size="lg"
+                                            radius="xl"
+                                            onClick={() => handleToggleStar(selectedNote.id)}
+                                        >
+                                            {selectedNote.isStarred ? <IconStar size={18} /> : <IconStarFilled size={18} />}
+                                        </ActionIcon>
+                                        <ActionIcon
+                                            variant="light"
+                                            color="violet"
+                                            size="lg"
+                                            radius="xl"
+                                            onClick={() => handleTogglePin(selectedNote.id)}
+                                        >
+                                            {selectedNote.isPinned ? <IconPin size={18} /> : <IconPinFilled size={18} />}
+                                        </ActionIcon>
+                                        <Menu>
+                                            <Menu.Target>
+                                                <ActionIcon variant="light" color="violet" size="lg" radius="xl">
+                                                    <IconDots size={18} />
+                                                </ActionIcon>
+                                            </Menu.Target>
+                                            <Menu.Dropdown>
+                                                <Menu.Item
+                                                    leftSection={<IconShare size={16} />}
+                                                    onClick={() => handleShareNote(selectedNote.id)}
+                                                >
+                                                    Partager
+                                                </Menu.Item>
+                                                <Menu.Item
+                                                    leftSection={<IconCopy size={16} />}
+                                                    onClick={() => handleDuplicateNote(selectedNote.id)}
+                                                >
+                                                    Dupliquer
+                                                </Menu.Item>
+                                                <Menu.Item
+                                                    leftSection={<IconDownload size={16} />}
+                                                    onClick={() => handleExportNote(selectedNote.id)}
+                                                >
+                                                    Exporter
+                                                </Menu.Item>
+                                                <Menu.Divider />
+                                                <Menu.Item
+                                                    leftSection={<IconArchive size={16} />}
+                                                    onClick={() => handleArchiveNote(selectedNote.id)}
+                                                >
+                                                    {selectedNote.isArchived ? 'Désarchiver' : 'Archiver'}
+                                                </Menu.Item>
+                                                <Menu.Item
+                                                    leftSection={<IconTrash size={16} />}
+                                                    color="red"
+                                                    onClick={() => handleDeleteNote(selectedNote.id)}
+                                                >
+                                                    Supprimer
+                                                </Menu.Item>
+                                            </Menu.Dropdown>
+                                        </Menu>
                                     </Group>
-
-                                    <Group gap="xs" mb="md">
-                                        {selectedNote.tags.map(tag => (
-                                            <Badge key={tag} size="sm" variant="light">
-                                                {tag}
-                                            </Badge>
-                                        ))}
-                                    </Group>
-
-                                    <Divider />
-
-                                    <ScrollArea h="calc(100vh - 300px)">
-                                        <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                                            {selectedNote.content}
-                                        </Text>
-                                    </ScrollArea>
-
-                                    <Divider />
-
-                                    <Group justify="space-between" align="center">
-                                        <Text size="xs" c="dimmed">
-                                            {selectedNote.wordCount} mots • 
-                                            Créé le {formatDate(selectedNote.createdAt)} • 
-                                            Modifié le {formatDate(selectedNote.modifiedAt)} à {formatTime(selectedNote.modifiedAt)}
-                                        </Text>
-                                        <Group gap="xs">
-                                            <ActionIcon size="sm" variant="light">
-                                                <IconShare size={14} />
-                                            </ActionIcon>
-                                            <ActionIcon size="sm" variant="light">
-                                                <IconCopy size={14} />
-                                            </ActionIcon>
-                                            <ActionIcon size="sm" variant="light">
-                                                <IconDownload size={14} />
-                                            </ActionIcon>
-                                        </Group>
-                                    </Group>
-                                </Stack>
-                            ) : (
-                                <Center h="100%">
-                                    <Stack align="center" gap="md">
-                                        <ThemeIcon size={64} radius="md" color="gray" variant="light">
-                                            <IconNotes size={32} />
-                                        </ThemeIcon>
-                                        <Text size="lg" c="dimmed">
+                                </Group>
+                                
+                                <Divider />
+                                
+                                {/* Contenu de la note */}
+                                <Box style={{ flex: 1, minHeight: 0 }}>
+                                    <Textarea
+                                        value={editingContent}
+                                        onChange={(e) => {
+                                            setEditingContent(e.target.value);
+                                            handleSaveNote();
+                                        }}
+                                        placeholder="Contenu de la note (Markdown supporté)"
+                                        minRows={20}
+                                        autosize
+                                        styles={{
+                                            input: {
+                                                fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                                                fontSize: '14px',
+                                                lineHeight: 1.6,
+                                                border: 'none',
+                                                boxShadow: 'none',
+                                                '&:focus': {
+                                                    border: '2px solid #667eea',
+                                                    boxShadow: '0 0 0 1px #667eea'
+                                                }
+                                            }
+                                        }}
+                                    />
+                                </Box>
+                                
+                                <Divider />
+                                
+                                {/* Métadonnées */}
+                                <Group justify="space-between" align="center">
+                                    <Text size="sm" c="dimmed">
+                                        Créé le {formatDate(selectedNote.createdAt)} • Modifié le {formatDate(selectedNote.modifiedAt)}
+                                    </Text>
+                                    <Badge size="sm" variant="light" color="gray" radius="xl">
+                                        {selectedNote.wordCount} mots
+                                    </Badge>
+                                </Group>
+                            </Stack>
+                        ) : (
+                            <Center h="100%">
+                                <Stack align="center" gap="lg">
+                                    <Box
+                                        style={{
+                                            width: '120px',
+                                            height: '120px',
+                                            borderRadius: '50%',
+                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)'
+                                        }}
+                                    >
+                                        <IconNotes size={60} color="white" />
+                                    </Box>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <Text fw={600} size="xl" c="dark" mb="xs">
                                             Sélectionnez une note
                                         </Text>
-                                        <Text size="sm" c="dimmed" ta="center">
-                                            Choisissez une note dans la liste pour la consulter
+                                        <Text c="dimmed" size="md" style={{ maxWidth: '300px', lineHeight: 1.6 }}>
+                                            Choisissez une note dans la liste pour la consulter et la modifier
                                         </Text>
-                                    </Stack>
-                                </Center>
-                            )}
-                        </Card>
-                    </Grid.Col>
-                </Grid>
-
-                {/* Modal de création/édition de note */}
-                <Modal
-                    opened={modalOpened}
-                    onClose={() => setModalOpened(false)}
-                    title={editingNote ? "Modifier la note" : "Nouvelle note"}
-                    size="lg"
-                >
-                    <Stack gap="md">
-                        <TextInput
-                            label="Titre"
-                            placeholder="Titre de la note"
-                            value={formData.title}
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            required
-                        />
-
-                        <Textarea
-                            label="Contenu"
-                            placeholder="Contenu de la note (Markdown supporté)"
-                            value={formData.content}
-                            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                            rows={10}
-                            autosize
-                            minRows={10}
-                        />
-
-                        <Grid>
-                            <Grid.Col span={6}>
-                                <TextInput
-                                    label="Tags"
-                                    placeholder="tag1, tag2, tag3"
-                                    value={formData.tags}
-                                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                                />
-                            </Grid.Col>
-                            <Grid.Col span={6}>
-                                <Select
-                                    label="Dossier"
-                                    placeholder="Sélectionner un dossier"
-                                    value={formData.folder}
-                                    onChange={(value) => setFormData({ ...formData, folder: value || '' })}
-                                    data={[
-                                        { value: '', label: 'Aucun dossier' },
-                                        ...folders.map(folder => ({
-                                            value: folder.name,
-                                            label: folder.name
-                                        }))
-                                    ]}
-                                    clearable
-                                />
-                            </Grid.Col>
-                        </Grid>
-
-                        <Group justify="space-between">
-                            <Group>
-                                <Button
-                                    variant={formData.isPinned ? 'filled' : 'light'}
-                                    color="violet"
-                                    leftSection={<IconPin size={16} />}
-                                    onClick={() => setFormData({ ...formData, isPinned: !formData.isPinned })}
-                                >
-                                    {formData.isPinned ? 'Épinglée' : 'Épingler'}
-                                </Button>
-                                <Button
-                                    variant={formData.isStarred ? 'filled' : 'light'}
-                                    color="yellow"
-                                    leftSection={<IconStar size={16} />}
-                                    onClick={() => setFormData({ ...formData, isStarred: !formData.isStarred })}
-                                >
-                                    {formData.isStarred ? 'Favorite' : 'Ajouter aux favorites'}
-                                </Button>
-                            </Group>
-                            <Group>
-                                <Button variant="light" onClick={() => setModalOpened(false)}>
-                                    Annuler
-                                </Button>
-                                <Button onClick={handleSaveNote} color="violet">
-                                    {editingNote ? 'Modifier' : 'Créer'}
-                                </Button>
-                            </Group>
-                        </Group>
-                    </Stack>
-                </Modal>
-            </Container>
+                                    </div>
+                                </Stack>
+                            </Center>
+                        )}
+                    </Card>
+                </Grid.Col>
+            </Grid>
         </MainLayout>
     );
 };

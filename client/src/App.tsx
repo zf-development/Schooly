@@ -19,6 +19,9 @@ import HomeworkSubmissionPage from "./pages/HomeworkSubmissionPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import CourseNotesPage from "./pages/CourseNotesPage";
 import VideoCallPage from "./pages/VideoCallPage";
+import MySessionPage from "./pages/MySessionPage";
+import QuizzesPage from "./pages/QuizzesPage";
+import EmailsPage from "./pages/EmailsPage";
 import { UserProvider } from "./contexts/UserContext";
 import { NavbarProvider } from "./contexts/NavbarContext";
 import { lightTheme, darkTheme } from "./theme";
@@ -143,6 +146,33 @@ const App: React.FC = () => {
                                 element={
                                     <ProtectedRoute>
                                         <VideoCallPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/my-session"
+                                element={
+                                    <ProtectedRoute>
+                                        <MySessionPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/quizzes"
+                                element={
+                                    <ProtectedRoute>
+                                        <QuizzesPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/emails"
+                                element={
+                                    <ProtectedRoute>
+                                        <EmailsPage />
                                     </ProtectedRoute>
                                 }
                             />

@@ -26,11 +26,9 @@ const LoginPage: React.FC = () => {
     // Vérification de sécurité pour éviter les erreurs pendant le hot reload
     if (!userContext) {
         return (
-            <Container size="sm" py="xl">
                 <Center>
                     <Loader color="violet" size="lg" />
                 </Center>
-            </Container>
         );
     }
 
@@ -72,7 +70,6 @@ const LoginPage: React.FC = () => {
                 <ThemeToggle />
             </Box>
 
-            <Container size="sm" style={{ width: "100%" }}>
                 <Box>
                     <Stack gap="xl" align="center">
                         <Stack gap="sm" align="center" mb="lg">
@@ -176,7 +173,6 @@ const LoginPage: React.FC = () => {
                         </Group>
                     </Stack>
                 </Box>
-            </Container>
         </Box>
     );
 };

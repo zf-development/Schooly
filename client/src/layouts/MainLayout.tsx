@@ -32,7 +32,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, authProps }) => {
 
                 {/* Contenu principal qui change selon la route */}
                 <AppShell.Main>
-                    <Container size="lg" py="xl">
+                    <Container fluid py="xl">
                         {children}
                     </Container>
                 </AppShell.Main>
