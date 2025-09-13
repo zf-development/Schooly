@@ -402,7 +402,7 @@ const NotesPage: React.FC = () => {
             <Grid gutter="lg" style={{ height: 'calc(100vh - 200px)' }}>
                 {/* Colonnes 1-3: Filtres consolidés */}
                 <Grid.Col span={3}>
-                    <Card shadow="sm" padding="lg" radius="lg" withBorder h="100%">
+                    <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
                         <Stack gap="lg" h="100%">
                             {/* Barre de recherche */}
                             <div>
@@ -413,7 +413,7 @@ const NotesPage: React.FC = () => {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     size="md"
-                                    radius="xl"
+                                    radius="md"
                                 />
                             </div>
 
@@ -427,7 +427,7 @@ const NotesPage: React.FC = () => {
                                         leftSection={<IconNotes size={16} />}
                                         onClick={() => setActiveTab('all')}
                                         size="md"
-                                        radius="xl"
+                                        radius="md"
                                         fullWidth
                                     >
                                         Toutes les notes
@@ -438,7 +438,7 @@ const NotesPage: React.FC = () => {
                                         leftSection={<IconStarFilled size={16} />}
                                         onClick={() => setActiveTab('starred')}
                                         size="md"
-                                        radius="xl"
+                                        radius="md"
                                         fullWidth
                                     >
                                         Favorites
@@ -449,7 +449,7 @@ const NotesPage: React.FC = () => {
                                         leftSection={<IconPinFilled size={16} />}
                                         onClick={() => setActiveTab('pinned')}
                                         size="md"
-                                        radius="xl"
+                                        radius="md"
                                         fullWidth
                                     >
                                         Épinglées
@@ -460,7 +460,7 @@ const NotesPage: React.FC = () => {
                                         leftSection={<IconArchive size={16} />}
                                         onClick={() => setActiveTab('archived')}
                                         size="md"
-                                        radius="xl"
+                                        radius="md"
                                         fullWidth
                                     >
                                         Archivées
@@ -485,7 +485,7 @@ const NotesPage: React.FC = () => {
                                         leftSection={<IconFolder size={16} />}
                                         onClick={() => setSelectedFolder(null)}
                                         size="md"
-                                        radius="xl"
+                                        radius="md"
                                         fullWidth
                                     >
                                         Tous les dossiers
@@ -498,7 +498,7 @@ const NotesPage: React.FC = () => {
                                             leftSection={<IconFolder size={16} />}
                                             onClick={() => setSelectedFolder(folder.name)}
                                             size="md"
-                                            radius="xl"
+                                            radius="md"
                                             fullWidth
                                         >
                                             {folder.name} ({folder.noteCount})
@@ -519,7 +519,7 @@ const NotesPage: React.FC = () => {
                                         leftSection={<IconClock size={16} />}
                                         onClick={() => setSortBy('modified')}
                                         size="md"
-                                        radius="xl"
+                                        radius="md"
                                         fullWidth
                                     >
                                         Date de modification
@@ -530,7 +530,7 @@ const NotesPage: React.FC = () => {
                                         leftSection={<IconCalendar size={16} />}
                                         onClick={() => setSortBy('created')}
                                         size="md"
-                                        radius="xl"
+                                        radius="md"
                                         fullWidth
                                     >
                                         Date de création
@@ -541,7 +541,7 @@ const NotesPage: React.FC = () => {
                                         leftSection={<IconSortAscending size={16} />}
                                         onClick={() => setSortBy('title')}
                                         size="md"
-                                        radius="xl"
+                                        radius="md"
                                         fullWidth
                                     >
                                         Titre
@@ -552,7 +552,7 @@ const NotesPage: React.FC = () => {
                                         leftSection={sortOrder === 'asc' ? <IconSortAscending size={16} /> : <IconSortDescending size={16} />}
                                         onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                                         size="md"
-                                        radius="xl"
+                                        radius="md"
                                         fullWidth
                                     >
                                         {sortOrder === 'asc' ? 'Croissant' : 'Décroissant'}
@@ -565,7 +565,7 @@ const NotesPage: React.FC = () => {
 
                 {/* Colonnes 4-6: Liste des notes */}
                 <Grid.Col span={3}>
-                    <Card shadow="sm" padding="lg" radius="lg" withBorder h="100%">
+                    <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
                         <Group justify="space-between" mb="lg">
                             <Text fw={600} size="lg" c="dark">
                                 {sortedNotes.length} note{sortedNotes.length !== 1 ? 's' : ''}
@@ -574,7 +574,7 @@ const NotesPage: React.FC = () => {
                                 variant="light"
                                 color="violet"
                                 size="lg"
-                                radius="xl"
+                                radius="md"
                                 onClick={handleCreateNote}
                             >
                                 <IconPlus size={18} />
@@ -587,7 +587,7 @@ const NotesPage: React.FC = () => {
                                     <Paper
                                         key={note.id}
                                         p="md"
-                                        radius="lg"
+                                        radius="md"
                                         style={{
                                             cursor: 'pointer',
                                             border: selectedNote?.id === note.id ? '2px solid #667eea' : '1px solid #e9ecef',
@@ -621,12 +621,12 @@ const NotesPage: React.FC = () => {
                                         <Group justify="space-between" align="center">
                                             <Group gap="xs">
                                                 {note.tags.slice(0, 2).map(tag => (
-                                                    <Badge key={tag} size="xs" variant="light" color="violet" radius="xl">
+                                                    <Badge key={tag} size="xs" variant="light" color="violet" radius="md">
                                                         {tag}
                                                     </Badge>
                                                 ))}
                                                 {note.tags.length > 2 && (
-                                                    <Badge size="xs" variant="light" color="gray" radius="xl">
+                                                    <Badge size="xs" variant="light" color="gray" radius="md">
                                                         +{note.tags.length - 2}
                                                     </Badge>
                                                 )}
@@ -644,7 +644,7 @@ const NotesPage: React.FC = () => {
 
                 {/* Colonnes 7-12: Éditeur de notes */}
                 <Grid.Col span={6}>
-                    <Card shadow="sm" padding="lg" radius="lg" withBorder h="100%">
+                    <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
                         {selectedNote ? (
                             <Stack gap="lg" h="100%">
                                 {/* En-tête de la note */}
@@ -688,7 +688,7 @@ const NotesPage: React.FC = () => {
                                                                 size="xs"
                                                                 variant="light"
                                                                 color="violet"
-                                                                radius="xl"
+                                                                radius="md"
                                                                 rightSection={
                                                                     <ActionIcon
                                                                         size="xs"
@@ -746,7 +746,7 @@ const NotesPage: React.FC = () => {
                                             ) : (
                                                 <>
                                                     {selectedNote.tags.map(tag => (
-                                                        <Badge key={tag} size="md" variant="light" color="violet" radius="xl">
+                                                        <Badge key={tag} size="md" variant="light" color="violet" radius="md">
                                                             {tag}
                                                         </Badge>
                                                     ))}
@@ -767,7 +767,7 @@ const NotesPage: React.FC = () => {
                                             variant="light"
                                             color="violet"
                                             size="lg"
-                                            radius="xl"
+                                            radius="md"
                                             onClick={() => handleToggleStar(selectedNote.id)}
                                         >
                                             {selectedNote.isStarred ? <IconStar size={18} /> : <IconStarFilled size={18} />}
@@ -776,14 +776,14 @@ const NotesPage: React.FC = () => {
                                             variant="light"
                                             color="violet"
                                             size="lg"
-                                            radius="xl"
+                                            radius="md"
                                             onClick={() => handleTogglePin(selectedNote.id)}
                                         >
                                             {selectedNote.isPinned ? <IconPin size={18} /> : <IconPinFilled size={18} />}
                                         </ActionIcon>
                                         <Menu>
                                             <Menu.Target>
-                                                <ActionIcon variant="light" color="violet" size="lg" radius="xl">
+                                                <ActionIcon variant="light" color="violet" size="lg" radius="md">
                                                     <IconDots size={18} />
                                                 </ActionIcon>
                                             </Menu.Target>
@@ -861,7 +861,7 @@ const NotesPage: React.FC = () => {
                                     <Text size="sm" c="dimmed">
                                         Créé le {formatDate(selectedNote.createdAt)} • Modifié le {formatDate(selectedNote.modifiedAt)}
                                     </Text>
-                                    <Badge size="sm" variant="light" color="gray" radius="xl">
+                                    <Badge size="sm" variant="light" color="gray" radius="md">
                                         {selectedNote.wordCount} mots
                                     </Badge>
                                 </Group>
