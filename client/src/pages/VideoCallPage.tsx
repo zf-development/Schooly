@@ -19,7 +19,10 @@ import {
     Flex,
     Grid,
     TextInput,
-    Overlay
+    Overlay,
+    Card,
+    ScrollArea,
+    UnstyledButton
 } from '@mantine/core';
 import {
     IconPhoneOff,
@@ -34,7 +37,12 @@ import {
     IconMessageCircle,
     IconSend,
     IconStar,
-    IconVolumeOff
+    IconVolumeOff,
+    IconChevronDown,
+    IconChevronUp,
+    IconDots,
+    IconBell,
+    IconBellOff
 } from '@tabler/icons-react';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
@@ -210,7 +218,14 @@ const VideoCallPage: React.FC = () => {
             setCurrentTime(prev => prev + 1);
         }, 1000);
 
-        return () => clearInterval(timer);
+        // Désactiver le scroll de la page
+        document.body.style.overflow = 'hidden';
+        
+        return () => {
+            clearInterval(timer);
+            // Réactiver le scroll quand on quitte la page
+            document.body.style.overflow = 'auto';
+        };
     }, []);
 
     useEffect(() => {
@@ -286,67 +301,117 @@ const VideoCallPage: React.FC = () => {
     };
 
     const getParticipantGridCols = (count: number) => {
-        if (count <= 2) return 12;
-        if (count <= 4) return 6;
-        if (count <= 9) return 4;
-        return 3;
+        if (count <= 1) return 12;
+        if (count <= 2) return 6;
+        if (count <= 4) return 4;
+        if (count <= 6) return 3;
+        return 2;
+    };
+
+    const getParticipantCardHeight = (count: number) => {
+        const availableHeight = 'calc(100vh - 260px)';
+        if (count <= 1) return availableHeight;
+        if (count <= 2) return `calc(${availableHeight} / 1)`;
+        if (count <= 4) return `calc(${availableHeight} / 2)`;
+        if (count <= 6) return `calc(${availableHeight} / 2)`;
+        return `calc(${availableHeight} / 3)`;
     };
 
     const currentUser = callInfo.participants.find(p => p.id === user?.id) || callInfo.participants[0];
 
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Box style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                {/* En-tête compact avec informations essentielles */}
-                <Paper withBorder p="sm" radius={0} style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+            <Box style={{ 
+                height: 'calc(100vh - 60px)', 
+                overflow: 'hidden', 
+                display: 'flex', 
+                flexDirection: 'column',
+                width: '100%'
+            }}>
+                {/* En-tête moderne et épuré */}
+                <Box
+                    p="lg"
+                    style={{
+                        backgroundColor: 'white',
+                        borderBottom: '1px solid var(--mantine-color-gray-1)',
+                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
+                    }}
+                >
                     <Group justify="space-between" align="center">
-                        <Group gap="md">
+                        <Group gap="lg">
                             <div>
-                                <Title order={4} size="h5" mb={2}>
+                                <Title order={3} size="h4" mb="xs" c="dark">
                                     {callInfo.title}
                                 </Title>
-                                <Group gap="xs">
-                                    <Text size="xs" c="dimmed">
-                                        {formatTime(currentTime)}
-                                    </Text>
-                                    <Text size="xs" c="dimmed">•</Text>
-                                    <Text size="xs" c="dimmed">
-                                        {callInfo.participants.length} participant{callInfo.participants.length > 1 ? 's' : ''}
-                                    </Text>
-                                    <Text size="xs" c="dimmed">•</Text>
-                                    <Text size="xs" c="dimmed">
-                                        ID: {callInfo.meetingId}
-                                    </Text>
+                                <Group gap="md">
+                                    <Group gap="xs">
+                                        <ThemeIcon size="sm" color="green" variant="light" radius="md">
+                                            <IconVideo size={12} />
+                                        </ThemeIcon>
+                                        <Text size="sm" c="dimmed" fw={500}>
+                                            {formatTime(currentTime)}
+                                        </Text>
+                                    </Group>
+                                    <Group gap="xs">
+                                        <ThemeIcon size="sm" color="blue" variant="light" radius="md">
+                                            <IconUsers size={12} />
+                                        </ThemeIcon>
+                                        <Text size="sm" c="dimmed" fw={500}>
+                                            {callInfo.participants.length} participant{callInfo.participants.length > 1 ? 's' : ''}
+                                        </Text>
+                                    </Group>
+                                    <Group gap="xs">
+                                        <Text size="sm" c="dimmed" fw={500}>
+                                            ID: {callInfo.meetingId}
+                                        </Text>
+                                    </Group>
                                 </Group>
                             </div>
                         </Group>
                         
-                        <Group gap="xs">
-                            <Badge color="green" variant="light" size="sm">
+                        <Group gap="sm">
+                            <Badge 
+                                color="green" 
+                                variant="light" 
+                                size="md" 
+                                radius="md"
+                                style={{ fontWeight: 600 }}
+                            >
                                 En cours
                             </Badge>
                             {callInfo.isRecording && (
-                                <Badge color="red" variant="light" size="sm">
+                                <Badge 
+                                    color="red" 
+                                    variant="filled" 
+                                    size="md" 
+                                    radius="md"
+                                    style={{ fontWeight: 600 }}
+                                >
                                     Enregistrement
                                 </Badge>
                             )}
                             <ActionIcon
                                 variant="subtle"
                                 color="gray"
-                                size="sm"
+                                size="md"
+                                radius="md"
+                                style={{
+                                    backgroundColor: 'var(--mantine-color-gray-0)',
+                                    border: '1px solid var(--mantine-color-gray-2)'
+                                }}
                             >
                                 <IconSettings size={16} />
                             </ActionIcon>
                         </Group>
                     </Group>
-                </Paper>
+                </Box>
 
                 {/* Zone principale avec layout optimisé */}
-                <Flex style={{ flex: 1, minHeight: 0 }}>
+                <Flex style={{ flex: 1, minHeight: 0, height: '100%' }}>
                     {/* Zone vidéo principale */}
-                    <Box style={{ flex: 1, position: 'relative', minWidth: 0 }}>
+                    <Box style={{ flex: 1, position: 'relative', minWidth: 0, height: '100%' }}>
                         {callInfo.isScreenSharing ? (
-                            <Box style={{ height: '100%', position: 'relative' }}>
+                            <Box style={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
                                 {/* Écran partagé avec overlay d'informations */}
                                 <Box
                                     style={{
@@ -355,7 +420,8 @@ const VideoCallPage: React.FC = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        position: 'relative'
+                                        position: 'relative',
+                                        overflow: 'hidden'
                                     }}
                                 >
                                     <Stack align="center" gap="md">
@@ -417,23 +483,33 @@ const VideoCallPage: React.FC = () => {
                                 </Box>
                             </Box>
                         ) : (
-                            <Box style={{ height: '100%', padding: 16 }}>
-                                <Grid style={{ height: '100%', margin: 0 }} gutter="sm">
+                            <Box style={{ height: '100%', padding: 20, backgroundColor: 'var(--mantine-color-gray-0)', overflow: 'auto' }}>
+                                <Grid style={{ height: '100%', margin: 0 }} gutter="lg">
                                     {callInfo.participants.map((participant) => (
                                         <Grid.Col
                                             key={participant.id}
                                             span={getParticipantGridCols(callInfo.participants.length)}
-                                            style={{ minHeight: 200 }}
+                                            style={{ height: getParticipantCardHeight(callInfo.participants.length) }}
                                         >
-                                            <Paper
-                                                withBorder
+                                            <Card
                                                 p={0}
-                                                radius="md"
+                                                radius="lg"
                                                 style={{
                                                     height: '100%',
                                                     position: 'relative',
                                                     overflow: 'hidden',
-                                                    backgroundColor: '#2a2a2a'
+                                                    backgroundColor: 'white',
+                                                    border: '2px solid var(--mantine-color-gray-2)',
+                                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.borderColor = 'var(--mantine-color-violet-4)';
+                                                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(139, 69, 255, 0.15)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.borderColor = 'var(--mantine-color-gray-2)';
+                                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
                                                 }}
                                             >
                                                 {participant.isVideoOn ? (
@@ -444,10 +520,11 @@ const VideoCallPage: React.FC = () => {
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             justifyContent: 'center',
-                                                            backgroundColor: '#3a3a3a'
+                                                            backgroundColor: 'var(--mantine-color-gray-8)',
+                                                            background: 'linear-gradient(135deg, var(--mantine-color-violet-6) 0%, var(--mantine-color-blue-6) 100%)'
                                                         }}
                                                     >
-                                                        <Text size="sm" c="white">
+                                                        <Text size="lg" c="white" fw={600}>
                                                             {participant.name}
                                                         </Text>
                                                     </Box>
@@ -460,19 +537,23 @@ const VideoCallPage: React.FC = () => {
                                                             flexDirection: 'column',
                                                             alignItems: 'center',
                                                             justifyContent: 'center',
-                                                            backgroundColor: '#3a3a3a',
-                                                            padding: 16
+                                                            backgroundColor: 'var(--mantine-color-gray-1)',
+                                                            padding: 24
                                                         }}
                                                     >
                                                         <Avatar
                                                             src={participant.avatar}
                                                             size="xl"
                                                             radius="xl"
+                                                            style={{
+                                                                border: '3px solid white',
+                                                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                                                            }}
                                                         />
-                                                        <Text size="sm" c="white" mt="md" ta="center" fw={500}>
+                                                        <Text size="md" c="dark" mt="md" ta="center" fw={600}>
                                                             {participant.name}
                                                         </Text>
-                                                        <Text size="xs" c="dimmed" ta="center">
+                                                        <Text size="sm" c="dimmed" ta="center" mt="xs">
                                                             {participant.role === 'host' ? 'Organisateur' : 
                                                              participant.role === 'presenter' ? 'Présentateur' : 'Participant'}
                                                         </Text>
@@ -483,9 +564,9 @@ const VideoCallPage: React.FC = () => {
                                                 <Box
                                                     style={{
                                                         position: 'absolute',
-                                                        top: 8,
-                                                        left: 8,
-                                                        right: 8,
+                                                        top: 12,
+                                                        left: 12,
+                                                        right: 12,
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         alignItems: 'flex-start'
@@ -493,12 +574,24 @@ const VideoCallPage: React.FC = () => {
                                                 >
                                                     <Group gap="xs">
                                                         {participant.isHost && (
-                                                            <Badge color="blue" variant="filled" size="xs">
+                                                            <Badge 
+                                                                color="blue" 
+                                                                variant="filled" 
+                                                                size="sm" 
+                                                                radius="md"
+                                                                style={{ fontWeight: 600 }}
+                                                            >
                                                                 Organisateur
                                                             </Badge>
                                                         )}
                                                         {participant.role === 'presenter' && (
-                                                            <Badge color="green" variant="filled" size="xs">
+                                                            <Badge 
+                                                                color="green" 
+                                                                variant="filled" 
+                                                                size="sm" 
+                                                                radius="md"
+                                                                style={{ fontWeight: 600 }}
+                                                            >
                                                                 Présentateur
                                                             </Badge>
                                                         )}
@@ -506,18 +599,30 @@ const VideoCallPage: React.FC = () => {
                                                     
                                                     <Group gap="xs">
                                                         {!participant.isAudioOn && (
-                                                            <ThemeIcon size="sm" color="red" radius="xl">
-                                                                <IconMicrophoneOff size={12} />
+                                                            <ThemeIcon 
+                                                                size="md" 
+                                                                color="red" 
+                                                                radius="xl" 
+                                                                variant="filled"
+                                                                style={{ boxShadow: '0 2px 8px rgba(255, 0, 0, 0.3)' }}
+                                                            >
+                                                                <IconMicrophoneOff size={14} />
                                                             </ThemeIcon>
                                                         )}
                                                         {participant.isMuted && (
-                                                            <ThemeIcon size="sm" color="red" radius="xl">
-                                                                <IconVolumeOff size={12} />
+                                                            <ThemeIcon 
+                                                                size="md" 
+                                                                color="red" 
+                                                                radius="xl" 
+                                                                variant="filled"
+                                                                style={{ boxShadow: '0 2px 8px rgba(255, 0, 0, 0.3)' }}
+                                                            >
+                                                                <IconVolumeOff size={14} />
                                                             </ThemeIcon>
                                                         )}
                                                     </Group>
                                                 </Box>
-                                            </Paper>
+                                            </Card>
                                         </Grid.Col>
                                     ))}
                                 </Grid>
@@ -525,30 +630,68 @@ const VideoCallPage: React.FC = () => {
                         )}
                     </Box>
 
-                    {/* Panneau latéral compact */}
+                    {/* Panneau latéral moderne */}
                     {showChat && (
                         <Box
                             style={{
-                                width: 320,
-                                borderLeft: '1px solid var(--mantine-color-gray-3)',
+                                width: 360,
+                                height: '100%',
+                                borderLeft: '1px solid var(--mantine-color-gray-1)',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                backgroundColor: 'var(--mantine-color-gray-0)'
+                                backgroundColor: 'white',
+                                boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.05)',
+                                flexShrink: 0
                             }}
                         >
-                            <Tabs value={showParticipants ? 'participants' : 'chat'} onChange={(value) => setShowParticipants(value === 'participants')}>
-                                <Tabs.List style={{ margin: 0 }}>
-                                    <Tabs.Tab value="chat" leftSection={<IconMessageCircle size={14} />} style={{ flex: 1 }}>
-                                        Chat
-                                    </Tabs.Tab>
-                                    <Tabs.Tab value="participants" leftSection={<IconUsers size={14} />} style={{ flex: 1 }}>
-                                        ({callInfo.participants.length})
-                                    </Tabs.Tab>
-                                </Tabs.List>
+                            <Box
+                                p="md"
+                                style={{
+                                    borderBottom: '1px solid var(--mantine-color-gray-1)',
+                                    backgroundColor: 'var(--mantine-color-gray-0)'
+                                }}
+                            >
+                                <Group justify="space-between" align="center">
+                                    <Group gap="xs">
+                                        <Button
+                                            variant={!showParticipants ? "filled" : "subtle"}
+                                            color="violet"
+                                            size="sm"
+                                            radius="md"
+                                            leftSection={<IconMessageCircle size={16} />}
+                                            onClick={() => setShowParticipants(false)}
+                                            style={{ fontWeight: 600 }}
+                                        >
+                                            Chat
+                                        </Button>
+                                        <Button
+                                            variant={showParticipants ? "filled" : "subtle"}
+                                            color="violet"
+                                            size="sm"
+                                            radius="md"
+                                            leftSection={<IconUsers size={16} />}
+                                            onClick={() => setShowParticipants(true)}
+                                            style={{ fontWeight: 600 }}
+                                        >
+                                            Participants ({callInfo.participants.length})
+                                        </Button>
+                                    </Group>
+                                    <ActionIcon
+                                        variant="subtle"
+                                        color="gray"
+                                        size="sm"
+                                        onClick={() => setShowChat(false)}
+                                    >
+                                        <IconChevronDown size={16} />
+                                    </ActionIcon>
+                                </Group>
+                            </Box>
 
-                                <Tabs.Panel value="chat" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                                    <Box style={{ flex: 1, overflow: 'auto', padding: 12 }}>
-                                        <Stack gap="xs">
+                            {/* Section Chat */}
+                            {!showParticipants && (
+                                <Box style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                                    <ScrollArea style={{ flex: 1, minHeight: 0 }} p="md">
+                                        <Stack gap="md">
                                             {chatMessages.map((message) => (
                                                 <Box
                                                     key={message.id}
@@ -560,23 +703,24 @@ const VideoCallPage: React.FC = () => {
                                                     <Box
                                                         style={{
                                                             maxWidth: '85%',
-                                                            backgroundColor: message.isOwn ? 'var(--mantine-color-blue-6)' : 'white',
+                                                            backgroundColor: message.isOwn ? 'var(--mantine-color-violet-6)' : 'var(--mantine-color-gray-1)',
                                                             color: message.isOwn ? 'white' : 'var(--mantine-color-gray-8)',
-                                                            padding: 8,
-                                                            borderRadius: 12,
-                                                            fontSize: 13,
-                                                            border: message.isOwn ? 'none' : '1px solid var(--mantine-color-gray-2)'
+                                                            padding: '12px 16px',
+                                                            borderRadius: '18px',
+                                                            fontSize: 14,
+                                                            border: message.isOwn ? 'none' : '1px solid var(--mantine-color-gray-2)',
+                                                            boxShadow: message.isOwn ? '0 2px 8px rgba(139, 69, 255, 0.2)' : '0 1px 3px rgba(0, 0, 0, 0.1)'
                                                         }}
                                                     >
                                                         {!message.isOwn && message.type === 'message' && (
-                                                            <Text size="xs" c="dimmed" mb={2} fw={500}>
+                                                            <Text size="xs" c="dimmed" mb={4} fw={600}>
                                                                 {message.author.name}
                                                             </Text>
                                                         )}
-                                                        <Text size="sm">
+                                                        <Text size="sm" style={{ lineHeight: 1.4 }}>
                                                             {message.content}
                                                         </Text>
-                                                        <Text size="xs" c="dimmed" mt={2} style={{ opacity: 0.7 }}>
+                                                        <Text size="xs" c="dimmed" mt={4} style={{ opacity: 0.7 }}>
                                                             {new Date(message.timestamp).toLocaleTimeString('fr-FR', {
                                                                 hour: '2-digit',
                                                                 minute: '2-digit'
@@ -587,48 +731,90 @@ const VideoCallPage: React.FC = () => {
                                             ))}
                                             <div ref={chatEndRef} />
                                         </Stack>
-                                    </Box>
+                                    </ScrollArea>
                                     
-                                    <Box style={{ padding: 12, borderTop: '1px solid var(--mantine-color-gray-2)' }}>
-                                        <Group gap="xs">
+                                    <Box 
+                                        p="md" 
+                                        style={{ 
+                                            borderTop: '1px solid var(--mantine-color-gray-1)',
+                                            backgroundColor: 'var(--mantine-color-gray-0)'
+                                        }}
+                                    >
+                                        <Group gap="sm">
                                             <TextInput
                                                 placeholder="Tapez un message..."
                                                 value={newMessage}
                                                 onChange={(e) => setNewMessage(e.target.value)}
                                                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                                                 style={{ flex: 1 }}
-                                                size="sm"
-                                                radius="xl"
+                                                size="md"
+                                                radius="md"
+                                                styles={{
+                                                    input: {
+                                                        '&:focus': {
+                                                            borderColor: 'var(--mantine-color-violet-4)',
+                                                            boxShadow: '0 0 0 1px var(--mantine-color-violet-4)'
+                                                        }
+                                                    }
+                                                }}
                                             />
                                             <ActionIcon
-                                                size="sm"
-                                                radius="xl"
-                                                color="blue"
+                                                size="md"
+                                                radius="md"
+                                                color="violet"
+                                                variant="filled"
                                                 onClick={handleSendMessage}
                                                 disabled={!newMessage.trim()}
+                                                style={{
+                                                    boxShadow: '0 2px 8px rgba(139, 69, 255, 0.3)'
+                                                }}
                                             >
-                                                <IconSend size={14} />
+                                                <IconSend size={16} />
                                             </ActionIcon>
                                         </Group>
                                     </Box>
-                                </Tabs.Panel>
+                                </Box>
+                            )}
 
-                                <Tabs.Panel value="participants" style={{ flex: 1, padding: 12 }}>
-                                    <Stack gap="xs">
+                            {/* Section Participants */}
+                            {showParticipants && (
+                                <ScrollArea style={{ flex: 1, minHeight: 0 }} p="md">
+                                    <Stack gap="sm">
                                         {callInfo.participants.map((participant) => (
-                                            <Paper key={participant.id} p="sm" radius="md" withBorder>
+                                            <Card 
+                                                key={participant.id} 
+                                                p="md" 
+                                                radius="md" 
+                                                style={{
+                                                    border: '1px solid var(--mantine-color-gray-2)',
+                                                    backgroundColor: 'white',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.borderColor = 'var(--mantine-color-violet-3)';
+                                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 69, 255, 0.1)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.borderColor = 'var(--mantine-color-gray-2)';
+                                                    e.currentTarget.style.boxShadow = 'none';
+                                                }}
+                                            >
                                                 <Group justify="space-between" align="center">
-                                                    <Group gap="sm">
+                                                    <Group gap="md">
                                                         <Avatar
                                                             src={participant.avatar}
-                                                            size="sm"
+                                                            size="md"
                                                             radius="xl"
+                                                            style={{
+                                                                border: '2px solid var(--mantine-color-gray-1)',
+                                                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                                                            }}
                                                         />
                                                         <div>
-                                                            <Text size="sm" fw={500}>
+                                                            <Text size="sm" fw={600} c="dark">
                                                                 {participant.name}
                                                             </Text>
-                                                            <Text size="xs" c="dimmed">
+                                                            <Text size="xs" c="dimmed" mt={2}>
                                                                 {participant.role === 'host' ? 'Organisateur' : 
                                                                  participant.role === 'presenter' ? 'Présentateur' : 'Participant'}
                                                             </Text>
@@ -656,93 +842,128 @@ const VideoCallPage: React.FC = () => {
                                                         )}
                                                     </Group>
                                                 </Group>
-                                            </Paper>
+                                            </Card>
                                         ))}
                                     </Stack>
-                                </Tabs.Panel>
-                            </Tabs>
+                                </ScrollArea>
+                            )}
                         </Box>
                     )}
                 </Flex>
 
-                {/* Contrôles flottants en bas */}
-                <Paper
-                    withBorder
-                    p="md"
-                    radius="md"
+                {/* Contrôles modernes en bas */}
+                <Box
+                    p="lg"
                     style={{
-                        margin: 16,
-                        backgroundColor: 'var(--mantine-color-white)',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        backgroundColor: 'white',
+                        borderTop: '1px solid var(--mantine-color-gray-1)',
+                        boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.05)'
                     }}
                 >
-                    <Group justify="center" gap="md">
-                        <ActionIcon
-                            size="lg"
-                            radius="xl"
-                            color={callInfo.isMuted ? "red" : "gray"}
-                            variant={callInfo.isMuted ? "filled" : "light"}
-                            onClick={handleToggleAudio}
-                        >
-                            {callInfo.isMuted ? <IconMicrophoneOff size={20} /> : <IconMicrophone size={20} />}
-                        </ActionIcon>
+                    <Group justify="center" gap="lg">
+                        {/* Contrôles audio/vidéo */}
+                        <Group gap="sm">
+                            <ActionIcon
+                                size="xl"
+                                radius="xl"
+                                color={callInfo.isMuted ? "red" : "gray"}
+                                variant={callInfo.isMuted ? "filled" : "light"}
+                                onClick={handleToggleAudio}
+                                style={{
+                                    backgroundColor: callInfo.isMuted ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-gray-1)',
+                                    border: callInfo.isMuted ? 'none' : '1px solid var(--mantine-color-gray-3)',
+                                    boxShadow: callInfo.isMuted ? '0 4px 12px rgba(255, 0, 0, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.1)'
+                                }}
+                            >
+                                {callInfo.isMuted ? <IconMicrophoneOff size={22} /> : <IconMicrophone size={22} />}
+                            </ActionIcon>
 
-                        <ActionIcon
-                            size="lg"
-                            radius="xl"
-                            color={callInfo.isVideoOn ? "blue" : "red"}
-                            variant={callInfo.isVideoOn ? "filled" : "light"}
-                            onClick={handleToggleVideo}
-                        >
-                            {callInfo.isVideoOn ? <IconVideo size={20} /> : <IconVideoOff size={20} />}
-                        </ActionIcon>
+                            <ActionIcon
+                                size="xl"
+                                radius="xl"
+                                color={callInfo.isVideoOn ? "blue" : "red"}
+                                variant={callInfo.isVideoOn ? "filled" : "light"}
+                                onClick={handleToggleVideo}
+                                style={{
+                                    backgroundColor: callInfo.isVideoOn ? 'var(--mantine-color-blue-6)' : 'var(--mantine-color-red-6)',
+                                    border: 'none',
+                                    boxShadow: callInfo.isVideoOn ? '0 4px 12px rgba(0, 123, 255, 0.3)' : '0 4px 12px rgba(255, 0, 0, 0.3)'
+                                }}
+                            >
+                                {callInfo.isVideoOn ? <IconVideo size={22} /> : <IconVideoOff size={22} />}
+                            </ActionIcon>
 
-                        <ActionIcon
-                            size="lg"
-                            radius="xl"
-                            color={callInfo.isScreenSharing ? "green" : "gray"}
-                            variant={callInfo.isScreenSharing ? "filled" : "light"}
-                            onClick={handleToggleScreenShare}
-                        >
-                            {callInfo.isScreenSharing ? <IconScreenShareOff size={20} /> : <IconScreenShare size={20} />}
-                        </ActionIcon>
+                            <ActionIcon
+                                size="xl"
+                                radius="xl"
+                                color={callInfo.isScreenSharing ? "green" : "gray"}
+                                variant={callInfo.isScreenSharing ? "filled" : "light"}
+                                onClick={handleToggleScreenShare}
+                                style={{
+                                    backgroundColor: callInfo.isScreenSharing ? 'var(--mantine-color-green-6)' : 'var(--mantine-color-gray-1)',
+                                    border: callInfo.isScreenSharing ? 'none' : '1px solid var(--mantine-color-gray-3)',
+                                    boxShadow: callInfo.isScreenSharing ? '0 4px 12px rgba(0, 200, 83, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.1)'
+                                }}
+                            >
+                                {callInfo.isScreenSharing ? <IconScreenShareOff size={22} /> : <IconScreenShare size={22} />}
+                            </ActionIcon>
+                        </Group>
 
-                        <Divider orientation="vertical" />
+                        <Divider orientation="vertical" size="sm" />
 
-                        <ActionIcon
-                            size="lg"
-                            radius="xl"
-                            color={showChat ? "blue" : "gray"}
-                            variant={showChat ? "filled" : "light"}
-                            onClick={() => setShowChat(!showChat)}
-                        >
-                            <IconMessageCircle size={20} />
-                        </ActionIcon>
+                        {/* Contrôles d'interface */}
+                        <Group gap="sm">
+                            <ActionIcon
+                                size="lg"
+                                radius="xl"
+                                color={showChat ? "violet" : "gray"}
+                                variant={showChat ? "filled" : "light"}
+                                onClick={() => setShowChat(!showChat)}
+                                style={{
+                                    backgroundColor: showChat ? 'var(--mantine-color-violet-6)' : 'var(--mantine-color-gray-1)',
+                                    border: showChat ? 'none' : '1px solid var(--mantine-color-gray-3)',
+                                    boxShadow: showChat ? '0 2px 8px rgba(139, 69, 255, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)'
+                                }}
+                            >
+                                <IconMessageCircle size={18} />
+                            </ActionIcon>
 
-                        <ActionIcon
-                            size="lg"
-                            radius="xl"
-                            color={showParticipants ? "blue" : "gray"}
-                            variant={showParticipants ? "filled" : "light"}
-                            onClick={() => setShowParticipants(!showParticipants)}
-                        >
-                            <IconUsers size={20} />
-                        </ActionIcon>
+                            <ActionIcon
+                                size="lg"
+                                radius="xl"
+                                color={showParticipants ? "violet" : "gray"}
+                                variant={showParticipants ? "filled" : "light"}
+                                onClick={() => setShowParticipants(!showParticipants)}
+                                style={{
+                                    backgroundColor: showParticipants ? 'var(--mantine-color-violet-6)' : 'var(--mantine-color-gray-1)',
+                                    border: showParticipants ? 'none' : '1px solid var(--mantine-color-gray-3)',
+                                    boxShadow: showParticipants ? '0 2px 8px rgba(139, 69, 255, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)'
+                                }}
+                            >
+                                <IconUsers size={18} />
+                            </ActionIcon>
+                        </Group>
 
-                        <Divider orientation="vertical" />
+                        <Divider orientation="vertical" size="sm" />
 
+                        {/* Bouton quitter */}
                         <Button
-                            size="md"
+                            size="lg"
                             color="red"
-                            leftSection={<IconPhoneOff size={18} />}
+                            leftSection={<IconPhoneOff size={20} />}
                             onClick={handleLeaveCall}
                             loading={isLeaving}
                             radius="xl"
+                            style={{
+                                backgroundColor: 'var(--mantine-color-red-6)',
+                                boxShadow: '0 4px 12px rgba(255, 0, 0, 0.3)',
+                                fontWeight: 600
+                            }}
                         >
                             Quitter
                         </Button>
                     </Group>
-                </Paper>
+                </Box>
 
                 {/* Overlay de chargement pour quitter */}
                 {isLeaving && (
