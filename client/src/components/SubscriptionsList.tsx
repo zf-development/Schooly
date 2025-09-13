@@ -11,6 +11,8 @@ import {
     Skeleton,
     Card,
     Avatar,
+    SimpleGrid,
+    Box,
 } from "@mantine/core";
 import {
     IconSchool,
@@ -269,34 +271,40 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                             moment.
                         </Alert>
                     ) : (
-                        <Stack gap="sm">
-                            {/* Afficher l'établissement de l'utilisateur en premier */}
+                        <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
+                            {/* Afficher l'établissement de l'utilisateur */}
                             {userInstitutionId && (
-                                <Card withBorder p="sm" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
-                                    <Group justify="space-between">
-                                        <Group gap="sm">
-                                            <Avatar
-                                                size="md"
-                                                color="green"
-                                            >
-                                                <IconSchool size={16} />
-                                            </Avatar>
-                                            <div>
-                                                <Text fw={500}>
-                                                    {userInstitutionName || "Mon établissement"}
-                                                </Text>
-                                                <Text size="sm" c="dimmed">
-                                                    Votre établissement principal
-                                                </Text>
-                                            </div>
-                                        </Group>
-                                        <Badge
+                                <Card 
+                                    withBorder 
+                                    p="md" 
+                                    radius="md"
+                                    style={{ 
+                                        backgroundColor: 'var(--mantine-color-green-0)',
+                                        borderColor: 'var(--mantine-color-green-3)'
+                                    }}
+                                >
+                                    <Stack gap="md" align="center">
+                                        <Avatar
+                                            src={userInstitutionId ? allInstitutions.find(inst => inst.id === userInstitutionId)?.logoUrl : undefined}
+                                            size="xl"
                                             color="green"
-                                            variant="light"
+                                            radius="md"
                                         >
-                                            Établissement principal
-                                        </Badge>
-                                    </Group>
+                                            <IconSchool size={24} />
+                                        </Avatar>
+                                        <Box ta="center">
+                                            <Text fw={600} size="md" mb="xs">
+                                                {userInstitutionName || "Mon établissement"}
+                                            </Text>
+                                            <Badge
+                                                color="green"
+                                                variant="light"
+                                                size="sm"
+                                            >
+                                                Établissement principal
+                                            </Badge>
+                                        </Box>
+                                    </Stack>
                                 </Card>
                             )}
                             
@@ -316,37 +324,47 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                     <Card
                                         key={subscription.id}
                                         withBorder
-                                        p="sm"
+                                        p="md"
+                                        radius="md"
+                                        style={{ 
+                                            transition: 'all 0.2s ease',
+                                            cursor: 'pointer'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-2px)';
+                                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'none';
+                                            e.currentTarget.style.boxShadow = 'none';
+                                        }}
                                     >
-                                        <Group justify="space-between">
-                                            <Group gap="sm">
-                                                <Avatar
-                                                    src={institution.logoUrl}
-                                                    size="md"
-                                                    color="violet"
-                                                >
-                                                    <IconSchool size={16} />
-                                                </Avatar>
-                                                <div>
-                                                    <Text fw={500}>
-                                                        {institution.name}
-                                                    </Text>
-                                                    <Text size="sm" c="dimmed">
-                                                        Abonné depuis{" "}
-                                                        {new Date(
-                                                            subscription.created_at
-                                                        ).toLocaleDateString(
-                                                            "fr-FR"
-                                                        )}
-                                                    </Text>
-                                                </div>
-                                            </Group>
-
-                                            <Group gap="xs">
+                                        <Stack gap="md" align="center">
+                                            <Avatar
+                                                src={institution.logoUrl}
+                                                size="xl"
+                                                color="violet"
+                                                radius="md"
+                                            >
+                                                <IconSchool size={24} />
+                                            </Avatar>
+                                            <Box ta="center">
+                                                <Text fw={600} size="md" mb="xs">
+                                                    {institution.name}
+                                                </Text>
+                                                <Text size="sm" c="dimmed" mb="md">
+                                                    Abonné depuis{" "}
+                                                    {new Date(
+                                                        subscription.created_at
+                                                    ).toLocaleDateString(
+                                                        "fr-FR"
+                                                    )}
+                                                </Text>
                                                 <Button
                                                     variant="light"
                                                     color="red"
                                                     size="sm"
+                                                    fullWidth
                                                     loading={
                                                         unfollowingLoading ===
                                                         institution.id
@@ -359,12 +377,12 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                                 >
                                                     Se désabonner
                                                 </Button>
-                                            </Group>
-                                        </Group>
+                                            </Box>
+                                        </Stack>
                                     </Card>
                                 );
                             })}
-                        </Stack>
+                        </SimpleGrid>
                     )}
                 </div>
 

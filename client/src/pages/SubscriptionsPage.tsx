@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     Container,
     Title,
@@ -19,6 +19,8 @@ import {
     SimpleGrid,
     Tabs,
     Button,
+    TextInput,
+    ActionIcon,
 } from "@mantine/core";
 import { 
     IconBuilding, 
@@ -33,6 +35,7 @@ import {
     IconTarget,
     IconPlus,
     IconSearch,
+    IconX,
 } from "@tabler/icons-react";
 import { useUserContext } from "../contexts/UserContext";
 import { useSubscriptions } from "../hooks/useSubscriptions";
@@ -43,6 +46,8 @@ import MainLayout from "../layouts/MainLayout";
 const SubscriptionsPage: React.FC = () => {
     const userContext = useUserContext();
     const { subscriptions, loading: subscriptionsLoading, subscriptionCount, refreshSubscriptions } = useSubscriptions();
+    const [activeTab, setActiveTab] = useState<'subscriptions' | 'discover'>('subscriptions');
+    const [searchTerm, setSearchTerm] = useState('');
     
     // Vérification de sécurité pour éviter les erreurs pendant le hot reload
     if (!userContext) {
@@ -86,7 +91,7 @@ const SubscriptionsPage: React.FC = () => {
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 <Stack gap="xl">
-                    {/* En-tête */}
+                    {/* En-tête avec statistiques à droite */}
                     <Group justify="space-between" align="center" mb="xl">
                         <Group>
                             <ThemeIcon size={40} radius="md" color="violet">
@@ -101,22 +106,20 @@ const SubscriptionsPage: React.FC = () => {
                                 </Text>
                             </div>
                         </Group>
-                    </Group>
-
-                    {/* Statistiques avec design sobre */}
-                    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                        <Card withBorder p="md" radius="md">
-                            <Group gap="md" align="center">
+                        
+                        {/* Statistiques à droite */}
+                        <Group gap="xl">
+                            <Group gap="sm">
                                 <ThemeIcon
-                                    size="md"
-                                    radius="xl"
+                                    size="sm"
+                                    radius="md"
                                     color="violet"
                                     variant="light"
                                 >
-                                    <IconUsers size={16} />
+                                    <IconUsers size={14} />
                                 </ThemeIcon>
                                 <Box>
-                                    <Text size="xs" c="dimmed" fw={500} tt="uppercase" mb={2}>
+                                    <Text size="xs" c="dimmed" fw={500} tt="uppercase">
                                         Abonnements
                                     </Text>
                                     <Text size="lg" fw={700} c="violet.6">
@@ -124,20 +127,18 @@ const SubscriptionsPage: React.FC = () => {
                                     </Text>
                                 </Box>
                             </Group>
-                        </Card>
-
-                        <Card withBorder p="md" radius="md">
-                            <Group gap="md" align="center">
+                            
+                            <Group gap="sm">
                                 <ThemeIcon
-                                    size="md"
-                                    radius="xl"
+                                    size="sm"
+                                    radius="md"
                                     color="grape"
                                     variant="light"
                                 >
-                                    <IconBuilding size={16} />
+                                    <IconBuilding size={14} />
                                 </ThemeIcon>
                                 <Box>
-                                    <Text size="xs" c="dimmed" fw={500} tt="uppercase" mb={2}>
+                                    <Text size="xs" c="dimmed" fw={500} tt="uppercase">
                                         Institution
                                     </Text>
                                     <Text size="lg" fw={700} c="grape.6">
@@ -145,47 +146,74 @@ const SubscriptionsPage: React.FC = () => {
                                     </Text>
                                 </Box>
                             </Group>
-                        </Card>
-                    </SimpleGrid>
+                        </Group>
+                    </Group>
 
-                    {/* Section principale avec onglets */}
-                    <Paper withBorder p="lg" radius="md">
-                        <Tabs defaultValue="subscriptions" variant="outline">
-                            <Tabs.List mb="lg">
-                                <Tabs.Tab 
-                                    value="subscriptions" 
-                                    leftSection={<IconHeart size={16} />}
-                                >
-                                    Mes Abonnements
-                                </Tabs.Tab>
-                                <Tabs.Tab 
-                                    value="discover"
+                    {/* Navigation par boutons libres avec recherche conditionnelle */}
+                    <Group justify="space-between" align="center" mb="lg">
+                        <Group gap="xs">
+                            <Button
+                                variant={activeTab === 'subscriptions' ? 'filled' : 'light'}
+                                color="violet"
+                                leftSection={<IconHeart size={16} />}
+                                radius="md"
+                                onClick={() => setActiveTab('subscriptions')}
+                            >
+                                Mes Abonnements
+                            </Button>
+                            <Button
+                                variant={activeTab === 'discover' ? 'filled' : 'subtle'}
+                                color="violet"
+                                leftSection={<IconSearch size={16} />}
+                                radius="md"
+                                onClick={() => setActiveTab('discover')}
+                            >
+                                Découvrir
+                            </Button>
+                        </Group>
+                        
+                        {/* Barre de recherche visible seulement en mode découverte */}
+                        {activeTab === 'discover' && (
+                            <Box style={{ minWidth: 300 }}>
+                                <TextInput
+                                    placeholder="Rechercher un établissement..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.currentTarget.value)}
                                     leftSection={<IconSearch size={16} />}
-                                >
-                                    Découvrir
-                                </Tabs.Tab>
-                            </Tabs.List>
-
-                            <Tabs.Panel value="subscriptions">
-                                <SubscriptionsList 
-                                    onSubscriptionChange={refreshSubscriptions}
-                                    subscriptions={subscriptions}
-                                    loading={subscriptionsLoading}
-                                    error={null}
-                                    userInstitutionId={user?.institution?.id}
-                                    userInstitutionName={user?.institution?.name}
+                                    rightSection={
+                                        searchTerm && (
+                                            <ActionIcon
+                                                variant="subtle"
+                                                onClick={() => setSearchTerm("")}
+                                                size="sm"
+                                            >
+                                                <IconX size={16} />
+                                            </ActionIcon>
+                                        )
+                                    }
                                 />
-                            </Tabs.Panel>
+                            </Box>
+                        )}
+                    </Group>
 
-                            <Tabs.Panel value="discover">
-                                <DiscoverInstitutions 
-                                    onSubscriptionChange={refreshSubscriptions}
-                                    userInstitutionId={user?.institution?.id}
-                                    currentSubscriptions={subscriptions}
-                                />
-                            </Tabs.Panel>
-                        </Tabs>
-                    </Paper>
+                    {/* Contenu principal */}
+                    {activeTab === 'subscriptions' ? (
+                        <SubscriptionsList 
+                            onSubscriptionChange={refreshSubscriptions}
+                            subscriptions={subscriptions}
+                            loading={subscriptionsLoading}
+                            error={null}
+                            userInstitutionId={user?.institution?.id}
+                            userInstitutionName={user?.institution?.name}
+                        />
+                    ) : (
+                        <DiscoverInstitutions 
+                            onSubscriptionChange={refreshSubscriptions}
+                            userInstitutionId={user?.institution?.id}
+                            currentSubscriptions={subscriptions}
+                            searchTerm={searchTerm}
+                        />
+                    )}
                 </Stack>
         </MainLayout>
     );

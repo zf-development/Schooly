@@ -10,15 +10,13 @@ import {
     Alert,
     Skeleton,
     Divider,
-    TextInput,
     Card,
     Avatar,
-    ActionIcon,
+    SimpleGrid,
+    Box,
 } from "@mantine/core";
 import {
-    IconSearch,
     IconPlus,
-    IconX,
     IconSchool,
 } from "@tabler/icons-react";
 import subscriptionService from "../services/subscriptionService";
@@ -27,6 +25,7 @@ interface DiscoverInstitutionsProps {
     onSubscriptionChange?: () => void;
     userInstitutionId?: string;
     currentSubscriptions?: Subscription[];
+    searchTerm?: string;
 }
 
 interface Institution {
@@ -48,12 +47,13 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
     onSubscriptionChange,
     userInstitutionId,
     currentSubscriptions,
+    searchTerm: externalSearchTerm,
 }) => {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [allInstitutions, setAllInstitutions] = useState<Institution[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchTerm, setSearchTerm] = useState(externalSearchTerm || "");
     const [followingLoading, setFollowingLoading] = useState<string | null>(null);
     const [unfollowingLoading, setUnfollowingLoading] = useState<string | null>(null);
 
@@ -61,6 +61,13 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
     useEffect(() => {
         loadData();
     }, []);
+
+    // Synchroniser le terme de recherche externe
+    useEffect(() => {
+        if (externalSearchTerm !== undefined) {
+            setSearchTerm(externalSearchTerm);
+        }
+    }, [externalSearchTerm]);
 
     // Synchroniser avec les abonnements actuels
     useEffect(() => {
@@ -186,26 +193,9 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
           )
         : [];
 
+
     return (
         <Stack gap="md">
-            <TextInput
-                placeholder="Rechercher un établissement..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.currentTarget.value)}
-                leftSection={<IconSearch size={16} />}
-                rightSection={
-                    searchTerm && (
-                        <ActionIcon
-                            variant="subtle"
-                            onClick={() => setSearchTerm("")}
-                            size="sm"
-                        >
-                            <IconX size={16} />
-                        </ActionIcon>
-                    )
-                }
-                mb="md"
-            />
 
             {error && (
                 <Alert color="red" title="Erreur" mb="md">
@@ -213,88 +203,102 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
                 </Alert>
             )}
 
-            <Stack gap="sm">
-                {loading ? (
-                    // Skeletons pour les institutions
-                    [...Array(4)].map((_, index) => (
-                        <Card key={index} withBorder p="sm">
-                            <Group justify="space-between">
-                                <Group gap="sm">
-                                    <Skeleton height={40} circle />
-                                    <div style={{ flex: 1 }}>
-                                        <Skeleton height={18} width="70%" mb={4} />
-                                        <Skeleton height={14} width="50%" />
-                                    </div>
-                                </Group>
-                                <Group gap="xs">
-                                    <Skeleton height={24} width={80} />
-                                    <Skeleton height={32} width={90} />
-                                </Group>
-                            </Group>
+            {loading ? (
+                // Skeletons pour les institutions
+                <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
+                    {[...Array(8)].map((_, index) => (
+                        <Card key={index} withBorder p="md" radius="md">
+                            <Stack gap="md" align="center">
+                                <Skeleton height={60} circle />
+                                <Skeleton height={18} width="80%" />
+                                <Skeleton height={14} width="60%" />
+                                <Skeleton height={32} width="100%" />
+                            </Stack>
                         </Card>
-                    ))
-                ) : filteredInstitutions.length === 0 ? (
-                    <Alert color="yellow" title="Aucun résultat">
-                        Aucun établissement ne correspond à votre recherche.
-                    </Alert>
-                ) : (
-                    filteredInstitutions.map((institution) => {
+                    ))}
+                </SimpleGrid>
+            ) : filteredInstitutions.length === 0 ? (
+                <Alert color="yellow" title="Aucun résultat">
+                    Aucun établissement ne correspond à votre recherche.
+                </Alert>
+            ) : (
+                <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
+                    {filteredInstitutions.map((institution) => {
                         const following = isFollowing(institution.id);
                         const isOwnInstitution = isUserInstitution(institution.id);
 
                         return (
-                            <Card key={institution.id} withBorder p="sm">
-                                <Group justify="space-between">
-                                    <Group gap="sm">
-                                        <Avatar
-                                            src={institution.logoUrl}
-                                            size="md"
-                                            color="violet"
-                                        >
-                                            <IconSchool size={16} />
-                                        </Avatar>
-                                        <div>
-                                            <Text fw={500}>{institution.name}</Text>
-                                            {institution.description && (
-                                                <Text size="sm" c="dimmed" lineClamp={2}>
-                                                    {institution.description}
-                                                </Text>
+                            <Card 
+                                key={institution.id} 
+                                withBorder 
+                                p="md" 
+                                radius="md"
+                                style={{ 
+                                    transition: 'all 0.2s ease',
+                                    cursor: 'pointer'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'none';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            >
+                                <Stack gap="md" align="center">
+                                    <Avatar
+                                        src={institution.logoUrl}
+                                        size="xl"
+                                        color="violet"
+                                        radius="md"
+                                    >
+                                        <IconSchool size={24} />
+                                    </Avatar>
+                                    <Box ta="center">
+                                        <Text fw={600} size="md" mb="xs">
+                                            {institution.name}
+                                        </Text>
+                                        {institution.description && (
+                                            <Text size="sm" c="dimmed" mb="md" lineClamp={2}>
+                                                {institution.description}
+                                            </Text>
+                                        )}
+                                        
+                                        <Stack gap="xs" align="center">
+                                            {isOwnInstitution && (
+                                                <Badge color="green" variant="light" size="sm">
+                                                    Mon établissement
+                                                </Badge>
                                             )}
-                                        </div>
-                                    </Group>
-
-                                    <Group gap="xs">
-                                        {isOwnInstitution && (
-                                            <Badge color="green" variant="light">
-                                                Mon établissement
-                                            </Badge>
-                                        )}
-                                        {following && !isOwnInstitution && (
-                                            <Badge color="violet" variant="light">
-                                                Déjà abonné
-                                            </Badge>
-                                        )}
-                                        <Button
-                                            variant={following ? "light" : "filled"}
-                                            color={following ? "gray" : "violet"}
-                                            size="sm"
-                                            disabled={isOwnInstitution || following}
-                                            loading={followingLoading === institution.id}
-                                            onClick={() =>
-                                                following
-                                                    ? handleUnfollow(institution.id)
-                                                    : handleFollow(institution.id)
-                                            }
-                                        >
-                                            {following ? "Se désabonner" : "S'abonner"}
-                                        </Button>
-                                    </Group>
-                                </Group>
+                                            {following && !isOwnInstitution && (
+                                                <Badge color="violet" variant="light" size="sm">
+                                                    Déjà abonné
+                                                </Badge>
+                                            )}
+                                            <Button
+                                                variant={following ? "light" : "filled"}
+                                                color={following ? "gray" : "violet"}
+                                                size="sm"
+                                                fullWidth
+                                                disabled={isOwnInstitution || following}
+                                                loading={followingLoading === institution.id}
+                                                onClick={() =>
+                                                    following
+                                                        ? handleUnfollow(institution.id)
+                                                        : handleFollow(institution.id)
+                                                }
+                                            >
+                                                {following ? "Se désabonner" : "S'abonner"}
+                                            </Button>
+                                        </Stack>
+                                    </Box>
+                                </Stack>
                             </Card>
                         );
-                    })
-                )}
-            </Stack>
+                    })}
+                </SimpleGrid>
+            )}
         </Stack>
     );
 };
