@@ -8,10 +8,7 @@ import {
     Group,
     Badge,
     Button,
-    Modal,
     TextInput,
-    Textarea,
-    FileInput,
     Alert,
     Timeline,
     Avatar,
@@ -46,7 +43,8 @@ import {
     IconClipboardCheck,
     IconClipboardList,
     IconCalendarPlus,
-    IconChartBar
+    IconChartBar,
+    IconArrowLeft
 } from '@tabler/icons-react';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
@@ -64,6 +62,7 @@ interface Homework {
     attachments: string[];
     instructions: string;
     createdAt: string;
+    session: 'current' | 'archives';
     teacher: {
         name: string;
         avatar: string;
@@ -94,6 +93,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['consigne_analyse.pdf'],
         instructions: 'Rédigez une analyse de 3 pages minimum sur les thèmes de la justice sociale et de la rédemption dans Les Misérables.',
         createdAt: '2024-12-15T09:00:00',
+        session: 'current',
         teacher: {
             name: 'Mme Dubois',
             avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
@@ -111,6 +111,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['exercices_algebre.pdf'],
         instructions: 'Résolvez les exercices 1 à 15 du chapitre 3. Montrez tous vos calculs.',
         createdAt: '2024-12-10T14:30:00',
+        session: 'current',
         teacher: {
             name: 'M. Martin',
             avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
@@ -127,6 +128,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['protocole_titration.pdf', 'donnees_experimentales.xlsx'],
         instructions: 'Rédigez un rapport complet de l\'expérience de titration acide-base effectuée en laboratoire.',
         createdAt: '2024-12-05T10:15:00',
+        session: 'current',
         teacher: {
             name: 'Dr. Moreau',
             avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
@@ -144,6 +146,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['guide_presentation.pdf'],
         instructions: 'Préparez une présentation de 10 minutes sur un aspect spécifique de la Révolution française.',
         createdAt: '2024-12-01T11:00:00',
+        session: 'archives',
         teacher: {
             name: 'M. Rousseau',
             avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
@@ -160,6 +163,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['sujets_dissertation.pdf'],
         instructions: 'Rédigez une dissertation de 4 pages minimum en répondant à la question posée. Utilisez les concepts vus en cours.',
         createdAt: '2024-12-20T09:00:00',
+        session: 'current',
         teacher: {
             name: 'Mme Laurent',
             avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face'
@@ -176,6 +180,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['exercices_mecanique.pdf'],
         instructions: 'Résolvez les exercices 1, 3, 5, 7 et 9 du chapitre 4. Montrez tous vos calculs et schémas.',
         createdAt: '2024-12-08T14:30:00',
+        session: 'current',
         teacher: {
             name: 'Dr. Petit',
             avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face'
@@ -193,6 +198,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['extrait_1984.pdf', 'vocabulaire_utile.pdf'],
         instructions: 'Analysez l\'extrait fourni en anglais. Identifiez les procédés littéraires et le message de l\'auteur.',
         createdAt: '2024-12-05T10:00:00',
+        session: 'archives',
         teacher: {
             name: 'Mr. Johnson',
             avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
@@ -209,6 +215,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['cahier_charges.pdf', 'ressources_web.pdf'],
         instructions: 'Développez une application web responsive en HTML/CSS/JavaScript. Le thème est libre.',
         createdAt: '2024-12-18T16:00:00',
+        session: 'current',
         teacher: {
             name: 'M. Garcia',
             avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
@@ -225,6 +232,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['article_climat.pdf'],
         instructions: 'Rédigez un résumé de 2 pages de l\'article fourni en mettant l\'accent sur les causes et conséquences.',
         createdAt: '2024-12-01T11:30:00',
+        session: 'archives',
         teacher: {
             name: 'Mme Bernard',
             avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
@@ -242,6 +250,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['texte_ciceron.pdf', 'dictionnaire_latin.pdf'],
         instructions: 'Traduisez le texte de Cicéron en français moderne. Expliquez les figures de style utilisées.',
         createdAt: '2024-12-10T09:00:00',
+        session: 'archives',
         teacher: {
             name: 'M. Lefebvre',
             avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
@@ -258,6 +267,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['cas_crise_2008.pdf', 'donnees_economiques.xlsx'],
         instructions: 'Analysez les causes et conséquences de la crise de 2008. Proposez des solutions préventives.',
         createdAt: '2024-12-22T13:00:00',
+        session: 'current',
         teacher: {
             name: 'Dr. Moreau',
             avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face'
@@ -274,6 +284,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['protocole_microscope.pdf'],
         instructions: 'Réalisez les observations demandées et rédigez un compte-rendu avec schémas annotés.',
         createdAt: '2024-12-08T10:00:00',
+        session: 'current',
         teacher: {
             name: 'Mme Bernard',
             avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
@@ -290,6 +301,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['consignes_redaction.pdf', 'vocabulaire_espagnol.pdf'],
         instructions: 'Écrivez une nouvelle de 2 pages en espagnol. Le thème est libre mais utilisez le subjonctif.',
         createdAt: '2024-12-20T15:30:00',
+        session: 'current',
         teacher: {
             name: 'Señora Rodriguez',
             avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
@@ -307,6 +319,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['exercices_geometrie.pdf'],
         instructions: 'Résolvez les exercices 2, 4, 6, 8 et 10. Justifiez chaque étape de vos démonstrations.',
         createdAt: '2024-12-12T11:00:00',
+        session: 'current',
         teacher: {
             name: 'M. Martin',
             avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
@@ -323,6 +336,7 @@ const mockHomeworks: Homework[] = [
         attachments: ['carte_densite.pdf', 'donnees_demographiques.pdf'],
         instructions: 'Analysez la carte fournie et expliquez les facteurs de répartition de la population.',
         createdAt: '2024-12-15T09:30:00',
+        session: 'current',
         teacher: {
             name: 'Mme Durand',
             avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face'
@@ -332,12 +346,15 @@ const mockHomeworks: Homework[] = [
 
 const HomeworkSubmissionPage: React.FC = () => {
     const { user, isLoading } = useUserContext();
-    const [selectedHomework, setSelectedHomework] = useState<Homework | null>(null);
-    const [submissionModalOpen, setSubmissionModalOpen] = useState(false);
-    const [submissionContent, setSubmissionContent] = useState('');
-    const [submissionFiles, setSubmissionFiles] = useState<File[]>([]);
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+    const [showSubjectDetails, setShowSubjectDetails] = useState(false);
+    const [selectedSession, setSelectedSession] = useState<'current' | 'archives'>('current');
+
+    const handleBackToOverview = () => {
+        setShowSubjectDetails(false);
+        setSelectedSubject(null);
+    };
 
     if (!user) {
         return (
@@ -393,28 +410,6 @@ const HomeworkSubmissionPage: React.FC = () => {
         return new Date(dueDate) < new Date();
     };
 
-    const handleSubmitHomework = () => {
-        if (!selectedHomework) return;
-
-        const newSubmission: Submission = {
-            id: Date.now().toString(),
-            homeworkId: selectedHomework.id,
-            content: submissionContent,
-            attachments: submissionFiles,
-            submittedAt: new Date().toISOString(),
-            status: 'submitted'
-        };
-
-        setSubmissions(prev => [...prev, newSubmission]);
-        
-        // Mettre à jour le statut du devoir
-        const updatedHomework = { ...selectedHomework, status: 'submitted' as const };
-        setSelectedHomework(updatedHomework);
-        
-        setSubmissionModalOpen(false);
-        setSubmissionContent('');
-        setSubmissionFiles([]);
-    };
 
     const handleAddToCalendar = (homework: Homework) => {
         // Simulation de l'ajout à l'agenda
@@ -424,59 +419,51 @@ const HomeworkSubmissionPage: React.FC = () => {
     };
 
     const handleSubjectClick = (subject: string) => {
-        if (selectedSubject === subject) {
-            // Si la même matière est cliquée, désélectionner
-            setSelectedSubject(null);
-        } else {
-            // Sélectionner la nouvelle matière
-            setSelectedSubject(subject);
-        }
+        setSelectedSubject(subject);
+        setShowSubjectDetails(true);
     };
 
     const getSubmissionForHomework = (homeworkId: string) => {
         return submissions.find(sub => sub.homeworkId === homeworkId);
     };
 
-    // Filtrer les devoirs selon la matière sélectionnée
-    const filteredHomeworks = selectedSubject 
+    // Filtrer les devoirs selon la matière sélectionnée et la session
+    const filteredHomeworks = showSubjectDetails && selectedSubject
         ? mockHomeworks.filter(h => h.subject === selectedSubject)
-        : mockHomeworks;
+        : mockHomeworks.filter(h => h.session === 'current');
 
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                {/* En-tête */}
-                <Group justify="space-between" align="center" mb="xl">
-                    <Group>
-                        <ThemeIcon size={40} radius="md" color="violet">
-                            <IconUpload size={24} />
-                        </ThemeIcon>
-                        <div>
-                            <Title order={1} size="h2">
-                                Devoirs
-                            </Title>
-                            <Text c="dimmed" size="sm">
-                                Gérez vos devoirs et remises académiques
-                            </Text>
-                        </div>
+                {/* En-tête - caché dans la vue détaillée */}
+                {!showSubjectDetails && (
+                    <Group justify="space-between" align="center" mb="xl">
+                        <Group>
+                            <ThemeIcon size={40} radius="md" color="violet">
+                                <IconUpload size={24} />
+                            </ThemeIcon>
+                            <div>
+                                <Title order={1} size="h2">
+                                    Devoirs
+                                </Title>
+                                <Text c="dimmed" size="sm">
+                                    Gérez vos devoirs et remises académiques
+                                </Text>
+                            </div>
+                        </Group>
                     </Group>
-                    <Group>
-                        <Button
-                            leftSection={<IconPlus size={16} />}
-                            variant="light"
-                        >
-                            Nouveau devoir
-                        </Button>
-                    </Group>
-                </Group>
+                )}
 
                 <Stack gap="xl">
-
-                    {/* Vue d'ensemble des devoirs par matière */}
-                    <Paper withBorder p="lg" radius="md">
-                        <Title order={2} size="h3" mb="lg">
-                            Vue d'ensemble par matière
-                        </Title>
-                        <Grid>
+                    {!showSubjectDetails ? (
+                        /* Vue d'ensemble des devoirs par matière */
+                        <Stack gap="lg">
+                            <Group justify="center" mb="md">
+                                <Text size="lg" c="dimmed" ta="center">
+                                    Sélectionnez une matière pour voir vos devoirs et votre progression
+                                </Text>
+                            </Group>
+                            
+                            <Grid>
                             {Array.from(new Set(mockHomeworks.map(h => h.subject))).map(subject => {
                                 const subjectHomeworks = mockHomeworks.filter(h => h.subject === subject);
                                 const pending = subjectHomeworks.filter(h => h.status === 'pending').length;
@@ -489,42 +476,65 @@ const HomeworkSubmissionPage: React.FC = () => {
                                     <Grid.Col key={subject} span={{ base: 12, sm: 6, md: 4 }}>
                                         <Card 
                                             withBorder 
-                                            p="md" 
+                                            p="lg" 
                                             radius="md"
-                                            style={{ 
+                                            shadow="sm"
+                                            style={{
                                                 cursor: 'pointer',
-                                                borderColor: selectedSubject === subject ? 'var(--mantine-color-blue-6)' : undefined,
+                                                borderColor: selectedSubject === subject ? 'var(--mantine-color-violet-6)' : 'var(--mantine-color-gray-3)',
                                                 borderWidth: selectedSubject === subject ? 2 : 1,
-                                                backgroundColor: selectedSubject === subject ? 'var(--mantine-color-blue-0)' : undefined
+                                                backgroundColor: selectedSubject === subject ? 'var(--mantine-color-violet-0)' : 'white',
+                                                transition: 'all 0.2s ease',
+                                                transform: selectedSubject === subject ? 'translateY(-2px)' : 'none',
+                                                boxShadow: selectedSubject === subject ? '0 8px 25px rgba(139, 92, 246, 0.15)' : '0 2px 8px rgba(0, 0, 0, 0.1)'
                                             }}
                                             onClick={() => handleSubjectClick(subject)}
+                                            onMouseEnter={(e) => {
+                                                if (selectedSubject !== subject) {
+                                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)';
+                                                }
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                if (selectedSubject !== subject) {
+                                                    e.currentTarget.style.transform = 'none';
+                                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                                                }
+                                            }}
                                         >
-                                            <Stack gap="sm">
+                                            <Stack gap="md">
                                                 <Group justify="space-between" align="center">
-                                                    <Text fw={600} size="lg">{subject}</Text>
-                                                    <Badge color="blue" variant="light">
-                                                        {subjectHomeworks.length} devoirs
+                                                    <Text fw={700} size="xl" c={selectedSubject === subject ? "violet" : "dark"}>
+                                                        {subject}
+                                                    </Text>
+                                                    <Badge 
+                                                        color={selectedSubject === subject ? "violet" : "blue"} 
+                                                        variant={selectedSubject === subject ? "filled" : "light"}
+                                                        size="lg"
+                                                        radius="md"
+                                                    >
+                                                        {subjectHomeworks.length} devoir{subjectHomeworks.length > 1 ? 's' : ''}
                                                     </Badge>
                                                 </Group>
                                                 
-                                                <Group gap="xs">
+                                                <Group gap="xs" wrap="wrap">
                                                     {pending > 0 && (
-                                                        <Badge color="yellow" variant="light" size="sm">
+                                                        <Badge color="yellow" variant="filled" size="sm" radius="md">
                                                             {pending} en attente
                                                         </Badge>
                                                     )}
                                                     {submitted > 0 && (
-                                                        <Badge color="blue" variant="light" size="sm">
+                                                        <Badge color="blue" variant="filled" size="sm" radius="md">
                                                             {submitted} rendus
                                                         </Badge>
                                                     )}
                                                     {graded > 0 && (
-                                                        <Badge color="green" variant="light" size="sm">
+                                                        <Badge color="green" variant="filled" size="sm" radius="md">
                                                             {graded} notés
                                                         </Badge>
                                                     )}
                                                     {late > 0 && (
-                                                        <Badge color="red" variant="light" size="sm">
+                                                        <Badge color="red" variant="filled" size="sm" radius="md">
                                                             {late} en retard
                                                         </Badge>
                                                     )}
@@ -532,15 +542,19 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                 
                                                 <Box>
                                                     <Group justify="space-between" mb="xs">
-                                                        <Text size="xs" c="dimmed">Progression</Text>
-                                                        <Text size="xs" fw={500}>
+                                                        <Text size="sm" fw={500} c="dimmed">
+                                                            Progression
+                                                        </Text>
+                                                        <Text size="sm" fw={600} c={selectedSubject === subject ? "violet" : "blue"}>
                                                             {Math.round(((submitted + graded) / subjectHomeworks.length) * 100)}%
                                                         </Text>
                                                     </Group>
                                                     <Progress 
                                                         value={((submitted + graded) / subjectHomeworks.length) * 100} 
-                                                        size="sm" 
-                                                        color="blue"
+                                                        color={selectedSubject === subject ? "violet" : "blue"} 
+                                                        size="lg"
+                                                        radius="md"
+                                                        style={{ height: 8 }}
                                                     />
                                                 </Box>
                                             </Stack>
@@ -548,123 +562,80 @@ const HomeworkSubmissionPage: React.FC = () => {
                                     </Grid.Col>
                                 );
                             })}
-                        </Grid>
-                    </Paper>
-
-                    {/* Graphique des notes par matière */}
-                    <Paper withBorder p="lg" radius="md">
-                        <Group justify="space-between" align="center" mb="lg">
-                            <Title order={2} size="h3">
-                                Graphique des notes par matière
-                            </Title>
-                            <ThemeIcon color="blue" variant="light" size="lg">
-                                <IconChartBar size={20} />
-                            </ThemeIcon>
-                        </Group>
-                        
-                        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
-                            {Array.from(new Set(mockHomeworks.map(h => h.subject))).map(subject => {
-                                const subjectHomeworks = mockHomeworks.filter(h => h.subject === subject);
-                                const gradedHomeworks = subjectHomeworks.filter(h => h.points !== undefined && h.maxPoints !== undefined);
-                                const averageGrade = gradedHomeworks.length > 0 
-                                    ? gradedHomeworks.reduce((sum, h) => sum + (h.points! / h.maxPoints! * 100), 0) / gradedHomeworks.length
-                                    : null;
+                            </Grid>
+                        </Stack>
+                    ) : (
+                        /* Vue détaillée d'une matière */
+                        <Stack gap="lg">
+                            {/* En-tête de la matière avec bouton retour et graphique */}
+                            <Group justify="space-between" align="center" mb="xl">
+                                <Group>
+                                    <ActionIcon
+                                        variant="subtle"
+                                        color="violet"
+                                        size="lg"
+                                        onClick={handleBackToOverview}
+                                        title="Retour à l'aperçu"
+                                    >
+                                        <IconArrowLeft size={20} />
+                                    </ActionIcon>
+                                    <ThemeIcon size={40} radius="md" color="violet">
+                                        <IconUpload size={24} />
+                                    </ThemeIcon>
+                                    <div>
+                                        <Title order={1} size="h2">
+                                            {selectedSubject}
+                                        </Title>
+                                        <Text c="dimmed" size="sm">
+                                            Détail des devoirs et progression
+                                        </Text>
+                                    </div>
+                                </Group>
                                 
-                                if (averageGrade === null) return null;
-                                
-                                return (
-                                    <Card key={subject} withBorder p="md" radius="md">
-                                        <Stack gap="sm">
-                                            <Group justify="space-between" align="center">
-                                                <Text fw={600} size="sm" c="dimmed">
-                                                    {subject}
+                                {/* Graphique de la moyenne des notes */}
+                                <Box style={{ minWidth: 200 }}>
+                                    {(() => {
+                                        const subjectHomeworks = mockHomeworks.filter(h => h.subject === selectedSubject);
+                                        const gradedHomeworks = subjectHomeworks.filter(h => h.points !== undefined);
+                                        const averageGrade = gradedHomeworks.length > 0 
+                                            ? gradedHomeworks.reduce((sum, h) => sum + (h.points! / h.maxPoints! * 100), 0) / gradedHomeworks.length
+                                            : null;
+                                        
+                                        return (
+                                            <Stack gap="xs" align="center">
+                                                <Text size="sm" c="dimmed" fw={500}>
+                                                    Moyenne des notes
                                                 </Text>
-                                                <Badge 
-                                                    color={averageGrade >= 80 ? 'green' : averageGrade >= 70 ? 'blue' : averageGrade >= 60 ? 'yellow' : 'red'}
-                                                    variant="light"
-                                                    size="sm"
-                                                >
-                                                    {averageGrade.toFixed(1)}%
-                                                </Badge>
-                                            </Group>
-                                            
-                                            {/* Barre de progression personnalisée pour le graphique */}
-                                            <Box>
-                                                <Progress 
-                                                    value={averageGrade} 
-                                                    color={averageGrade >= 80 ? 'green' : averageGrade >= 70 ? 'blue' : averageGrade >= 60 ? 'yellow' : 'red'}
-                                                    size="lg"
-                                                    radius="md"
-                                                    style={{ height: 24 }}
-                                                />
-                                            </Box>
-                                            
-                                            <Group justify="space-between" align="center">
-                                                <Text size="xs" c="dimmed">
-                                                    {gradedHomeworks.length} devoir{gradedHomeworks.length > 1 ? 's' : ''} noté{gradedHomeworks.length > 1 ? 's' : ''}
-                                                </Text>
-                                                <Text size="xs" fw={500} c="dimmed">
-                                                    {averageGrade >= 80 ? 'Excellent' : 
-                                                     averageGrade >= 70 ? 'Bien' : 
-                                                     averageGrade >= 60 ? 'Assez bien' : 'À améliorer'}
-                                                </Text>
-                                            </Group>
-                                        </Stack>
-                                    </Card>
-                                );
-                            })}
-                        </SimpleGrid>
-                        
-                        {/* Légende du graphique */}
-                        <Box mt="lg" p="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)', borderRadius: 8 }}>
-                            <Text size="sm" fw={500} mb="xs">Légende des couleurs :</Text>
-                            <Group gap="md">
-                                <Group gap="xs">
-                                    <Box style={{ width: 12, height: 12, backgroundColor: 'var(--mantine-color-green-6)', borderRadius: 2 }} />
-                                    <Text size="xs">≥ 80% - Excellent</Text>
-                                </Group>
-                                <Group gap="xs">
-                                    <Box style={{ width: 12, height: 12, backgroundColor: 'var(--mantine-color-blue-6)', borderRadius: 2 }} />
-                                    <Text size="xs">70-79% - Bien</Text>
-                                </Group>
-                                <Group gap="xs">
-                                    <Box style={{ width: 12, height: 12, backgroundColor: 'var(--mantine-color-yellow-6)', borderRadius: 2 }} />
-                                    <Text size="xs">60-69% - Assez bien</Text>
-                                </Group>
-                                <Group gap="xs">
-                                    <Box style={{ width: 12, height: 12, backgroundColor: 'var(--mantine-color-red-6)', borderRadius: 2 }} />
-                                    <Text size="xs">&lt; 60% - À améliorer</Text>
-                                </Group>
+                                                <Group gap="xs" align="center">
+                                                    <Text size="2rem" fw={800} c="violet">
+                                                        {averageGrade ? `${averageGrade.toFixed(1)}%` : 'N/A'}
+                                                    </Text>
+                                                    <ThemeIcon size="lg" color="violet" variant="light" radius="xl">
+                                                        <IconChartBar size={20} />
+                                                    </ThemeIcon>
+                                                </Group>
+                                                {averageGrade && (
+                                                    <Progress 
+                                                        value={averageGrade} 
+                                                        color="violet" 
+                                                        size="lg"
+                                                        radius="xl"
+                                                        style={{ width: 150, height: 8 }}
+                                                    />
+                                                )}
+                                            </Stack>
+                                        );
+                                    })()}
+                                </Box>
                             </Group>
-                        </Box>
-                    </Paper>
 
-                    {/* Liste des devoirs avec filtres et tri */}
-                    <Paper withBorder p="lg" radius="md">
+                            {/* Liste des devoirs de la matière */}
+                            <Paper withBorder p="lg" radius="md">
                         <Group justify="space-between" align="center" mb="lg">
                             <Group gap="md">
                                 <Title order={2} size="h3">
                                     Détail des devoirs
                                 </Title>
-                                {selectedSubject && (
-                                    <Badge 
-                                        color="blue" 
-                                        variant="light" 
-                                        size="lg"
-                                        rightSection={
-                                            <ActionIcon 
-                                                size="xs" 
-                                                color="blue" 
-                                                variant="transparent"
-                                                onClick={() => setSelectedSubject(null)}
-                                            >
-                                                <IconX size={12} />
-                                            </ActionIcon>
-                                        }
-                                    >
-                                        Filtre: {selectedSubject}
-                                    </Badge>
-                                )}
                             </Group>
                             <Group gap="md">
                                 <Group gap="xs">
@@ -705,7 +676,22 @@ const HomeworkSubmissionPage: React.FC = () => {
                                             const isOverdueHomework = isOverdue(homework.dueDate);
                                             
                                             return (
-                                                <Card key={homework.id} withBorder shadow="sm">
+                                                <Card 
+                                                    key={homework.id} 
+                                                    withBorder 
+                                                    shadow="sm" 
+                                                    radius="lg"
+                                                    p="lg"
+                                                    style={{
+                                                        transition: 'all 0.2s ease',
+                                                        borderColor: homework.status === 'graded' ? 'var(--mantine-color-green-3)' : 
+                                                                   homework.status === 'submitted' ? 'var(--mantine-color-blue-3)' :
+                                                                   homework.status === 'late' ? 'var(--mantine-color-red-3)' : 'var(--mantine-color-gray-3)',
+                                                        backgroundColor: homework.status === 'graded' ? 'var(--mantine-color-green-0)' : 
+                                                                      homework.status === 'submitted' ? 'var(--mantine-color-blue-0)' :
+                                                                      homework.status === 'late' ? 'var(--mantine-color-red-0)' : 'white'
+                                                    }}
+                                                >
                                                     <Stack gap="md">
                                                         <Group justify="space-between" align="flex-start">
                                                             <div style={{ flex: 1 }}>
@@ -715,12 +701,14 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                                     </Title>
                                                                     <Badge 
                                                                         color={getStatusColor(homework.status)}
-                                                                        variant="light"
+                                                                        variant="filled"
+                                                                        size="md"
+                                                                        radius="md"
                                                                     >
                                                                         {getStatusLabel(homework.status)}
                                                                     </Badge>
                                                                     {isOverdueHomework && homework.status === 'pending' && (
-                                                                        <Badge color="red" variant="filled">
+                                                                        <Badge color="red" variant="filled" size="md" radius="md">
                                                                             En retard
                                                                         </Badge>
                                                                     )}
@@ -771,20 +759,6 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                             </div>
                                                             
                                             <Group gap="sm">
-                                                {homework.status === 'pending' && (
-                                                    <Button
-                                                        size="sm"
-                                                        leftSection={<IconUpload size={16} />}
-                                                        onClick={() => {
-                                                            setSelectedHomework(homework);
-                                                            setSubmissionModalOpen(true);
-                                                        }}
-                                                        color={isOverdueHomework ? "red" : "blue"}
-                                                        variant={isOverdueHomework ? "filled" : "light"}
-                                                    >
-                                                        {isOverdueHomework ? "Rendre (en retard)" : "Rendre le devoir"}
-                                                    </Button>
-                                                )}
                                                 
                                                 {homework.status === 'pending' && (
                                                     <Button
@@ -798,19 +772,6 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                     </Button>
                                                 )}
                                                 
-                                                {homework.status === 'submitted' && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        leftSection={<IconEye size={16} />}
-                                                        onClick={() => {
-                                                            setSelectedHomework(homework);
-                                                            setSubmissionModalOpen(true);
-                                                        }}
-                                                    >
-                                                        Voir la remise
-                                                    </Button>
-                                                )}
                                                 
                                                 <Menu shadow="md" width={200}>
                                                     <Menu.Target>
@@ -825,17 +786,6 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                         {homework.attachments.length > 0 && (
                                                             <Menu.Item leftSection={<IconDownload size={14} />}>
                                                                 Télécharger les fichiers
-                                                            </Menu.Item>
-                                                        )}
-                                                        {homework.status === 'submitted' && (
-                                                            <Menu.Item 
-                                                                leftSection={<IconEdit size={14} />}
-                                                                onClick={() => {
-                                                                    setSelectedHomework(homework);
-                                                                    setSubmissionModalOpen(true);
-                                                                }}
-                                                            >
-                                                                Modifier la remise
                                                             </Menu.Item>
                                                         )}
                                                     </Menu.Dropdown>
@@ -918,12 +868,14 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                                     </Title>
                                                                     <Badge 
                                                                         color={getStatusColor(homework.status)}
-                                                                        variant="light"
+                                                                        variant="filled"
+                                                                        size="md"
+                                                                        radius="md"
                                                                     >
                                                                         {getStatusLabel(homework.status)}
                                                                     </Badge>
                                                                     {isOverdueHomework && homework.status === 'pending' && (
-                                                                        <Badge color="red" variant="filled">
+                                                                        <Badge color="red" variant="filled" size="md" radius="md">
                                                                             En retard
                                                                         </Badge>
                                                                     )}
@@ -974,19 +926,6 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                             </div>
                                                             
                                                             <Group gap="sm">
-                                                                {homework.status === 'submitted' && (
-                                                                    <Button
-                                                                        size="sm"
-                                                                        variant="outline"
-                                                                        leftSection={<IconEye size={16} />}
-                                                                        onClick={() => {
-                                                                            setSelectedHomework(homework);
-                                                                            setSubmissionModalOpen(true);
-                                                                        }}
-                                                                    >
-                                                                        Voir la remise
-                                                                    </Button>
-                                                                )}
                                                                 
                                                                 {homework.status === 'pending' && (
                                                                     <Button
@@ -1013,17 +952,6 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                                         {homework.attachments.length > 0 && (
                                                                             <Menu.Item leftSection={<IconDownload size={14} />}>
                                                                                 Télécharger les fichiers
-                                                                            </Menu.Item>
-                                                                        )}
-                                                                        {homework.status === 'submitted' && (
-                                                                            <Menu.Item 
-                                                                                leftSection={<IconEdit size={14} />}
-                                                                                onClick={() => {
-                                                                                    setSelectedHomework(homework);
-                                                                                    setSubmissionModalOpen(true);
-                                                                                }}
-                                                                            >
-                                                                                Modifier la remise
                                                                             </Menu.Item>
                                                                         )}
                                                                     </Menu.Dropdown>
@@ -1075,147 +1003,159 @@ const HomeworkSubmissionPage: React.FC = () => {
                     </Stack>
                 </Paper>
 
-            </Stack>
+                {/* Section Archives */}
+                <Paper withBorder p="lg" radius="md">
+                    <Group gap="xs" mb="md">
+                        <IconBook size={20} color="var(--mantine-color-gray-6)" />
+                        <Title order={3} size="h4" c="gray">
+                            Archives
+                        </Title>
+                    </Group>
+                    <Stack gap="md">
+                        {mockHomeworks
+                            .filter(h => h.subject === selectedSubject && h.session === 'archives')
+                            .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime())
+                            .map((homework) => {
+                                const submission = getSubmissionForHomework(homework.id);
+                                const isOverdueHomework = isOverdue(homework.dueDate);
+                                
+                                return (
+                                    <Card 
+                                        key={homework.id} 
+                                        withBorder 
+                                        shadow="sm" 
+                                        radius="lg"
+                                        p="lg"
+                                        style={{
+                                            transition: 'all 0.2s ease',
+                                            borderColor: homework.status === 'graded' ? 'var(--mantine-color-green-3)' : 
+                                                       homework.status === 'submitted' ? 'var(--mantine-color-blue-3)' :
+                                                       homework.status === 'late' ? 'var(--mantine-color-red-3)' : 'var(--mantine-color-gray-3)',
+                                            backgroundColor: homework.status === 'graded' ? 'var(--mantine-color-green-0)' : 
+                                                          homework.status === 'submitted' ? 'var(--mantine-color-blue-0)' :
+                                                          homework.status === 'late' ? 'var(--mantine-color-red-0)' : 'white',
+                                            opacity: 0.8
+                                        }}
+                                    >
+                                        <Stack gap="md">
+                                            <Group justify="space-between" align="flex-start">
+                                                <div style={{ flex: 1 }}>
+                                                    <Group gap="sm" mb="xs">
+                                                        <Title order={3} size="h4">
+                                                            {homework.title}
+                                                        </Title>
+                                                        <Badge 
+                                                            color={getStatusColor(homework.status)}
+                                                            variant="filled"
+                                                            size="md"
+                                                            radius="md"
+                                                        >
+                                                            {getStatusLabel(homework.status)}
+                                                        </Badge>
+                                                        {isOverdueHomework && homework.status === 'pending' && (
+                                                            <Badge color="red" variant="filled" size="md" radius="md">
+                                                                En retard
+                                                            </Badge>
+                                                        )}
+                                                    </Group>
+                                                    
+                                                    <Text size="sm" c="dimmed" mb="sm">
+                                                        {homework.description}
+                                                    </Text>
+                                                    
+                                                    <Group gap="lg" mb="sm">
+                                                        <Group gap="xs">
+                                                            <IconCalendar size={16} />
+                                                            <Text size="sm">
+                                                                Échéance: {formatDate(homework.dueDate)}
+                                                            </Text>
+                                                        </Group>
+                                                        <Group gap="xs">
+                                                            <IconUser size={16} />
+                                                            <Text size="sm">
+                                                                {homework.teacher.name}
+                                                            </Text>
+                                                        </Group>
+                                                        <Group gap="xs">
+                                                            <IconFileText size={16} />
+                                                            <Text size="sm">
+                                                                {homework.maxPoints} points
+                                                            </Text>
+                                                        </Group>
+                                                    </Group>
+                                                </div>
+                                                
+                                                <Group gap="xs">
+                                                    <Menu shadow="md" width={200}>
+                                                        <Menu.Target>
+                                                            <ActionIcon variant="subtle" color="gray">
+                                                                <IconDots size={16} />
+                                                            </ActionIcon>
+                                                        </Menu.Target>
+                                                        <Menu.Dropdown>
+                                                            <Menu.Item leftSection={<IconEye size={14} />}>
+                                                                Voir les détails
+                                                            </Menu.Item>
+                                                            {homework.attachments.length > 0 && (
+                                                                <Menu.Item leftSection={<IconDownload size={14} />}>
+                                                                    Télécharger les fichiers
+                                                                </Menu.Item>
+                                                            )}
+                                                        </Menu.Dropdown>
+                                                    </Menu>
+                                                </Group>
+                                            </Group>
 
-            {/* Modal de remise de devoir */}
-            <Modal
-                opened={submissionModalOpen}
-                onClose={() => setSubmissionModalOpen(false)}
-                title={`Rendre: ${selectedHomework?.title}`}
-                size="xl"
-            >
-                {selectedHomework && (
-                    <Stack gap="lg">
-                        {/* Informations du devoir */}
-                        <Paper withBorder p="md" bg="gray.0">
-                            <Stack gap="sm">
-                                <Title order={3} size="h4">
-                                    {selectedHomework.title}
-                                </Title>
-                                
-                                <Text size="sm" c="dimmed">
-                                    {selectedHomework.description}
-                                </Text>
-                                
-                                <Grid>
-                                    <Grid.Col span={6}>
-                                        <Group gap="xs">
-                                            <IconUser size={16} />
-                                            <Text size="sm">
-                                                <strong>Professeur:</strong> {selectedHomework.teacher.name}
-                                            </Text>
-                                        </Group>
-                                    </Grid.Col>
-                                    <Grid.Col span={6}>
-                                        <Group gap="xs">
-                                            <IconCalendar size={16} />
-                                            <Text size="sm">
-                                                <strong>Échéance:</strong> {formatDate(selectedHomework.dueDate)}
-                                            </Text>
-                                        </Group>
-                                    </Grid.Col>
-                                    <Grid.Col span={6}>
-                                        <Group gap="xs">
-                                            <Text size="sm">
-                                                <strong>Matière:</strong> {selectedHomework.subject}
-                                            </Text>
-                                        </Group>
-                                    </Grid.Col>
-                                    <Grid.Col span={6}>
-                                        <Group gap="xs">
-                                            <Text size="sm">
-                                                <strong>Points:</strong> {selectedHomework.maxPoints} points
-                                            </Text>
-                                        </Group>
-                                    </Grid.Col>
-                                </Grid>
-                                
-                                {selectedHomework.attachments.length > 0 && (
-                                    <Box>
-                                        <Text size="sm" fw={500} mb="xs">
-                                            Fichiers du devoir:
-                                        </Text>
-                                        <Group gap="xs">
-                                            {selectedHomework.attachments.map((file, index) => (
-                                                <Badge key={index} variant="outline" size="sm">
-                                                    {file}
-                                                </Badge>
-                                            ))}
-                                        </Group>
-                                    </Box>
-                                )}
-                            </Stack>
-                        </Paper>
+                                            {submission && (
+                                                <Paper withBorder p="md" bg="gray.0">
+                                                    <Group justify="space-between" mb="sm">
+                                                        <Text size="sm" fw={500}>Votre remise</Text>
+                                                        <Badge color="blue" variant="light" size="sm">
+                                                            {formatDate(submission.submittedAt)}
+                                                        </Badge>
+                                                    </Group>
+                                                    <Text size="sm" mb="sm">
+                                                        {submission.content}
+                                                    </Text>
+                                                    {submission.attachments.length > 0 && (
+                                                        <Group gap="xs">
+                                                            <Text size="sm" c="dimmed">Fichiers joints:</Text>
+                                                            {submission.attachments.map((file, index) => (
+                                                                <Badge key={index} variant="light" size="sm">
+                                                                    {file.name}
+                                                                </Badge>
+                                                            ))}
+                                                        </Group>
+                                                    )}
+                                                </Paper>
+                                            )}
+
+                                            {homework.attachments.length > 0 && (
+                                                <Group gap="xs">
+                                                    <Text size="sm" c="dimmed">Fichiers du devoir:</Text>
+                                                    {homework.attachments.map((file, index) => (
+                                                        <Badge key={index} variant="outline" size="sm">
+                                                            {file}
+                                                        </Badge>
+                                                    ))}
+                                                </Group>
+                                            )}
+                                        </Stack>
+                                    </Card>
+                                );
+                            })}
                         
-                        {/* Instructions détaillées */}
-                        <Alert icon={<IconAlertCircle size={16} />} color="blue">
-                            <Text size="sm" fw={500} mb="xs">
-                                Instructions:
+                        {mockHomeworks.filter(h => h.subject === selectedSubject && h.session === 'archives').length === 0 && (
+                            <Text c="dimmed" ta="center" py="xl">
+                                Aucun devoir archivé pour cette matière
                             </Text>
-                            <Text size="sm">
-                                {selectedHomework.instructions}
-                            </Text>
-                        </Alert>
-                        
-                        {/* Zone de remise */}
-                        <Stack gap="md">
-                            <Title order={4} size="h5">
-                                Votre remise
-                            </Title>
-                            
-                            <Textarea
-                                label="Votre réponse"
-                                placeholder="Rédigez votre réponse ici..."
-                                value={submissionContent}
-                                onChange={(e) => setSubmissionContent(e.target.value)}
-                                minRows={8}
-                                required
-                            />
-                            
-                            <FileInput
-                                label="Fichiers joints"
-                                placeholder="Sélectionnez des fichiers à joindre..."
-                                multiple
-                                value={submissionFiles}
-                                onChange={setSubmissionFiles}
-                                leftSection={<IconUpload size={16} />}
-                                description="Vous pouvez joindre plusieurs fichiers (PDF, images, documents...)"
-                            />
-                            
-                            {submissionFiles.length > 0 && (
-                                <Box>
-                                    <Text size="sm" fw={500} mb="xs">
-                                        Fichiers sélectionnés:
-                                    </Text>
-                                    <Group gap="xs">
-                                        {submissionFiles.map((file, index) => (
-                                            <Badge key={index} variant="light" size="sm">
-                                                {file.name}
-                                            </Badge>
-                                        ))}
-                                    </Group>
-                                </Box>
-                            )}
-                        </Stack>
-                        
-                        <Group justify="flex-end" gap="sm">
-                            <Button
-                                variant="outline"
-                                onClick={() => setSubmissionModalOpen(false)}
-                            >
-                                Annuler
-                            </Button>
-                            <Button
-                                onClick={handleSubmitHomework}
-                                disabled={!submissionContent.trim()}
-                                leftSection={<IconUpload size={16} />}
-                            >
-                                Rendre le devoir
-                            </Button>
-                        </Group>
+                        )}
                     </Stack>
-                )}
-            </Modal>
+                </Paper>
+                        </Stack>
+                    )}
+
+            </Stack>
         </MainLayout>
     );
 };

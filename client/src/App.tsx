@@ -21,13 +21,11 @@ import CourseNotesPage from "./pages/CourseNotesPage";
 import VideoCallPage from "./pages/VideoCallPage";
 import MySessionPage from "./pages/MySessionPage";
 import QuizzesPage from "./pages/QuizzesPage";
-import EmailsPage from "./pages/EmailsPage";
 import { UserProvider } from "./contexts/UserContext";
 import { NavbarProvider } from "./contexts/NavbarContext";
 import { lightTheme, darkTheme } from "./theme";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
-import FloatingActionButtons from "./components/FloatingActionButtons";
 
 
 
@@ -168,14 +166,6 @@ const App: React.FC = () => {
                                 }
                             />
 
-                            <Route
-                                path="/emails"
-                                element={
-                                    <ProtectedRoute>
-                                        <EmailsPage />
-                                    </ProtectedRoute>
-                                }
-                            />
                             {/* Redirection par défaut */}
                             <Route
                                 path="/"
@@ -186,7 +176,6 @@ const App: React.FC = () => {
                                 element={<Navigate to="/login" replace />}
                             />
                         </Routes>
-                        <FloatingActionButtons notificationCount={3} />
                     </Router>
                 </NavbarProvider>
             </UserProvider>

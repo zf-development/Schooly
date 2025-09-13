@@ -19,20 +19,19 @@ import {
     IconLogout,
     IconHome,
     IconNews,
-    IconNote,
+    IconNotes,
     IconCalendar,
-    IconFile,
+    IconCloud,
     IconBuilding,
     IconBuildingPlus,
     IconChevronLeft,
     IconChevronRight,
     IconMessage,
-    IconBookUpload,
+    IconUpload,
     IconUsers,
     IconBook,
     IconChartLine,
     IconBrain,
-    IconMail,
 } from "@tabler/icons-react";
 
 const linksSections = {
@@ -51,15 +50,14 @@ const linksSections = {
     academic: {
         label: "Académique",
         links: [
-            { route: "/notes", label: "Mes notes", icon: IconNote },
+            { route: "/notes", label: "Mes notes", icon: IconNotes },
             { route: "/my-session", label: "Ma session", icon: IconChartLine, badge: "WIP" },
             { route: "/calendar", label: "Mon calendrier", icon: IconCalendar },
-            { route: "/files", label: "Mes fichiers", icon: IconFile },
-            { route: "/homework", label: "Devoirs", icon: IconBookUpload, badge: "WIP" },
+            { route: "/files", label: "Mes fichiers", icon: IconCloud },
+            { route: "/homework", label: "Devoirs", icon: IconUpload, badge: "WIP" },
             { route: "/projects", label: "Projets", icon: IconUsers, badge: "WIP" },
             { route: "/course-notes", label: "Notes de cours", icon: IconBook, badge: "WIP" },
             { route: "/quizzes", label: "Quiz", icon: IconBrain, badge: "WIP" },
-            { route: "/emails", label: "Courriels", icon: IconMail, badge: "WIP" },
         ],
     },
     account: {

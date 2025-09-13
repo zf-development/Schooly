@@ -448,7 +448,7 @@ const MessagingPage: React.FC = () => {
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 {/* En-tête */}
-                <Group justify="space-between" align="center" mb="md" px="md">
+                <Group justify="space-between" align="center" mb="md">
                     <Group>
                         <ThemeIcon size={40} radius="md" color="violet">
                             <IconMessage size={24} />
@@ -474,7 +474,7 @@ const MessagingPage: React.FC = () => {
                 </Group>
 
                 {/* Interface de messagerie - 2 colonnes */}
-                <Grid gutter={0} style={{ height: 'calc(100vh - 200px)' }}>
+                <Grid gutter={0} style={{ height: 'calc(100vh - 250px)', maxWidth: '100%' }}>
                     {/* Colonne 1: Liste des conversations */}
                     <Grid.Col span={4} style={{ borderRight: '1px solid var(--mantine-color-gray-3)' }}>
                         <Paper p="md" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>

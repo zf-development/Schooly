@@ -20,7 +20,8 @@ import {
     Divider,
     Tabs,
     Table,
-    ScrollArea
+    ScrollArea,
+    Blockquote
 } from '@mantine/core';
 import {
     LineChart,
@@ -44,7 +45,9 @@ import {
     IconClock,
     IconUsers,
     IconTarget,
-    IconX
+    IconX,
+    IconMessageCircle,
+    IconQuote
 } from '@tabler/icons-react';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
@@ -61,6 +64,7 @@ interface Exam {
     weight: number; // Poids dans la note finale (en %)
     status: 'upcoming' | 'completed' | 'graded';
     subject: string;
+    teacherNote?: string; // Note du professeur
 }
 
 interface Subject {
@@ -103,7 +107,8 @@ const mockSubjects: Subject[] = [
                 classAverage: 78.5,
                 weight: 30,
                 status: 'graded',
-                subject: 'Mathématiques Avancées'
+                subject: 'Mathématiques Avancées',
+                teacherNote: 'Excellent travail ! Tes démonstrations sont claires et bien structurées. Continue comme ça !'
             },
             {
                 id: '2',
@@ -115,7 +120,8 @@ const mockSubjects: Subject[] = [
                 classAverage: 42.3,
                 weight: 10,
                 status: 'graded',
-                subject: 'Mathématiques Avancées'
+                subject: 'Mathématiques Avancées',
+                teacherNote: 'Très bon résultat ! Fais attention à la ponctuation dans tes réponses et vérifie tes calculs intermédiaires.'
             },
             {
                 id: '3',
@@ -162,7 +168,8 @@ const mockSubjects: Subject[] = [
                 classAverage: 87.2,
                 weight: 35,
                 status: 'graded',
-                subject: 'Physique Quantique'
+                subject: 'Physique Quantique',
+                teacherNote: 'Performance exceptionnelle ! Ta compréhension des concepts quantiques est remarquable. Bravo !'
             },
             {
                 id: '6',
@@ -209,7 +216,8 @@ const mockSubjects: Subject[] = [
                 classAverage: 85.1,
                 weight: 30,
                 status: 'graded',
-                subject: 'Informatique - Algorithmes'
+                subject: 'Informatique - Algorithmes',
+                teacherNote: 'Bon travail sur l\'algorithme ! Améliore la documentation de ton code et optimise la complexité temporelle.'
             },
             {
                 id: '9',
@@ -221,7 +229,8 @@ const mockSubjects: Subject[] = [
                 classAverage: 38.7,
                 weight: 15,
                 status: 'graded',
-                subject: 'Informatique - Algorithmes'
+                subject: 'Informatique - Algorithmes',
+                teacherNote: 'Révise les concepts de base des arbres binaires et des listes chaînées. N\'hésite pas à venir aux heures de bureau !'
             },
             {
                 id: '10',
@@ -567,6 +576,32 @@ const MySessionPage: React.FC = () => {
                                                                     </Text>
                                                                 </div>
                                                             </Group>
+
+                                                            {/* Note du professeur */}
+                                                            {exam.teacherNote && (
+                                                                <Box mt="md">
+                                                                    <Box
+                                                                        mt="xs"
+                                                                        style={{
+                                                                            backgroundColor: 'var(--mantine-color-gray-0)',
+                                                                            border: '1px solid var(--mantine-color-gray-3)',
+                                                                            borderRadius: '6px',
+                                                                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
+                                                                            padding: '8px 12px'
+                                                                        }}
+                                                                    >
+                                                                        <Group gap="xs" mb="xs">
+                                                                            <IconMessageCircle size={14} color="var(--mantine-color-violet-6)" />
+                                                                            <Text size="xs" fw={600} c="dimmed">
+                                                                                Commentaire du professeur
+                                                                            </Text>
+                                                                        </Group>
+                                                                        <Text size="xs" c="dimmed">
+                                                                            {exam.teacherNote}
+                                                                        </Text>
+                                                                    </Box>
+                                                                </Box>
+                                                            )}
                                                         </div>
                                                     </Group>
                                                 </Card>
