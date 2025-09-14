@@ -21,7 +21,9 @@ import {
     Paper,
     Divider,
     Center,
-    Loader
+    Loader,
+    ScrollArea,
+    Flex
 } from '@mantine/core';
 import {
     IconCalendar,
@@ -639,65 +641,118 @@ const CalendarPage: React.FC = () => {
 
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                {/* En-tête */}
-                <Group justify="space-between" align="center" mb="xl">
-                    <Group>
-                        <ThemeIcon size={40} radius="md" color="violet">
-                            <IconCalendar size={24} />
-                        </ThemeIcon>
-                        <div>
-                            <Title order={1} size="h2">
-                                Calendrier
-                            </Title>
-                            <Text c="dimmed" size="sm">
-                                Gérez vos événements et rendez-vous
-                            </Text>
-                        </div>
+            <Box 
+                style={{ 
+                    height: 'calc(100vh - 60px)', 
+                    overflow: 'hidden', 
+                    display: 'flex', 
+                    flexDirection: 'column' 
+                }}
+            >
+                {/* En-tête modernisé */}
+                <Box
+                    p="lg"
+                    style={{
+                        backgroundColor: 'white',
+                        borderBottom: '1px solid var(--mantine-color-gray-2)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
+                    }}
+                >
+                    <Group justify="space-between" align="center">
+                        <Group>
+                            <ThemeIcon size={48} radius="md" color="violet" variant="light">
+                                <IconCalendar size={28} />
+                            </ThemeIcon>
+                            <div>
+                                <Title order={1} size="h1" c="dark" fw={700}>
+                                    Calendrier
+                                </Title>
+                                <Text c="dimmed" size="md" fw={500}>
+                                    Gérez vos événements et rendez-vous
+                                </Text>
+                            </div>
+                        </Group>
+                        <Group gap="md">
+                            <Button
+                                leftSection={<IconPlus size={18} />}
+                                onClick={handleCreateEvent}
+                                color="violet"
+                                size="md"
+                                radius="md"
+                                style={{ fontWeight: 600 }}
+                            >
+                                Nouvel événement
+                            </Button>
+                        </Group>
                     </Group>
-                    <Group>
-                        <Button
-                            leftSection={<IconPlus size={16} />}
-                            onClick={handleCreateEvent}
-                            color="violet"
-                        >
-                            Nouvel événement
-                        </Button>
-                    </Group>
-                </Group>
+                </Box>
 
-                {/* Sélecteur de vue */}
-                <Group justify="center" mb="md">
-                    <Button.Group>
-                        <Button
-                            variant={currentView === 'month' ? 'filled' : 'light'}
-                            leftSection={<IconCalendarMonth size={16} />}
-                            onClick={() => handleViewChange('month')}
+                {/* Contenu principal avec ScrollArea */}
+                <ScrollArea style={{ flex: 1, minHeight: 0 }}>
+                    <Box p="lg">
+                        {/* Sélecteur de vue modernisé */}
+                        <Box
+                            p="md"
+                            mb="lg"
+                            style={{
+                                backgroundColor: 'var(--mantine-color-gray-0)',
+                                borderRadius: '12px',
+                                border: '1px solid var(--mantine-color-gray-2)'
+                            }}
                         >
-                            Mois
-                        </Button>
-                        <Button
-                            variant={currentView === 'week' ? 'filled' : 'light'}
-                            leftSection={<IconCalendarWeek size={16} />}
-                            onClick={() => handleViewChange('week')}
-                        >
-                            Semaine
-                        </Button>
-                        <Button
-                            variant={currentView === 'day' ? 'filled' : 'light'}
-                            leftSection={<IconCalendarEvent size={16} />}
-                            onClick={() => handleViewChange('day')}
-                        >
-                            Jour
-                        </Button>
-                    </Button.Group>
-                </Group>
+                            <Group justify="center">
+                                <Button.Group>
+                                    <Button
+                                        variant={currentView === 'month' ? 'filled' : 'subtle'}
+                                        color="violet"
+                                        leftSection={<IconCalendarMonth size={16} />}
+                                        onClick={() => handleViewChange('month')}
+                                        size="sm"
+                                        radius="md"
+                                        style={{ fontWeight: 600 }}
+                                    >
+                                        Mois
+                                    </Button>
+                                    <Button
+                                        variant={currentView === 'week' ? 'filled' : 'subtle'}
+                                        color="violet"
+                                        leftSection={<IconCalendarWeek size={16} />}
+                                        onClick={() => handleViewChange('week')}
+                                        size="sm"
+                                        radius="md"
+                                        style={{ fontWeight: 600 }}
+                                    >
+                                        Semaine
+                                    </Button>
+                                    <Button
+                                        variant={currentView === 'day' ? 'filled' : 'subtle'}
+                                        color="violet"
+                                        leftSection={<IconCalendarEvent size={16} />}
+                                        onClick={() => handleViewChange('day')}
+                                        size="sm"
+                                        radius="md"
+                                        style={{ fontWeight: 600 }}
+                                    >
+                                        Jour
+                                    </Button>
+                                </Button.Group>
+                            </Group>
+                        </Box>
 
-                <Grid>
+                        <Grid>
                     {/* Calendrier principal */}
                     <Grid.Col span={8}>
-                        <Card shadow="sm" padding="lg" radius="md" withBorder>
-                            <Group justify="space-between" mb="md">
-                                <Title order={3}>
+                        <Box
+                            p="lg"
+                            style={{
+                                backgroundColor: 'white',
+                                borderRadius: '12px',
+                                border: '1px solid var(--mantine-color-gray-2)',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+                            }}
+                        >
+                            <Group justify="space-between" mb="lg">
+                                <Title order={2} c="dark" fw={700}>
                                     {currentView === 'month' && selectedDate.toLocaleDateString('fr-FR', { 
                                         month: 'long', 
                                         year: 'numeric' 
@@ -716,13 +771,34 @@ const CalendarPage: React.FC = () => {
                                     })}
                                 </Title>
                                 <Button.Group>
-                                    <Button variant="light" size="sm" onClick={() => navigateDate('prev')}>
+                                    <Button 
+                                        variant="subtle" 
+                                        color="violet"
+                                        size="sm" 
+                                        radius="md"
+                                        onClick={() => navigateDate('prev')}
+                                        style={{ fontWeight: 600 }}
+                                    >
                                         Précédent
                                     </Button>
-                                    <Button variant="light" size="sm" onClick={goToToday}>
+                                    <Button 
+                                        variant="filled" 
+                                        color="violet"
+                                        size="sm" 
+                                        radius="md"
+                                        onClick={goToToday}
+                                        style={{ fontWeight: 600 }}
+                                    >
                                         Aujourd'hui
                                     </Button>
-                                    <Button variant="light" size="sm" onClick={() => navigateDate('next')}>
+                                    <Button 
+                                        variant="subtle" 
+                                        color="violet"
+                                        size="sm" 
+                                        radius="md"
+                                        onClick={() => navigateDate('next')}
+                                        style={{ fontWeight: 600 }}
+                                    >
                                         Suivant
                                     </Button>
                                 </Button.Group>
@@ -732,9 +808,18 @@ const CalendarPage: React.FC = () => {
                             {currentView === 'month' && (
                                 <SimpleGrid cols={7} spacing="xs">
                                     {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(day => (
-                                        <Paper key={day} p="xs" ta="center" bg="gray.0">
-                                            <Text size="sm" fw={500}>{day}</Text>
-                                        </Paper>
+                                        <Box 
+                                            key={day} 
+                                            p="xs" 
+                                            ta="center" 
+                                            style={{
+                                                backgroundColor: 'var(--mantine-color-gray-0)',
+                                                borderRadius: '8px',
+                                                border: '1px solid var(--mantine-color-gray-2)'
+                                            }}
+                                        >
+                                            <Text size="sm" fw={600} c="dimmed">{day}</Text>
+                                        </Box>
                                     ))}
                                     
                                     {/* Jours du mois */}
@@ -796,19 +881,44 @@ const CalendarPage: React.FC = () => {
                                             const isClicked = clickedDate && clickedDate.toDateString() === date.toDateString();
 
                                             return (
-                                                <Paper
+                                                <Box
                                                     key={i}
                                                     p="xs"
                                                     ta="center"
-                                                    bg={isClicked ? 'blue.0' : isToday ? 'violet.0' : isCurrentMonth ? 'white' : 'gray.1'}
                                                     style={{ 
                                                         minHeight: 80,
                                                         cursor: 'pointer',
-                                                        border: isClicked ? '2px solid var(--mantine-color-blue-3)' : 
-                                                                isToday ? '2px solid var(--mantine-color-violet-3)' : 
-                                                                '1px solid var(--mantine-color-gray-2)'
+                                                        backgroundColor: isClicked 
+                                                            ? 'var(--mantine-color-blue-0)' 
+                                                            : isToday 
+                                                                ? 'var(--mantine-color-violet-0)' 
+                                                                : isCurrentMonth 
+                                                                    ? 'white' 
+                                                                    : 'var(--mantine-color-gray-1)',
+                                                        borderRadius: '8px',
+                                                        border: isClicked 
+                                                            ? '2px solid var(--mantine-color-blue-4)' 
+                                                            : isToday 
+                                                                ? '2px solid var(--mantine-color-violet-4)' 
+                                                                : '1px solid var(--mantine-color-gray-2)',
+                                                        transition: 'all 0.2s ease',
+                                                        boxShadow: isClicked || isToday 
+                                                            ? '0 2px 8px rgba(0, 0, 0, 0.1)' 
+                                                            : 'none'
                                                     }}
                                                     onClick={() => handleDateClick(date)}
+                                                    onMouseEnter={(e) => {
+                                                        if (!isClicked && !isToday) {
+                                                            e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-0)';
+                                                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+                                                        }
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (!isClicked && !isToday) {
+                                                            e.currentTarget.style.backgroundColor = isCurrentMonth ? 'white' : 'var(--mantine-color-gray-1)';
+                                                            e.currentTarget.style.boxShadow = 'none';
+                                                        }
+                                                    }}
                                                 >
                                                     <Text 
                                                         size="sm" 
@@ -824,19 +934,25 @@ const CalendarPage: React.FC = () => {
                                                                     key={event.id}
                                                                     size="xs"
                                                                     color={getEventTypeColor(event.type)}
-                                                                    variant="light"
+                                                                    variant="filled"
+                                                                    radius="md"
+                                                                    style={{ 
+                                                                        fontWeight: 600,
+                                                                        fontSize: '10px',
+                                                                        padding: '2px 6px'
+                                                                    }}
                                                                 >
                                                                     {event.title}
                                                                 </Badge>
                                                             ))}
                                                             {dayEvents.length > 2 && (
-                                                                <Text size="xs" c="dimmed">
+                                                                <Text size="xs" c="dimmed" fw={500}>
                                                                     +{dayEvents.length - 2} autres
                                                                 </Text>
                                                             )}
                                                         </Stack>
                                                     )}
-                                                </Paper>
+                                                </Box>
                                             );
                                         });
                                     })()}
@@ -853,17 +969,32 @@ const CalendarPage: React.FC = () => {
                                         });
 
                                         return (
-                                            <Paper
+                                            <Box
                                                 key={index}
                                                 p="xs"
                                                 ta="center"
-                                                bg={isToday ? 'violet.0' : 'white'}
                                                 style={{ 
                                                     minHeight: 120,
                                                     cursor: 'pointer',
-                                                    border: isToday ? '2px solid var(--mantine-color-violet-3)' : '1px solid var(--mantine-color-gray-2)'
+                                                    backgroundColor: isToday ? 'var(--mantine-color-violet-0)' : 'white',
+                                                    borderRadius: '8px',
+                                                    border: isToday ? '2px solid var(--mantine-color-violet-4)' : '1px solid var(--mantine-color-gray-2)',
+                                                    transition: 'all 0.2s ease',
+                                                    boxShadow: isToday ? '0 2px 8px rgba(0, 0, 0, 0.1)' : 'none'
                                                 }}
                                                 onClick={() => handleDateClick(date)}
+                                                onMouseEnter={(e) => {
+                                                    if (!isToday) {
+                                                        e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-0)';
+                                                        e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+                                                    }
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    if (!isToday) {
+                                                        e.currentTarget.style.backgroundColor = 'white';
+                                                        e.currentTarget.style.boxShadow = 'none';
+                                                    }
+                                                }}
                                             >
                                                 <Text 
                                                     size="sm" 
@@ -878,19 +1009,24 @@ const CalendarPage: React.FC = () => {
                                                             key={event.id}
                                                             size="xs"
                                                             color={getEventTypeColor(event.type)}
-                                                            variant="light"
-                                                            style={{ fontSize: '10px' }}
+                                                            variant="filled"
+                                                            radius="md"
+                                                            style={{ 
+                                                                fontSize: '10px',
+                                                                fontWeight: 600,
+                                                                padding: '2px 6px'
+                                                            }}
                                                         >
                                                             {event.title}
                                                         </Badge>
                                                     ))}
                                                     {dayEvents.length > 4 && (
-                                                        <Text size="xs" c="dimmed">
+                                                        <Text size="xs" c="dimmed" fw={500}>
                                                             +{dayEvents.length - 4} autres
                                                         </Text>
                                                     )}
                                                 </Stack>
-                                            </Paper>
+                                            </Box>
                                         );
                                     })}
                                 </SimpleGrid>
@@ -898,7 +1034,7 @@ const CalendarPage: React.FC = () => {
 
                             {currentView === 'day' && (
                                 <Box>
-                                    <Text size="lg" fw={500} mb="md">
+                                    <Text size="lg" fw={600} c="dark" mb="lg">
                                         {selectedDate.toLocaleDateString('fr-FR', { 
                                             weekday: 'long',
                                             day: 'numeric', 
@@ -906,7 +1042,7 @@ const CalendarPage: React.FC = () => {
                                             year: 'numeric' 
                                         })}
                                     </Text>
-                                    <Stack gap="sm">
+                                    <Stack gap="md">
                                         {(() => {
                                             const dayEvents = events.filter(event => {
                                                 const eventDate = new Date(event.startDate);
@@ -915,68 +1051,119 @@ const CalendarPage: React.FC = () => {
 
                                             return dayEvents.length > 0 ? (
                                                 dayEvents.map(event => (
-                                                    <Paper key={event.id} p="md" bg="gray.0">
+                                                    <Box 
+                                                        key={event.id} 
+                                                        p="lg" 
+                                                        style={{
+                                                            backgroundColor: 'var(--mantine-color-gray-0)',
+                                                            borderRadius: '12px',
+                                                            border: '1px solid var(--mantine-color-gray-2)',
+                                                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+                                                            transition: 'all 0.2s ease'
+                                                        }}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.06)';
+                                                        }}
+                                                    >
                                                         <Group justify="space-between" align="flex-start">
                                                             <Box style={{ flex: 1 }}>
-                                                                <Text fw={500} size="sm">
+                                                                <Text fw={600} size="md" c="dark" mb="xs">
                                                                     {event.title}
                                                                 </Text>
-                                                                <Text size="xs" c="dimmed">
-                                                                    {formatTime(event.startDate)} - {formatTime(event.endDate)}
-                                                                </Text>
-                                                                {event.location && (
-                                                                    <Text size="xs" c="dimmed">
-                                                                        <IconMapPin size={12} style={{ marginRight: 4 }} />
-                                                                        {event.location}
-                                                                    </Text>
-                                                                )}
+                                                                <Group gap="md" mb="xs">
+                                                                    <Group gap="xs">
+                                                                        <ThemeIcon size="sm" color="blue" variant="light" radius="md">
+                                                                            <IconClock size={12} />
+                                                                        </ThemeIcon>
+                                                                        <Text size="sm" c="dimmed" fw={500}>
+                                                                            {formatTime(event.startDate)} - {formatTime(event.endDate)}
+                                                                        </Text>
+                                                                    </Group>
+                                                                    {event.location && (
+                                                                        <Group gap="xs">
+                                                                            <ThemeIcon size="sm" color="green" variant="light" radius="md">
+                                                                                <IconMapPin size={12} />
+                                                                            </ThemeIcon>
+                                                                            <Text size="sm" c="dimmed" fw={500}>
+                                                                                {event.location}
+                                                                            </Text>
+                                                                        </Group>
+                                                                    )}
+                                                                </Group>
                                                                 {event.description && (
-                                                                    <Text size="xs" c="dimmed" mt="xs">
+                                                                    <Text size="sm" c="dimmed" mt="xs">
                                                                         {event.description}
                                                                     </Text>
                                                                 )}
                                                             </Box>
                                                             <Group gap="xs">
-                                                                <Badge size="sm" color={getEventTypeColor(event.type)}>
+                                                                <Badge 
+                                                                    size="sm" 
+                                                                    color={getEventTypeColor(event.type)}
+                                                                    variant="filled"
+                                                                    radius="md"
+                                                                    style={{ fontWeight: 600 }}
+                                                                >
                                                                     {getEventTypeLabel(event.type)}
                                                                 </Badge>
                                                                 <ActionIcon
-                                                                    size="sm"
+                                                                    size="md"
                                                                     variant="subtle"
+                                                                    color="violet"
                                                                     onClick={() => handleEditEvent(event)}
+                                                                    style={{ borderRadius: '8px' }}
                                                                 >
-                                                                    <IconEdit size={12} />
+                                                                    <IconEdit size={14} />
                                                                 </ActionIcon>
                                                                 <ActionIcon
-                                                                    size="sm"
+                                                                    size="md"
                                                                     variant="subtle"
                                                                     color="red"
                                                                     onClick={() => handleDeleteEvent(event.id)}
+                                                                    style={{ borderRadius: '8px' }}
                                                                 >
-                                                                    <IconTrash size={12} />
+                                                                    <IconTrash size={14} />
                                                                 </ActionIcon>
                                                             </Group>
                                                         </Group>
-                                                    </Paper>
+                                                    </Box>
                                                 ))
                                             ) : (
-                                                <Text size="sm" c="dimmed" ta="center" py="xl">
-                                                    Aucun événement ce jour
-                                                </Text>
+                                                <Center py="xl">
+                                                    <Stack align="center" gap="md">
+                                                        <ThemeIcon size="xl" color="gray" variant="light" radius="xl">
+                                                            <IconCalendar size={32} />
+                                                        </ThemeIcon>
+                                                        <Text size="md" c="dimmed" fw={500}>
+                                                            Aucun événement ce jour
+                                                        </Text>
+                                                    </Stack>
+                                                </Center>
                                             );
                                         })()}
                                     </Stack>
                                 </Box>
                             )}
-                        </Card>
+                        </Box>
                     </Grid.Col>
 
                     {/* Panneau latéral */}
                     <Grid.Col span={4}>
                         <Stack>
                             {/* Événements de la date sélectionnée */}
-                            <Card shadow="sm" padding="lg" radius="md" withBorder>
-                                <Title order={4} mb="md">
+                            <Box
+                                p="lg"
+                                style={{
+                                    backgroundColor: 'white',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--mantine-color-gray-2)',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+                                }}
+                            >
+                                <Title order={3} c="dark" fw={700} mb="lg">
                                     {clickedDate ? 
                                         `Événements du ${clickedDate.toLocaleDateString('fr-FR', { 
                                             weekday: 'long', 
@@ -994,23 +1181,51 @@ const CalendarPage: React.FC = () => {
                                         });
                                         
                                         return clickedDateEvents.length > 0 ? (
-                                            <Stack gap="sm">
+                                            <Stack gap="md">
                                                 {clickedDateEvents.map(event => (
-                                                    <Paper key={event.id} p="sm" bg="gray.0">
+                                                    <Box 
+                                                        key={event.id} 
+                                                        p="md" 
+                                                        style={{
+                                                            backgroundColor: 'var(--mantine-color-gray-0)',
+                                                            borderRadius: '8px',
+                                                            border: '1px solid var(--mantine-color-gray-2)',
+                                                            transition: 'all 0.2s ease'
+                                                        }}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-1)';
+                                                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-0)';
+                                                            e.currentTarget.style.boxShadow = 'none';
+                                                        }}
+                                                    >
                                                         <Group justify="space-between" align="flex-start">
                                                             <Box style={{ flex: 1 }}>
-                                                                <Text fw={500} size="sm">
+                                                                <Text fw={600} size="sm" c="dark" mb="xs">
                                                                     {event.title}
                                                                 </Text>
-                                                                <Text size="xs" c="dimmed">
-                                                                    {formatTime(event.startDate)} - {formatTime(event.endDate)}
-                                                                </Text>
-                                                                {event.location && (
-                                                                    <Text size="xs" c="dimmed">
-                                                                        <IconMapPin size={12} style={{ marginRight: 4 }} />
-                                                                        {event.location}
-                                                                    </Text>
-                                                                )}
+                                                                <Group gap="md" mb="xs">
+                                                                    <Group gap="xs">
+                                                                        <ThemeIcon size="xs" color="blue" variant="light" radius="md">
+                                                                            <IconClock size={10} />
+                                                                        </ThemeIcon>
+                                                                        <Text size="xs" c="dimmed" fw={500}>
+                                                                            {formatTime(event.startDate)} - {formatTime(event.endDate)}
+                                                                        </Text>
+                                                                    </Group>
+                                                                    {event.location && (
+                                                                        <Group gap="xs">
+                                                                            <ThemeIcon size="xs" color="green" variant="light" radius="md">
+                                                                                <IconMapPin size={10} />
+                                                                            </ThemeIcon>
+                                                                            <Text size="xs" c="dimmed" fw={500}>
+                                                                                {event.location}
+                                                                            </Text>
+                                                                        </Group>
+                                                                    )}
+                                                                </Group>
                                                                 {event.description && (
                                                                     <Text size="xs" c="dimmed" mt="xs">
                                                                         {event.description}
@@ -1018,13 +1233,21 @@ const CalendarPage: React.FC = () => {
                                                                 )}
                                                             </Box>
                                                             <Group gap="xs">
-                                                                <Badge size="xs" color={getEventTypeColor(event.type)}>
+                                                                <Badge 
+                                                                    size="xs" 
+                                                                    color={getEventTypeColor(event.type)}
+                                                                    variant="filled"
+                                                                    radius="md"
+                                                                    style={{ fontWeight: 600 }}
+                                                                >
                                                                     {getEventTypeLabel(event.type)}
                                                                 </Badge>
                                                                 <ActionIcon
                                                                     size="sm"
                                                                     variant="subtle"
+                                                                    color="violet"
                                                                     onClick={() => handleEditEvent(event)}
+                                                                    style={{ borderRadius: '6px' }}
                                                                 >
                                                                     <IconEdit size={12} />
                                                                 </ActionIcon>
@@ -1033,66 +1256,126 @@ const CalendarPage: React.FC = () => {
                                                                     variant="subtle"
                                                                     color="red"
                                                                     onClick={() => handleDeleteEvent(event.id)}
+                                                                    style={{ borderRadius: '6px' }}
                                                                 >
                                                                     <IconTrash size={12} />
                                                                 </ActionIcon>
                                                             </Group>
                                                         </Group>
-                                                    </Paper>
+                                                    </Box>
                                                 ))}
                                             </Stack>
                                         ) : (
-                                            <Text size="sm" c="dimmed" ta="center">
-                                                Aucun événement ce jour
-                                            </Text>
+                                            <Center py="lg">
+                                                <Stack align="center" gap="md">
+                                                    <ThemeIcon size="lg" color="gray" variant="light" radius="xl">
+                                                        <IconCalendar size={20} />
+                                                    </ThemeIcon>
+                                                    <Text size="sm" c="dimmed" fw={500}>
+                                                        Aucun événement ce jour
+                                                    </Text>
+                                                </Stack>
+                                            </Center>
                                         );
                                     })()
                                 ) : (
-                                    <Text size="sm" c="dimmed" ta="center">
-                                        Cliquez sur une date du calendrier pour voir ses événements
-                                    </Text>
+                                    <Center py="lg">
+                                        <Stack align="center" gap="md">
+                                            <ThemeIcon size="lg" color="gray" variant="light" radius="xl">
+                                                <IconCalendar size={20} />
+                                            </ThemeIcon>
+                                            <Text size="sm" c="dimmed" fw={500}>
+                                                Cliquez sur une date du calendrier pour voir ses événements
+                                            </Text>
+                                        </Stack>
+                                    </Center>
                                 )}
-                            </Card>
+                            </Box>
 
                             {/* Événements d'aujourd'hui */}
-                            <Card shadow="sm" padding="lg" radius="md" withBorder>
-                                <Title order={4} mb="md">
+                            <Box
+                                p="lg"
+                                style={{
+                                    backgroundColor: 'white',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--mantine-color-gray-2)',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+                                }}
+                            >
+                                <Title order={3} c="dark" fw={700} mb="lg">
                                     Aujourd'hui
                                 </Title>
                                 {todayEvents.length > 0 ? (
-                                    <Stack gap="sm">
+                                    <Stack gap="md">
                                         {todayEvents.slice(0, 3).map(event => (
-                                            <Paper key={event.id} p="sm" bg="gray.0">
+                                            <Box 
+                                                key={event.id} 
+                                                p="md" 
+                                                style={{
+                                                    backgroundColor: 'var(--mantine-color-gray-0)',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid var(--mantine-color-gray-2)',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-1)';
+                                                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-0)';
+                                                    e.currentTarget.style.boxShadow = 'none';
+                                                }}
+                                            >
                                                 <Group justify="space-between" align="flex-start">
                                                     <Box style={{ flex: 1 }}>
-                                                        <Text fw={500} size="sm">
+                                                        <Text fw={600} size="sm" c="dark" mb="xs">
                                                             {event.title}
                                                         </Text>
-                                                        <Text size="xs" c="dimmed">
-                                                            {formatTime(event.startDate)} - {formatTime(event.endDate)}
-                                                        </Text>
+                                                        <Group gap="xs">
+                                                            <ThemeIcon size="xs" color="blue" variant="light" radius="md">
+                                                                <IconClock size={10} />
+                                                            </ThemeIcon>
+                                                            <Text size="xs" c="dimmed" fw={500}>
+                                                                {formatTime(event.startDate)} - {formatTime(event.endDate)}
+                                                            </Text>
+                                                        </Group>
                                                     </Box>
-                                                    <Badge size="xs" color={getEventTypeColor(event.type)}>
+                                                    <Badge 
+                                                        size="xs" 
+                                                        color={getEventTypeColor(event.type)}
+                                                        variant="filled"
+                                                        radius="md"
+                                                        style={{ fontWeight: 600 }}
+                                                    >
                                                         {getEventTypeLabel(event.type)}
                                                     </Badge>
                                                 </Group>
-                                            </Paper>
+                                            </Box>
                                         ))}
                                         {todayEvents.length > 3 && (
-                                            <Text size="xs" c="dimmed" ta="center">
+                                            <Text size="xs" c="dimmed" ta="center" fw={500}>
                                                 +{todayEvents.length - 3} autres événements
                                             </Text>
                                         )}
                                     </Stack>
                                 ) : (
-                                    <Text size="sm" c="dimmed" ta="center">
-                                        Aucun événement aujourd'hui
-                                    </Text>
+                                    <Center py="lg">
+                                        <Stack align="center" gap="md">
+                                            <ThemeIcon size="lg" color="gray" variant="light" radius="xl">
+                                                <IconCalendar size={20} />
+                                            </ThemeIcon>
+                                            <Text size="sm" c="dimmed" fw={500}>
+                                                Aucun événement aujourd'hui
+                                            </Text>
+                                        </Stack>
+                                    </Center>
                                 )}
-                            </Card>
+                            </Box>
                         </Stack>
                     </Grid.Col>
                 </Grid>
+                    </Box>
+                </ScrollArea>
 
                 {/* Modal de création/édition d'événement */}
                 <Modal
@@ -1100,6 +1383,8 @@ const CalendarPage: React.FC = () => {
                     onClose={() => setModalOpened(false)}
                     title={editingEvent ? "Modifier l'événement" : "Nouvel événement"}
                     size="md"
+                    radius="md"
+                    centered
                 >
                     <Stack gap="md">
                         <TextInput
@@ -1158,15 +1443,27 @@ const CalendarPage: React.FC = () => {
                         />
 
                         <Group justify="flex-end" mt="md">
-                            <Button variant="light" onClick={() => setModalOpened(false)}>
+                            <Button 
+                                variant="subtle" 
+                                color="gray"
+                                onClick={() => setModalOpened(false)}
+                                radius="md"
+                                style={{ fontWeight: 600 }}
+                            >
                                 Annuler
                             </Button>
-                            <Button onClick={handleSaveEvent} color="violet">
+                            <Button 
+                                onClick={handleSaveEvent} 
+                                color="violet"
+                                radius="md"
+                                style={{ fontWeight: 600 }}
+                            >
                                 {editingEvent ? 'Modifier' : 'Créer'}
                             </Button>
                         </Group>
                     </Stack>
                 </Modal>
+            </Box>
         </MainLayout>
     );
 };
