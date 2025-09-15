@@ -362,16 +362,13 @@ const MySessionPage: React.FC = () => {
 
         return allExams.map((exam, index) => ({
             name: exam.title,
-            date: new Date(exam.date).toLocaleDateString('fr-FR', { 
-                day: '2-digit', 
-                month: '2-digit' 
-            }),
+            date: new Date(exam.date),
             fullDate: new Date(exam.date).toLocaleDateString('fr-FR', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
             }),
-            studentGrade: exam.studentGrade,
+            note: exam.studentGrade,
             classAverage: exam.classAverage,
             subject: exam.subjectName,
             type: getExamTypeLabel(exam.type),
@@ -384,63 +381,48 @@ const MySessionPage: React.FC = () => {
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
             <Box style={{ height: 'calc(100vh - 60px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                {/* En-tête moderne */}
-                <Box
-                    p="lg"
-                    style={{
-                        backgroundColor: 'white',
-                        borderBottom: '1px solid var(--mantine-color-gray-1)',
-                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
-                    }}
-                >
-                    <Group justify="space-between" align="center">
-                        <Group gap="lg">
-                            <div>
-                                <Title order={2} size="h3" mb="xs" c="dark">
-                                    Ma session
-                                </Title>
-                                <Group gap="md">
-                                    <Group gap="xs">
-                                        <ThemeIcon size="sm" color="violet" variant="light" radius="md">
-                                            <IconChartLine size={12} />
-                                        </ThemeIcon>
-                                        <Text size="sm" c="dimmed" fw={500}>
-                                            Session d'automne 2024
-                                        </Text>
-                                    </Group>
-                                    <Group gap="xs">
-                                        <ThemeIcon size="sm" color="blue" variant="light" radius="md">
-                                            <IconBook size={12} />
-                                        </ThemeIcon>
-                                        <Text size="sm" c="dimmed" fw={500}>
-                                            {mockSubjects.length} matières
-                                        </Text>
-                                    </Group>
-                                    <Group gap="xs">
-                                        <ThemeIcon size="sm" color="green" variant="light" radius="md">
-                                            <IconTrophy size={12} />
-                                        </ThemeIcon>
-                                        <Text size="sm" c="dimmed" fw={500}>
-                                            {mockSubjects.reduce((acc, s) => acc + s.exams.filter(e => e.status === 'graded').length, 0)} examens notés
-                                        </Text>
-                                    </Group>
-                                </Group>
-                            </div>
+                {/* En-tête harmonisé avec les autres pages */}
+                <Group justify="space-between" align="center" mb="md">
+                    <Group>
+                    <ThemeIcon size={40} radius="md" color="violet">
+                        <IconCalendar size={24} />
+                    </ThemeIcon>
+                    <div>
+                        <Title order={1} size="h2">
+                            Ma Session
+                        </Title>
+                        <Text c="dimmed" size="sm">
+                            Suivez vos examens et votre progression académique
+                        </Text>
+                    </div>
+                    </Group>
+                    <Group gap="md">
+                        <Group gap="xs">
+                            <ThemeIcon size="sm" color="violet" variant="light" radius="md">
+                                <IconChartLine size={12} />
+                            </ThemeIcon>
+                            <Text size="sm" c="dimmed" fw={500}>
+                                Session d'automne 2024
+                            </Text>
                         </Group>
-                        
-                        <Group gap="sm">
-                            <Badge 
-                                color="violet" 
-                                variant="light" 
-                                size="md" 
-                                radius="md"
-                                style={{ fontWeight: 600 }}
-                            >
-                                En cours
-                            </Badge>
+                        <Group gap="xs">
+                            <ThemeIcon size="sm" color="blue" variant="light" radius="md">
+                                <IconBook size={12} />
+                            </ThemeIcon>
+                            <Text size="sm" c="dimmed" fw={500}>
+                                {mockSubjects.length} matières
+                            </Text>
+                        </Group>
+                        <Group gap="xs">
+                            <ThemeIcon size="sm" color="green" variant="light" radius="md">
+                                <IconTrophy size={12} />
+                            </ThemeIcon>
+                            <Text size="sm" c="dimmed" fw={500}>
+                                {mockSubjects.reduce((acc, s) => acc + s.exams.filter(e => e.status === 'graded').length, 0)} examens notés
+                            </Text>
                         </Group>
                     </Group>
-                </Box>
+                </Group>
 
                 {/* Contenu principal avec scroll */}
                 <ScrollArea style={{ flex: 1, minHeight: 0 }}>
@@ -555,196 +537,198 @@ const MySessionPage: React.FC = () => {
                         </SimpleGrid>
                             </Box>
 
-                            {/* Détail des examens */}
-                            {selectedSubject && (
-                                <Box>
-                                    <Title order={3} size="h4" mb="lg" c="dark">
-                                        Détail des examens - {mockSubjects.find(s => s.id === selectedSubject)?.name}
-                                    </Title>
+                            {/* Détail des examens et graphique côte à côte */}
+                            <Grid>
+                                <Grid.Col span={6}>
+                                    {/* Détail des examens */}
+                                    {selectedSubject ? (
+                                        <Box>
+                                            <Title order={3} size="h4" mb="lg" c="dark">
+                                                Détail des examens - {mockSubjects.find(s => s.id === selectedSubject)?.name}
+                                            </Title>
 
-                                    <Box
-                                        p="md"
-                                        style={{
-                                            backgroundColor: 'var(--mantine-color-gray-0)',
-                                            borderRadius: '12px',
-                                            border: '1px solid var(--mantine-color-gray-2)'
-                                        }}
-                                    >
-                                        <Group gap="xs">
-                                            <Button
-                                                variant={activeExamTab === 'upcoming' ? "filled" : "subtle"}
-                                                color="violet"
-                                                size="sm"
-                                                radius="md"
-                                                leftSection={<IconClock size={16} />}
-                                                style={{ fontWeight: 600 }}
-                                                onClick={() => setActiveExamTab('upcoming')}
+                                            <Box
+                                                p="md"
+                                                style={{
+                                                    backgroundColor: 'var(--mantine-color-gray-0)',
+                                                    borderRadius: '12px',
+                                                    border: '1px solid var(--mantine-color-gray-2)'
+                                                }}
                                             >
-                                                À venir ({mockSubjects.find(s => s.id === selectedSubject)?.exams.filter(e => e.status === 'upcoming').length || 0})
-                                            </Button>
-                                            <Button
-                                                variant={activeExamTab === 'completed' ? "filled" : "subtle"}
-                                                color="violet"
-                                                size="sm"
-                                                radius="md"
-                                                leftSection={<IconTrophy size={16} />}
-                                                style={{ fontWeight: 600 }}
-                                                onClick={() => setActiveExamTab('completed')}
-                                            >
-                                                Terminés ({mockSubjects.find(s => s.id === selectedSubject)?.exams.filter(e => e.status === 'graded').length || 0})
-                                            </Button>
-                                        </Group>
-                                    </Box>
+                                                <Group gap="xs">
+                                                    <Button
+                                                        variant={activeExamTab === 'upcoming' ? "filled" : "subtle"}
+                                                        color="violet"
+                                                        size="sm"
+                                                        radius="md"
+                                                        leftSection={<IconClock size={16} />}
+                                                        style={{ fontWeight: 600 }}
+                                                        onClick={() => setActiveExamTab('upcoming')}
+                                                    >
+                                                        À venir ({mockSubjects.find(s => s.id === selectedSubject)?.exams.filter(e => e.status === 'upcoming').length || 0})
+                                                    </Button>
+                                                    <Button
+                                                        variant={activeExamTab === 'completed' ? "filled" : "subtle"}
+                                                        color="violet"
+                                                        size="sm"
+                                                        radius="md"
+                                                        leftSection={<IconTrophy size={16} />}
+                                                        style={{ fontWeight: 600 }}
+                                                        onClick={() => setActiveExamTab('completed')}
+                                                    >
+                                                        Terminés ({mockSubjects.find(s => s.id === selectedSubject)?.exams.filter(e => e.status === 'graded').length || 0})
+                                                    </Button>
+                                                </Group>
+                                            </Box>
 
-                                    <Stack gap="md" mt="lg">
-                                        {mockSubjects.find(s => s.id === selectedSubject)?.exams
-                                            .filter(e => activeExamTab === 'upcoming' ? e.status === 'upcoming' : e.status === 'graded')
-                                            .sort((a, b) => activeExamTab === 'upcoming' 
-                                                ? new Date(a.date).getTime() - new Date(b.date).getTime()
-                                                : new Date(b.date).getTime() - new Date(a.date).getTime()
-                                            )
-                                            .map((exam) => (
-                                                <Card 
-                                                    key={exam.id} 
-                                                    p="lg" 
-                                                    radius="md"
-                                                    style={{
-                                                        border: '1px solid var(--mantine-color-gray-2)',
-                                                        backgroundColor: 'white',
-                                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-                                                        transition: 'all 0.2s ease'
-                                                    }}
-                                                    onMouseEnter={(e) => {
-                                                        e.currentTarget.style.borderColor = 'var(--mantine-color-violet-3)';
-                                                        e.currentTarget.style.boxShadow = '0 6px 16px rgba(139, 69, 255, 0.1)';
-                                                    }}
-                                                    onMouseLeave={(e) => {
-                                                        e.currentTarget.style.borderColor = 'var(--mantine-color-gray-2)';
-                                                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
-                                                    }}
-                                                >
-                                                    <Group justify="space-between" align="flex-start">
-                                                        <div style={{ flex: 1 }}>
-                                                            <Group gap="sm" mb="md">
-                                                                <Text fw={700} size="lg" c="dark">{exam.title}</Text>
-                                                                <Badge 
-                                                                    color={getExamTypeColor(exam.type)} 
-                                                                    variant="filled" 
-                                                                    size="sm" 
-                                                                    radius="md"
-                                                                    style={{ fontWeight: 600 }}
-                                                                >
-                                                                    {getExamTypeLabel(exam.type)}
-                                                                </Badge>
-                                                                <Badge 
-                                                                    color="violet" 
-                                                                    variant="light" 
-                                                                    size="sm" 
-                                                                    radius="md"
-                                                                    style={{ fontWeight: 600 }}
-                                                                >
-                                                                    {exam.weight}% de la note finale
-                                                                </Badge>
-                                                            </Group>
-                                                            
-                                                            <Group gap="xl" mb="md">
-                                                                <Group gap="xs">
-                                                                    <ThemeIcon size="sm" color="blue" variant="light" radius="md">
-                                                                        <IconCalendar size={12} />
-                                                                    </ThemeIcon>
-                                                                    <Text size="sm" fw={500}>{formatDate(exam.date)}</Text>
-                                                                </Group>
-                                                                <Group gap="xs">
-                                                                    <ThemeIcon size="sm" color="green" variant="light" radius="md">
-                                                                        <IconTarget size={12} />
-                                                                    </ThemeIcon>
-                                                                    <Text size="sm" fw={500}>{exam.maxPoints} points</Text>
-                                                                </Group>
-                                                            </Group>
-
-                                                            {/* Affichage des notes pour les examens terminés */}
-                                                            {activeExamTab === 'completed' && exam.studentGrade && exam.classAverage && (
-                                                                <Box
-                                                                    p="md"
-                                                                    mb="md"
-                                                                    style={{
-                                                                        backgroundColor: 'var(--mantine-color-gray-0)',
-                                                                        borderRadius: '12px',
-                                                                        border: '1px solid var(--mantine-color-gray-2)'
-                                                                    }}
-                                                                >
-                                                                    <Group gap="xl">
-                                                                        <div>
-                                                                            <Text size="sm" c="dimmed" mb="xs" fw={600}>Votre note</Text>
-                                                                            <Group gap="xs">
-                                                                                <Text fw={700} size="xl" c={getGradeColor(exam.studentGrade)}>
-                                                                                    {exam.studentGrade.toFixed(1)}%
-                                                                                </Text>
-                                                                                {getGradeIcon(exam.studentGrade, exam.classAverage)}
-                                                                            </Group>
-                                                                        </div>
-                                                                        
-                                                                        <div>
-                                                                            <Text size="sm" c="dimmed" mb="xs" fw={600}>Moyenne classe</Text>
-                                                                            <Text fw={600} size="lg" c="dimmed">
-                                                                                {exam.classAverage.toFixed(1)}%
-                                                                            </Text>
-                                                                        </div>
+                                            <Card p="lg" radius="md" withBorder style={{ marginTop: '16px' }}>
+                                                <SimpleGrid cols={1} spacing="md">
+                                                    {mockSubjects
+                                                        .find(s => s.id === selectedSubject)
+                                                        ?.exams.filter(exam => 
+                                                            activeExamTab === 'upcoming' ? exam.status === 'upcoming' : exam.status === 'graded'
+                                                        )
+                                                        .map((exam, index) => (
+                                                            <Paper key={index} p="md" radius="md" withBorder>
+                                                                <Stack gap="xs">
+                                                                    <Group justify="space-between" align="center">
+                                                                        <Text fw={600} size="sm" c="dark">
+                                                                            {exam.title}
+                                                                        </Text>
+                                                                        <Badge 
+                                                                            color={exam.status === 'graded' ? 'green' : 'orange'}
+                                                                            variant="light"
+                                                                            size="sm"
+                                                                        >
+                                                                            {exam.status === 'graded' ? 'Noté' : 'En attente'}
+                                                                        </Badge>
                                                                     </Group>
-
-                                                                    {/* Note du professeur */}
-                                                                    {exam.teacherNote && (
-                                                                        <Box mt="md">
-                                                                            <Group gap="xs" mb="xs">
-                                                                                <IconMessageCircle size={14} color="var(--mantine-color-violet-6)" />
-                                                                                <Text size="xs" fw={600} c="dimmed">
-                                                                                    Commentaire du professeur
-                                                                                </Text>
-                                                                            </Group>
-                                                                            <Text size="sm" c="dimmed">
-                                                                                {exam.teacherNote}
+                                                                    <Text size="xs" c="dimmed">
+                                                                        {new Date(exam.date).toLocaleDateString('fr-FR', {
+                                                                            weekday: 'long',
+                                                                            day: 'numeric',
+                                                                            month: 'long',
+                                                                            year: 'numeric'
+                                                                        })}
+                                                                    </Text>
+                                                                    {exam.status === 'graded' && (
+                                                                        <Group gap="xs" align="center">
+                                                                            <Text size="sm" c="dark">
+                                                                                Votre note:
                                                                             </Text>
-                                                                        </Box>
+                                                                            <Text fw={700} size="lg" c="violet">
+                                                                                {exam.studentGrade}%
+                                                                            </Text>
+                                                                            <Text size="xs" c="dimmed">
+                                                                                / {exam.classAverage}%
+                                                                            </Text>
+                                                                        </Group>
                                                                     )}
-                                                                </Box>
-                                                            )}
-                                                        </div>
-                                                        
-                                                        {activeExamTab === 'upcoming' && (
-                                                            <Button
-                                                                leftSection={<IconCalendarPlus size={16} />}
-                                                                variant="filled"
-                                                                color="green"
-                                                                size="sm"
-                                                                radius="md"
-                                                                onClick={() => handleAddToCalendar(exam)}
-                                                                style={{ fontWeight: 600 }}
-                                                            >
-                                                                Ajouter à l'agenda
-                                                            </Button>
-                                                        )}
-                                                    </Group>
-                                                </Card>
-                                            ))}
-                                        
-                                        {mockSubjects.find(s => s.id === selectedSubject)?.exams.filter(e => 
-                                            activeExamTab === 'upcoming' ? e.status === 'upcoming' : e.status === 'graded'
-                                        ).length === 0 && (
-                                            <Center py="xl">
-                                                <Stack align="center" gap="md">
-                                                    <ThemeIcon size="xl" color="gray" variant="light" radius="xl">
-                                                        {activeExamTab === 'upcoming' ? <IconClock size={32} /> : <IconTrophy size={32} />}
-                                                    </ThemeIcon>
-                                                    <Text c="dimmed" size="lg" fw={500}>
-                                                        {activeExamTab === 'upcoming' ? 'Aucun examen à venir' : 'Aucun examen terminé'}
-                                                    </Text>
-                                                </Stack>
-                                            </Center>
-                                        )}
-                                    </Stack>
+                                                                    {exam.teacherNote && (
+                                                                        <Text size="xs" c="dimmed" lineClamp={2}>
+                                                                            {exam.teacherNote}
+                                                                        </Text>
+                                                                    )}
+                                                                </Stack>
+                                                            </Paper>
+                                                        ))}
+                                                </SimpleGrid>
+                                            </Card>
+                                        </Box>
+                                    ) : (
+                                        <Box>
+                                            <Title order={3} size="h4" mb="lg" c="dark">
+                                                Détail des examens
+                                            </Title>
+                                            <Card p="lg" radius="md" withBorder>
+                                                <Center py="xl">
+                                                    <Stack align="center" gap="md">
+                                                        <ThemeIcon size="xl" radius="md" variant="light" color="gray">
+                                                            <IconBook size={32} />
+                                                        </ThemeIcon>
+                                                        <Text size="md" c="dimmed" ta="center">
+                                                            Sélectionnez une matière pour voir le détail des examens
+                                                        </Text>
+                                                    </Stack>
+                                                </Center>
+                                            </Card>
+                                        </Box>
+                                    )}
+                                </Grid.Col>
+                                
+                                <Grid.Col span={6}>
+                                    <Title order={3} size="h4" mb="lg" c="dark">
+                                        Évolution des notes d'examens passés
+                                    </Title>
+                                    <Card p="lg" radius="md" withBorder>
+                                        <ResponsiveContainer width="100%" height={350}>
+                                            <LineChart data={chartData}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="var(--mantine-color-gray-3)" />
+                                                <XAxis 
+                                                    dataKey="date" 
+                                                    stroke="var(--mantine-color-gray-6)"
+                                                    fontSize={12}
+                                                    tickFormatter={(value) => {
+                                                        const date = new Date(value);
+                                                        return date.toLocaleDateString('fr-FR', { 
+                                                            day: 'numeric', 
+                                                            month: 'short' 
+                                                        });
+                                                    }}
+                                                />
+                                                <YAxis 
+                                                    stroke="var(--mantine-color-gray-6)"
+                                                    fontSize={12}
+                                                    domain={[0, 100]}
+                                                    tickFormatter={(value) => `${value}%`}
+                                                />
+                                                <Tooltip 
+                                                    contentStyle={{
+                                                        backgroundColor: 'white',
+                                                        border: '1px solid var(--mantine-color-gray-2)',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                                                    }}
+                                                    labelFormatter={(value) => {
+                                                        const date = new Date(value);
+                                                        return date.toLocaleDateString('fr-FR', { 
+                                                            weekday: 'long',
+                                                            day: 'numeric', 
+                                                            month: 'long',
+                                                            year: 'numeric'
+                                                        });
+                                                    }}
+                                                    formatter={(value, name) => [
+                                                        `${value}%`, 
+                                                        name === 'note' ? 'Votre note' : 'Moyenne classe'
+                                                    ]}
+                                                />
+                                                <Legend />
+                                                <Line 
+                                                    type="monotone" 
+                                                    dataKey="note" 
+                                                    stroke="var(--mantine-color-violet-6)" 
+                                                    strokeWidth={3}
+                                                    dot={{ fill: 'var(--mantine-color-violet-6)', strokeWidth: 2, r: 4 }}
+                                                    activeDot={{ r: 6, stroke: 'var(--mantine-color-violet-6)', strokeWidth: 2 }}
+                                                    name="Votre note"
+                                                />
+                                                <Line 
+                                                    type="monotone" 
+                                                    dataKey="classAverage" 
+                                                    stroke="var(--mantine-color-blue-6)" 
+                                                    strokeWidth={2}
+                                                    strokeDasharray="5 5"
+                                                    dot={{ fill: 'var(--mantine-color-blue-6)', strokeWidth: 2, r: 3 }}
+                                                    activeDot={{ r: 5, stroke: 'var(--mantine-color-blue-6)', strokeWidth: 2 }}
+                                                    name="Moyenne classe"
+                                                />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </Card>
+                                </Grid.Col>
+                            </Grid>
 
-                                </Box>
-                            )}
                         </Stack>
                     </Box>
                 </ScrollArea>
