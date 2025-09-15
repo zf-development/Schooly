@@ -380,53 +380,55 @@ const MySessionPage: React.FC = () => {
 
     return (
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Box style={{ height: 'calc(100vh - 60px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <Box style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 {/* En-tête harmonisé avec les autres pages */}
-                <Group justify="space-between" align="center" mb="md">
-                    <Group>
-                    <ThemeIcon size={40} radius="md" color="violet">
-                        <IconCalendar size={24} />
-                    </ThemeIcon>
-                    <div>
-                        <Title order={1} size="h2">
-                            Ma Session
-                        </Title>
-                        <Text c="dimmed" size="sm">
-                            Suivez vos examens et votre progression académique
-                        </Text>
-                    </div>
+                <Box p="lg" pb="md" style={{ flexShrink: 0 }}>
+                    <Group justify="space-between" align="center" mb="md">
+                        <Group>
+                        <ThemeIcon size={40} radius="md" color="violet">
+                            <IconCalendar size={24} />
+                        </ThemeIcon>
+                        <div>
+                            <Title order={1} size="h2">
+                                Ma Session
+                            </Title>
+                            <Text c="dimmed" size="sm">
+                                Suivez vos examens et votre progression académique
+                            </Text>
+                        </div>
+                        </Group>
+                        <Group gap="md">
+                            <Group gap="xs">
+                                <ThemeIcon size="sm" color="violet" variant="light" radius="md">
+                                    <IconChartLine size={12} />
+                                </ThemeIcon>
+                                <Text size="sm" c="dimmed" fw={500}>
+                                    Session d'automne 2024
+                                </Text>
+                            </Group>
+                            <Group gap="xs">
+                                <ThemeIcon size="sm" color="blue" variant="light" radius="md">
+                                    <IconBook size={12} />
+                                </ThemeIcon>
+                                <Text size="sm" c="dimmed" fw={500}>
+                                    {mockSubjects.length} matières
+                                </Text>
+                            </Group>
+                            <Group gap="xs">
+                                <ThemeIcon size="sm" color="green" variant="light" radius="md">
+                                    <IconTrophy size={12} />
+                                </ThemeIcon>
+                                <Text size="sm" c="dimmed" fw={500}>
+                                    {mockSubjects.reduce((acc, s) => acc + s.exams.filter(e => e.status === 'graded').length, 0)} examens notés
+                                </Text>
+                            </Group>
+                        </Group>
                     </Group>
-                    <Group gap="md">
-                        <Group gap="xs">
-                            <ThemeIcon size="sm" color="violet" variant="light" radius="md">
-                                <IconChartLine size={12} />
-                            </ThemeIcon>
-                            <Text size="sm" c="dimmed" fw={500}>
-                                Session d'automne 2024
-                            </Text>
-                        </Group>
-                        <Group gap="xs">
-                            <ThemeIcon size="sm" color="blue" variant="light" radius="md">
-                                <IconBook size={12} />
-                            </ThemeIcon>
-                            <Text size="sm" c="dimmed" fw={500}>
-                                {mockSubjects.length} matières
-                            </Text>
-                        </Group>
-                        <Group gap="xs">
-                            <ThemeIcon size="sm" color="green" variant="light" radius="md">
-                                <IconTrophy size={12} />
-                            </ThemeIcon>
-                            <Text size="sm" c="dimmed" fw={500}>
-                                {mockSubjects.reduce((acc, s) => acc + s.exams.filter(e => e.status === 'graded').length, 0)} examens notés
-                            </Text>
-                        </Group>
-                    </Group>
-                </Group>
+                </Box>
 
                 {/* Contenu principal avec scroll */}
                 <ScrollArea style={{ flex: 1, minHeight: 0 }}>
-                    <Box p="lg">
+                    <Box p="lg" pt="md">
                         <Stack gap="xl">
                             {/* Vue d'ensemble des matières */}
                             <Box>
