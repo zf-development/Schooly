@@ -904,7 +904,7 @@ const CalendarPage: React.FC = () => {
                                         const weeksNeeded = Math.ceil(totalDays / 7);
 
                                         // Calculer la hauteur dynamique des cellules selon le nombre de semaines
-                                        const cellHeight = `calc((100% - 40px) / ${weeksNeeded})`;
+                                        const cellHeight = `calc((100vh - 320px) / ${weeksNeeded})`;
                                         
                                         const calendarDays = [];
                                         
@@ -1026,8 +1026,8 @@ const CalendarPage: React.FC = () => {
                                                 key={index}
                                                 p="xs"
                                                 ta="center"
-                                                style={{
-                                                    height: '400px',
+                                                style={{ 
+                                                    height: 'calc(100vh - 250px)',
                                                     cursor: 'pointer',
                                                     backgroundColor: isClicked ? 'var(--mantine-color-blue-0)' : 
                                                                   isToday ? 'var(--mantine-color-violet-0)' : 'white',
@@ -1081,9 +1081,11 @@ const CalendarPage: React.FC = () => {
 
                                 {currentView === 'day' && (
                                 <Box style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                                    <ScrollArea style={{
-                                        flex: 1,
-                                        minHeight: 0
+                                    <Box style={{ 
+                                        flex: 1, 
+                                        minHeight: 0, 
+                                        overflow: 'auto',
+                                        maxHeight: 'calc(100vh - 265px)'
                                     }}>
                                         {(() => {
                                             const dayEvents = events.filter(event => {
@@ -1103,7 +1105,9 @@ const CalendarPage: React.FC = () => {
                                                                 border: '1px solid var(--mantine-color-gray-2)',
                                                                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                                                                 transition: 'all 0.3s ease',
-                                                                cursor: 'pointer'
+                                                                cursor: 'pointer',
+                                                                maxHeight: 'calc((100vh - 300px) / 4)',
+                                                                overflow: 'hidden'
                                                             }}
                                                             onMouseEnter={(e) => {
                                                                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
@@ -1194,7 +1198,7 @@ const CalendarPage: React.FC = () => {
                                                 </Center>
                                             );
                                         })()}
-                                    </ScrollArea>
+                                    </Box>
                                 </Box>
                                 )}
                             </Box>
@@ -1211,7 +1215,7 @@ const CalendarPage: React.FC = () => {
                                     <Title order={3} mb="md" c="dark">
                                         Mini-calendrier
                                     </Title>
-                                    <ScrollArea style={{ flex: 1, minHeight: 0 }}>
+                                    <Box style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
                                         <SimpleGrid cols={7} spacing="xs">
                                             {/* En-têtes des jours */}
                                             {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map(day => (
@@ -1317,7 +1321,7 @@ const CalendarPage: React.FC = () => {
                                                 });
                                             })()}
                                         </SimpleGrid>
-                                    </ScrollArea>
+                                    </Box>
                                 </Box>
                             ) : (
                                 /* Événements en vues mois et semaine */
@@ -1332,7 +1336,7 @@ const CalendarPage: React.FC = () => {
                                             'Événements d\'aujourd\'hui'
                                         }
                                     </Title>
-                                <ScrollArea style={{ flex: 1, minHeight: 0 }}>
+                                <Box style={{ flex: 1, minHeight: 0 }}>
                                     {(() => {
                                         const displayEvents = clickedDate ?
                                             events.filter(event => {
@@ -1342,6 +1346,7 @@ const CalendarPage: React.FC = () => {
                                             todayEvents;
 
                                         return displayEvents.length > 0 ? (
+                                            <ScrollArea style={{ height: 'calc(100vh - 235px)', flex: 1 }}>
                                                 <Stack gap="md" p="xs">
                                                     {displayEvents.map(event => (
                                                     <Box 
@@ -1353,6 +1358,8 @@ const CalendarPage: React.FC = () => {
                                                             border: '1px solid var(--mantine-color-gray-3)',
                                                             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                                                             minHeight: '100px',
+                                                            maxHeight: 'calc((100vh - 300px) / 4)',
+                                                            overflow: 'hidden',
                                                             transition: 'all 0.3s ease',
                                                             cursor: 'pointer',
                                                             position: 'relative'
@@ -1455,15 +1462,16 @@ const CalendarPage: React.FC = () => {
                                                     </Box>
                                                 ))}
                                                 </Stack>
+                                            </ScrollArea>
                                         ) : (
-                                            <Center style={{ height: '300px' }}>
+                                            <Center style={{ height: '100%' }}>
                                                 <Text size="sm" c="dimmed" ta="center">
                                                     {clickedDate ? 'Aucun événement ce jour' : 'Aucun événement aujourd\'hui'}
                                                 </Text>
                                             </Center>
                                         );
                                     })()}
-                                </ScrollArea>
+                                </Box>
                                 </Box>
                             )}
                         </Box>
