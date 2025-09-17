@@ -306,7 +306,7 @@ const ProjectsPage: React.FC = () => {
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
             <Box style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 {/* En-tête */}
-                <Box style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', background: '#fff' }}>
+                <Box style={{ padding: '16px 24px' }}>
                     <Group justify="space-between" align="center">
                         <Group>
                             <ThemeIcon size={40} radius="md" color="violet">
@@ -326,7 +326,7 @@ const ProjectsPage: React.FC = () => {
 
                 <Box style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     {/* Statistiques */}
-                    <Box style={{ padding: '24px', background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
+                    <Box style={{ padding: '24px' }}>
                         <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="lg">
                             <Box>
                                 <Group gap="xs" mb="xs">
