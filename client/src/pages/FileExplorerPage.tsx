@@ -698,7 +698,7 @@ const FileExplorerPage: React.FC = () => {
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
             <Box style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 {/* En-tête */}
-                <Box style={{ padding: '16px 24px' }}>
+                <Box pb="md">
                     <Group justify="space-between" align="center">
                         <Group>
                             <ThemeIcon size={40} radius="md" color="violet">

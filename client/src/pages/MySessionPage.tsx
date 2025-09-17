@@ -382,7 +382,7 @@ const MySessionPage: React.FC = () => {
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
             <Box style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 {/* En-tête harmonisé avec les autres pages */}
-                <Box p="lg" pb="md" style={{ flexShrink: 0 }}>
+                <Box style={{ flexShrink: 0 }}>
                     <Group justify="space-between" align="center" mb="md">
                         <Group>
                         <ThemeIcon size={40} radius="md" color="violet">
@@ -428,7 +428,7 @@ const MySessionPage: React.FC = () => {
 
                 {/* Contenu principal avec scroll */}
                 <ScrollArea style={{ flex: 1, minHeight: 0 }}>
-                    <Box p="lg" pt="md">
+                    <Box p="xs">
                         <Stack gap="xl">
                             {/* Vue d'ensemble des matières */}
                             <Box>
