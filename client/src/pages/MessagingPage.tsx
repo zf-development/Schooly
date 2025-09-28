@@ -893,36 +893,38 @@ const MessagingPage: React.FC = () => {
 
                             {/* Onglets de filtrage libres */}
                             <Group gap="xs" justify="center" style={{ width: '100%' }}>
-                                <Button
-                                    variant={activeTab === 'all' ? 'filled' : 'light'}
-                                    color="violet"
-                                    size="sm"
-                                    radius="md"
-                                    onClick={() => setActiveTab('all')}
-                                    style={{ flex: 1, minWidth: 0 }}
-                                >
-                                    Toutes
-                                </Button>
-                                <Button
-                                    variant={activeTab === 'unread' ? 'filled' : 'light'}
-                                    color="violet"
-                                    size="sm"
-                                    radius="md"
-                                    onClick={() => setActiveTab('unread')}
-                                    style={{ flex: 1, minWidth: 0 }}
-                                >
-                                    Non lues
-                                </Button>
-                                <Button
-                                    variant={activeTab === 'pinned' ? 'filled' : 'light'}
-                                    color="violet"
-                                    size="sm"
-                                    radius="md"
-                                    onClick={() => setActiveTab('pinned')}
-                                    style={{ flex: 1, minWidth: 0 }}
-                                >
-                                    Épinglées
-                                </Button>
+                                <Button.Group style={{ width: '100%' }}>
+                                    <Button
+                                        variant={activeTab === 'all' ? 'filled' : 'light'}
+                                        color="violet"
+                                        size="sm"
+                                        radius="md"
+                                        onClick={() => setActiveTab('all')}
+                                        style={{ flex: 1, minWidth: 0 }}
+                                    >
+                                        Toutes
+                                    </Button>
+                                    <Button
+                                        variant={activeTab === 'unread' ? 'filled' : 'light'}
+                                        color="violet"
+                                        size="sm"
+                                        radius="md"
+                                        onClick={() => setActiveTab('unread')}
+                                        style={{ flex: 1, minWidth: 0 }}
+                                    >
+                                        Non lues
+                                    </Button>
+                                    <Button
+                                        variant={activeTab === 'pinned' ? 'filled' : 'light'}
+                                        color="violet"
+                                        size="sm"
+                                        radius="md"
+                                        onClick={() => setActiveTab('pinned')}
+                                        style={{ flex: 1, minWidth: 0 }}
+                                    >
+                                        Épinglées
+                                    </Button>
+                                </Button.Group>
                             </Group>
 
                             {/* Liste des conversations libre */}
@@ -1623,7 +1625,7 @@ const MessagingPage: React.FC = () => {
                         <ThemeIcon size="sm" radius="md" color="violet" variant="light">
                             <IconPlus size={16} />
                         </ThemeIcon>
-                        <Text fw={600}>Nouvelle conversation</Text>
+                        <Text fw={600}>Nouvelle Conversation</Text>
                     </Group>
                 }
                 size="md"
@@ -1635,31 +1637,33 @@ const MessagingPage: React.FC = () => {
                     }
                 }}
             >
-                <Stack gap="lg">
+                <Stack gap="md" mt="md">
                     {/* Type de conversation - EN PREMIER */}
                     <Group gap="xs">
-                        <Button
-                            variant={newConversationType === 'direct' ? 'filled' : 'light'}
-                            color="violet"
-                            size="md"
-                            radius="md"
-                            leftSection={<IconUser size={16} />}
-                            onClick={() => setNewConversationType('direct')}
-                            style={{ flex: 1 }}
-                        >
-                            Message privé
-                        </Button>
-                        <Button
-                            variant={newConversationType === 'group' ? 'filled' : 'light'}
-                            color="violet"
-                            size="md"
-                            radius="md"
-                            leftSection={<IconUsers size={16} />}
-                            onClick={() => setNewConversationType('group')}
-                            style={{ flex: 1 }}
-                        >
-                            Groupe
-                        </Button>
+                        <Button.Group style={{ width: '100%' }}>
+                            <Button
+                                variant={newConversationType === 'direct' ? 'filled' : 'light'}
+                                color="violet"
+                                size="sm"
+                                radius="md"
+                                leftSection={<IconUser size={14} />}
+                                onClick={() => setNewConversationType('direct')}
+                                style={{ flex: 1 }}
+                            >
+                                Message privé
+                            </Button>
+                            <Button
+                                variant={newConversationType === 'group' ? 'filled' : 'light'}
+                                color="violet"
+                                size="sm"
+                                radius="md"
+                                leftSection={<IconUsers size={14} />}
+                                onClick={() => setNewConversationType('group')}
+                                style={{ flex: 1 }}
+                            >
+                                Groupe
+                            </Button>
+                        </Button.Group>
                     </Group>
 
                     {/* Champ de nom - CONDITIONNEL */}
@@ -1725,7 +1729,7 @@ const MessagingPage: React.FC = () => {
                         />
                     )}
 
-                    <Group justify="flex-end" mt="md">
+                    <Group justify="flex-end">
                         <Button
                             variant="light"
                             onClick={() => setModalOpened(false)}
