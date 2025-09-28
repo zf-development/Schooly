@@ -264,7 +264,7 @@ const MySessionPage: React.FC = () => {
 
     if (!user) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -274,7 +274,7 @@ const MySessionPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -338,18 +338,18 @@ const MySessionPage: React.FC = () => {
         }
     };
 
-    const filteredSubjects = selectedSubject 
+    const filteredSubjects = selectedSubject
         ? mockSubjects.filter(s => s.id === selectedSubject)
         : mockSubjects;
 
     // Préparer les données pour le graphique par matière
     const prepareChartData = (subjectId?: string) => {
-        const subjectsToProcess = subjectId 
+        const subjectsToProcess = subjectId
             ? mockSubjects.filter(s => s.id === subjectId)
             : mockSubjects;
 
         const allExams = subjectsToProcess
-            .flatMap(subject => 
+            .flatMap(subject =>
                 subject.exams
                     .filter(exam => exam.status === 'graded')
                     .map(exam => ({
@@ -379,23 +379,23 @@ const MySessionPage: React.FC = () => {
     const chartData = prepareChartData(selectedSubject || undefined);
 
     return (
-        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+        <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
             <Box style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 {/* En-tête harmonisé avec les autres pages */}
                 <Box style={{ flexShrink: 0 }}>
                     <Group justify="space-between" align="center" mb="md">
                         <Group>
-                        <ThemeIcon size={40} radius="md" color="violet">
-                            <IconCalendar size={24} />
-                        </ThemeIcon>
-                        <div>
-                            <Title order={1} size="h2">
-                                Ma Session
-                            </Title>
-                            <Text c="dimmed" size="sm">
-                                Suivez vos examens et votre progression académique
-                            </Text>
-                        </div>
+                            <ThemeIcon size={40} radius="md" color="violet">
+                                <IconCalendar size={24} />
+                            </ThemeIcon>
+                            <div>
+                                <Title order={1} size="h2">
+                                    Ma Session
+                                </Title>
+                                <Text c="dimmed" size="sm">
+                                    Suivez vos examens et votre progression académique
+                                </Text>
+                            </div>
                         </Group>
                         <Group gap="md">
                             <Group gap="xs">
@@ -437,20 +437,20 @@ const MySessionPage: React.FC = () => {
                                 </Title>
                                 <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
                                     {mockSubjects.map((subject) => (
-                                        <Card 
+                                        <Card
                                             key={subject.id}
-                                            p="lg" 
+                                            p="lg"
                                             radius="md"
-                                            style={{ 
+                                            style={{
                                                 cursor: 'pointer',
-                                                border: selectedSubject === subject.id 
-                                                    ? '2px solid var(--mantine-color-violet-4)' 
+                                                border: selectedSubject === subject.id
+                                                    ? '2px solid var(--mantine-color-violet-4)'
                                                     : '1px solid var(--mantine-color-gray-2)',
-                                                backgroundColor: selectedSubject === subject.id 
-                                                    ? 'var(--mantine-color-violet-0)' 
+                                                backgroundColor: selectedSubject === subject.id
+                                                    ? 'var(--mantine-color-violet-0)'
                                                     : 'white',
-                                                boxShadow: selectedSubject === subject.id 
-                                                    ? '0 8px 20px rgba(139, 69, 255, 0.15)' 
+                                                boxShadow: selectedSubject === subject.id
+                                                    ? '0 8px 20px rgba(139, 69, 255, 0.15)'
                                                     : '0 4px 12px rgba(0, 0, 0, 0.08)',
                                                 transition: 'all 0.2s ease'
                                             }}
@@ -474,10 +474,10 @@ const MySessionPage: React.FC = () => {
                                                         {subject.name}
                                                     </Text>
                                                     <Group gap="md" align="center">
-                                                        <Badge 
-                                                            color="violet" 
-                                                            variant="light" 
-                                                            size="sm" 
+                                                        <Badge
+                                                            color="violet"
+                                                            variant="light"
+                                                            size="sm"
                                                             radius="md"
                                                             style={{ fontWeight: 600 }}
                                                         >
@@ -534,9 +534,9 @@ const MySessionPage: React.FC = () => {
                                                     </Group>
                                                 </Group>
                                             </Stack>
-                                </Card>
-                            ))}
-                        </SimpleGrid>
+                                        </Card>
+                                    ))}
+                                </SimpleGrid>
                             </Box>
 
                             {/* Détail des examens et graphique côte à côte */}
@@ -587,32 +587,44 @@ const MySessionPage: React.FC = () => {
                                                 <SimpleGrid cols={1} spacing="md">
                                                     {mockSubjects
                                                         .find(s => s.id === selectedSubject)
-                                                        ?.exams.filter(exam => 
+                                                        ?.exams.filter(exam =>
                                                             activeExamTab === 'upcoming' ? exam.status === 'upcoming' : exam.status === 'graded'
                                                         )
                                                         .map((exam, index) => (
                                                             <Paper key={index} p="md" radius="md" withBorder>
                                                                 <Stack gap="xs">
                                                                     <Group justify="space-between" align="center">
-                                                                        <Text fw={600} size="sm" c="dark">
-                                                                            {exam.title}
-                                                                        </Text>
-                                                                        <Badge 
-                                                                            color={exam.status === 'graded' ? 'green' : 'orange'}
-                                                                            variant="light"
-                                                                            size="sm"
-                                                                        >
-                                                                            {exam.status === 'graded' ? 'Noté' : 'En attente'}
-                                                                        </Badge>
+                                                                        <Group justify='flex-start'>
+                                                                            <Stack gap="xs">
+                                                                                <Text fw={600} size="sm" c="dark">
+                                                                                    {exam.title}
+                                                                                </Text>
+                                                                                <Text size="xs" c="dimmed">
+                                                                                    {new Date(exam.date).toLocaleDateString('fr-FR', {
+                                                                                        weekday: 'long',
+                                                                                        day: 'numeric',
+                                                                                        month: 'long',
+                                                                                        year: 'numeric'
+                                                                                    })}
+                                                                                </Text>
+                                                                            </Stack>
+                                                                        </Group>
+                                                                        <Group justify='flex-end'>
+                                                                            <Stack gap="xs">
+                                                                                <Badge
+                                                                                    color={exam.status === 'graded' ? 'green' : 'orange'}
+                                                                                    variant="light"
+                                                                                    size="sm"
+                                                                                >
+                                                                                    {exam.status === 'graded' ? 'Noté' : 'En attente'}
+                                                                                </Badge>
+                                                                                {exam.status === 'upcoming' && (
+                                                                                    <Button variant="light" color="violet" size="xs" radius="md">Ajouter à l'agenda</Button>
+                                                                                )}
+                                                                            </Stack>
+                                                                        </Group>
                                                                     </Group>
-                                                                    <Text size="xs" c="dimmed">
-                                                                        {new Date(exam.date).toLocaleDateString('fr-FR', {
-                                                                            weekday: 'long',
-                                                                            day: 'numeric',
-                                                                            month: 'long',
-                                                                            year: 'numeric'
-                                                                        })}
-                                                                    </Text>
+
                                                                     {exam.status === 'graded' && (
                                                                         <Group gap="xs" align="center">
                                                                             <Text size="sm" c="dark">
@@ -657,7 +669,7 @@ const MySessionPage: React.FC = () => {
                                         </Box>
                                     )}
                                 </Grid.Col>
-                                
+
                                 <Grid.Col span={6}>
                                     <Title order={3} size="h4" mb="lg" c="dark">
                                         Évolution des notes d'examens passés
@@ -666,25 +678,25 @@ const MySessionPage: React.FC = () => {
                                         <ResponsiveContainer width="100%" height={350}>
                                             <LineChart data={chartData}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="var(--mantine-color-gray-3)" />
-                                                <XAxis 
-                                                    dataKey="date" 
+                                                <XAxis
+                                                    dataKey="date"
                                                     stroke="var(--mantine-color-gray-6)"
                                                     fontSize={12}
                                                     tickFormatter={(value) => {
                                                         const date = new Date(value);
-                                                        return date.toLocaleDateString('fr-FR', { 
-                                                            day: 'numeric', 
-                                                            month: 'short' 
+                                                        return date.toLocaleDateString('fr-FR', {
+                                                            day: 'numeric',
+                                                            month: 'short'
                                                         });
                                                     }}
                                                 />
-                                                <YAxis 
+                                                <YAxis
                                                     stroke="var(--mantine-color-gray-6)"
                                                     fontSize={12}
                                                     domain={[0, 100]}
                                                     tickFormatter={(value) => `${value}%`}
                                                 />
-                                                <Tooltip 
+                                                <Tooltip
                                                     contentStyle={{
                                                         backgroundColor: 'white',
                                                         border: '1px solid var(--mantine-color-gray-2)',
@@ -693,32 +705,32 @@ const MySessionPage: React.FC = () => {
                                                     }}
                                                     labelFormatter={(value) => {
                                                         const date = new Date(value);
-                                                        return date.toLocaleDateString('fr-FR', { 
+                                                        return date.toLocaleDateString('fr-FR', {
                                                             weekday: 'long',
-                                                            day: 'numeric', 
+                                                            day: 'numeric',
                                                             month: 'long',
                                                             year: 'numeric'
                                                         });
                                                     }}
                                                     formatter={(value, name) => [
-                                                        `${value}%`, 
+                                                        `${value}%`,
                                                         name === 'note' ? 'Votre note' : 'Moyenne classe'
                                                     ]}
                                                 />
                                                 <Legend />
-                                                <Line 
-                                                    type="monotone" 
-                                                    dataKey="note" 
-                                                    stroke="var(--mantine-color-violet-6)" 
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="note"
+                                                    stroke="var(--mantine-color-violet-6)"
                                                     strokeWidth={3}
                                                     dot={{ fill: 'var(--mantine-color-violet-6)', strokeWidth: 2, r: 4 }}
                                                     activeDot={{ r: 6, stroke: 'var(--mantine-color-violet-6)', strokeWidth: 2 }}
                                                     name="Votre note"
                                                 />
-                                                <Line 
-                                                    type="monotone" 
-                                                    dataKey="classAverage" 
-                                                    stroke="var(--mantine-color-blue-6)" 
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="classAverage"
+                                                    stroke="var(--mantine-color-blue-6)"
                                                     strokeWidth={2}
                                                     strokeDasharray="5 5"
                                                     dot={{ fill: 'var(--mantine-color-blue-6)', strokeWidth: 2, r: 3 }}

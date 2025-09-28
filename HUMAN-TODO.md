@@ -55,7 +55,7 @@ Notes évaluations
 # FIXES
 - [x] La liste des fichiers n'est plus affiché sur les posts
 - [x] Les tags ne fonctionnent pas
-- [ ] Remettre le bouton d'ajoute a l'agenda dans les examens à venir sur la page Session
+- [ ] Remettre le bouton d'ajout a l'agenda dans les examens à venir sur la page Session
 - [ ] Mettre un design qui montre que c'est une note de professeur sur la page Session
 - [ ] 
 - [ ] 
