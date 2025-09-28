@@ -31,7 +31,8 @@ import {
     List,
     Collapse,
     MultiSelect,
-    Select
+    Select,
+    Tooltip
 } from '@mantine/core';
 import {
     IconMessage,
@@ -154,31 +155,31 @@ const mockUsers: User[] = [
 ];
 
 const mockConversations: Conversation[] = [
-            {
-                id: '1',
+    {
+        id: '1',
         name: 'Marie Martin',
         avatar: '',
         isGroup: false,
         participants: [currentUser, mockUsers[0]],
-                lastMessage: {
+        lastMessage: {
             id: '1',
-                    content: 'Salut ! Comment ça va ?',
-                    senderId: '2',
+            content: 'Salut ! Comment ça va ?',
+            senderId: '2',
             sender: mockUsers[0],
             timestamp: new Date(Date.now() - 1000 * 60 * 5),
             status: 'read',
-                    type: 'text'
-                },
+            type: 'text'
+        },
         unreadCount: 0,
-                isPinned: true,
-                isArchived: false,
+        isPinned: true,
+        isArchived: false,
         isMuted: false,
         updatedAt: new Date(Date.now() - 1000 * 60 * 5),
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
         type: 'direct'
-            },
-            {
-                id: '2',
+    },
+    {
+        id: '2',
         name: 'Groupe Projet Final',
         avatar: '',
         isGroup: true,
@@ -198,12 +199,12 @@ const mockConversations: Conversation[] = [
         isMuted: false,
         updatedAt: new Date(Date.now() - 1000 * 60 * 15),
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
-                type: 'group',
+        type: 'group',
         description: 'Discussion pour le projet de fin d\'études',
         admins: ['1', '3']
     },
-                    {
-                        id: '3',
+    {
+        id: '3',
         name: 'Sophie Leroy',
         avatar: '',
         isGroup: false,
@@ -231,18 +232,18 @@ const mockConversations: Conversation[] = [
         avatar: '',
         isGroup: false,
         participants: [currentUser, mockUsers[5]],
-                lastMessage: {
+        lastMessage: {
             id: '6',
             content: 'Tu as fini le devoir de maths ?',
             senderId: '7',
             sender: mockUsers[5],
             timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3),
             status: 'read',
-                    type: 'text'
-                },
-                unreadCount: 0,
-                isPinned: false,
-                isArchived: false,
+            type: 'text'
+        },
+        unreadCount: 0,
+        isPinned: false,
+        isArchived: false,
         isMuted: false,
         updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
@@ -267,30 +268,30 @@ const mockConversations: Conversation[] = [
         isPinned: true,
         isArchived: false,
         isMuted: true,
-                updatedAt: new Date(Date.now() - 1000 * 60 * 60),
+        updatedAt: new Date(Date.now() - 1000 * 60 * 60),
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14),
         type: 'channel',
         description: 'Canal officiel du cours de mathématiques',
         admins: ['6']
-            },
-                    {
-                        id: '5',
+    },
+    {
+        id: '5',
         name: 'Thomas Moreau',
         avatar: '',
         isGroup: false,
         participants: [currentUser, mockUsers[3]],
-                lastMessage: {
+        lastMessage: {
             id: '5',
             content: 'À bientôt !',
-                    senderId: '5',
+            senderId: '5',
             sender: mockUsers[3],
             timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
             status: 'read',
-                    type: 'text'
-                },
-                unreadCount: 0,
-                isPinned: false,
-                isArchived: false,
+            type: 'text'
+        },
+        unreadCount: 0,
+        isPinned: false,
+        isArchived: false,
         isMuted: false,
         updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
@@ -486,31 +487,31 @@ const mockMessages: { [conversationId: string]: Message[] } = {
     '1': [
         {
             id: '1',
-                    content: 'Salut ! Comment ça va ?',
-                    senderId: '2',
+            content: 'Salut ! Comment ça va ?',
+            senderId: '2',
             sender: mockUsers[0],
             timestamp: new Date(Date.now() - 1000 * 60 * 5),
             status: 'read',
-                    type: 'text'
-                },
-                {
+            type: 'text'
+        },
+        {
             id: '2',
-                    content: 'Ça va bien merci ! Et toi ?',
+            content: 'Ça va bien merci ! Et toi ?',
             senderId: '1',
             sender: currentUser,
             timestamp: new Date(Date.now() - 1000 * 60 * 4),
             status: 'read',
-                    type: 'text'
-                },
-                {
+            type: 'text'
+        },
+        {
             id: '3',
             content: 'Très bien aussi ! Tu viens à la réunion demain ?',
-                    senderId: '2',
+            senderId: '2',
             sender: mockUsers[0],
             timestamp: new Date(Date.now() - 1000 * 60 * 3),
             status: 'read',
-                    type: 'text'
-                }
+            type: 'text'
+        }
     ],
     '2': [
         {
@@ -687,9 +688,9 @@ const MessagingPage: React.FC = () => {
     // Filtrage des conversations
     const filteredConversations = conversations.filter(conv => {
         const matchesSearch = conv.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesTab = activeTab === 'all' || 
-                          (activeTab === 'unread' && conv.unreadCount > 0) ||
-                          (activeTab === 'pinned' && conv.isPinned);
+        const matchesTab = activeTab === 'all' ||
+            (activeTab === 'unread' && conv.unreadCount > 0) ||
+            (activeTab === 'pinned' && conv.isPinned);
         return matchesSearch && matchesTab && !conv.isArchived;
     });
 
@@ -702,7 +703,7 @@ const MessagingPage: React.FC = () => {
     const formatTime = (date: Date) => {
         const now = new Date();
         const diff = now.getTime() - date.getTime();
-        
+
         if (diff < 1000 * 60) return 'Maintenant';
         if (diff < 1000 * 60 * 60) return `${Math.floor(diff / (1000 * 60))}m`;
         if (diff < 1000 * 60 * 60 * 24) return `${Math.floor(diff / (1000 * 60 * 60))}h`;
@@ -710,9 +711,9 @@ const MessagingPage: React.FC = () => {
     };
 
     const formatMessageTime = (date: Date) => {
-        return date.toLocaleTimeString('fr-FR', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
+        return date.toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit'
         });
     };
 
@@ -740,7 +741,7 @@ const MessagingPage: React.FC = () => {
         setTimeout(() => {
             setMessages(prev => ({
                 ...prev,
-                [selectedConversation.id]: prev[selectedConversation.id].map(m => 
+                [selectedConversation.id]: prev[selectedConversation.id].map(m =>
                     m.id === message.id ? { ...m, status: 'sent' } : m
                 )
             }));
@@ -764,7 +765,7 @@ const MessagingPage: React.FC = () => {
 
         if (newConversationType === 'group') {
             // Récupérer les utilisateurs sélectionnés pour le groupe
-            const selectedUserObjects = selectedUsers.map(userId => 
+            const selectedUserObjects = selectedUsers.map(userId =>
                 mockUsers.find(user => user.id === userId)
             ).filter(Boolean) as User[];
             participants = [currentUser, ...selectedUserObjects];
@@ -800,19 +801,19 @@ const MessagingPage: React.FC = () => {
     };
 
     const handlePinConversation = (conversationId: string) => {
-        setConversations(prev => prev.map(conv => 
+        setConversations(prev => prev.map(conv =>
             conv.id === conversationId ? { ...conv, isPinned: !conv.isPinned } : conv
         ));
     };
 
     const handleArchiveConversation = (conversationId: string) => {
-        setConversations(prev => prev.map(conv => 
+        setConversations(prev => prev.map(conv =>
             conv.id === conversationId ? { ...conv, isArchived: true } : conv
         ));
     };
 
     const handleMuteConversation = (conversationId: string) => {
-        setConversations(prev => prev.map(conv => 
+        setConversations(prev => prev.map(conv =>
             conv.id === conversationId ? { ...conv, isMuted: !conv.isMuted } : conv
         ));
     };
@@ -825,10 +826,10 @@ const MessagingPage: React.FC = () => {
     }, [selectedConversation, messages]);
 
     return (
-        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                {/* En-tête */}
-                <Group justify="space-between" align="center" mb="md">
-                    <Group>
+        <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
+            {/* En-tête */}
+            <Group justify="space-between" align="center" mb="xl">
+                <Group>
                     <ThemeIcon size={40} radius="md" color="violet">
                         <IconMessage size={24} />
                     </ThemeIcon>
@@ -840,375 +841,374 @@ const MessagingPage: React.FC = () => {
                             Communiquez avec vos collègues et amis
                         </Text>
                     </div>
-                    </Group>
-                    <Group>
-                        <Button
-                            leftSection={<IconPlus size={16} />}
-                            onClick={() => setModalOpened(true)}
-                            variant="light"
-                        >
-                            Nouvelle conversation
-                        </Button>
-                    </Group>
                 </Group>
+                <Group>
+                    <Button
+                        leftSection={<IconPlus size={16} />}
+                        onClick={() => setModalOpened(true)}
+                        variant="light"
+                    >
+                        Nouvelle conversation
+                    </Button>
+                </Group>
+            </Group>
 
-                {/* Interface de messagerie - 2 colonnes */}
+            {/* Interface de messagerie - 2 colonnes */}
+            <Box style={{
+                height: 'calc(100vh - 200px)',
+                display: 'flex',
+                overflow: 'hidden'
+            }}>
+                {/* Colonne 1: Liste des conversations */}
                 <Box style={{
-                    height: 'calc(100vh - 200px)',
+                    width: '33.333%',
+                    borderRight: '1px solid var(--mantine-color-gray-1)',
+                    backgroundColor: 'transparent',
                     display: 'flex',
-                            overflow: 'hidden'
+                    flexDirection: 'column'
                 }}>
-                    {/* Colonne 1: Liste des conversations */}
-                    <Box style={{
-                        width: '33.333%',
-                        borderRight: '1px solid var(--mantine-color-gray-1)',
-                        backgroundColor: 'transparent',
-                        display: 'flex',
-                        flexDirection: 'column'
-                    }}>
-                        <Box p="lg" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                            <Stack gap="xl" h="100%">
-                                {/* Barre de recherche libre */}
+                    <Box pr="lg" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <Stack gap="md" h="100%">
+                            {/* Barre de recherche libre */}
                             <TextInput
                                 placeholder="Rechercher..."
                                 leftSection={<IconSearch size={16} />}
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 size="sm"
-                                    radius="md"
-                                    variant="unstyled"
-                                    styles={{
-                                        input: {
-                                            backgroundColor: 'var(--mantine-color-gray-0)',
-                                            border: '1px solid var(--mantine-color-gray-2)',
-                                            '&:focus': {
-                                                borderColor: 'var(--mantine-color-violet-4)',
-                                                boxShadow: '0 0 0 1px var(--mantine-color-violet-4)',
-                                                backgroundColor: 'white'
-                                            }
+                                radius="md"
+                                variant="unstyled"
+                                styles={{
+                                    input: {
+                                        backgroundColor: 'var(--mantine-color-gray-0)',
+                                        border: '1px solid var(--mantine-color-gray-2)',
+                                        '&:focus': {
+                                            borderColor: 'var(--mantine-color-violet-4)',
+                                            boxShadow: '0 0 0 1px var(--mantine-color-violet-4)',
+                                            backgroundColor: 'white'
                                         }
-                                    }}
-                                />
+                                    }
+                                }}
+                            />
 
-                                {/* Onglets de filtrage libres */}
-                                <Group gap="xs" justify="center" style={{ width: '100%' }}>
-                                    <Button
-                                        variant={activeTab === 'all' ? 'filled' : 'subtle'}
-                                        color="violet"
-                                        size="sm"
-                                        radius="md"
-                                        onClick={() => setActiveTab('all')}
-                                        style={{ flex: 1, minWidth: 0 }}
-                                    >
-                                        Toutes
-                                    </Button>
-                                    <Button
-                                        variant={activeTab === 'unread' ? 'filled' : 'subtle'}
-                                        color="violet"
-                                        size="sm"
-                                        radius="md"
-                                        onClick={() => setActiveTab('unread')}
-                                        style={{ flex: 1, minWidth: 0 }}
-                                    >
-                                        Non lues
-                                    </Button>
-                                    <Button
-                                        variant={activeTab === 'pinned' ? 'filled' : 'subtle'}
-                                        color="violet"
-                                        size="sm"
-                                        radius="md"
-                                        onClick={() => setActiveTab('pinned')}
-                                        style={{ flex: 1, minWidth: 0 }}
-                                    >
-                                        Épinglées
-                                    </Button>
-                                </Group>
+                            {/* Onglets de filtrage libres */}
+                            <Group gap="xs" justify="center" style={{ width: '100%' }}>
+                                <Button
+                                    variant={activeTab === 'all' ? 'filled' : 'light'}
+                                    color="violet"
+                                    size="sm"
+                                    radius="md"
+                                    onClick={() => setActiveTab('all')}
+                                    style={{ flex: 1, minWidth: 0 }}
+                                >
+                                    Toutes
+                                </Button>
+                                <Button
+                                    variant={activeTab === 'unread' ? 'filled' : 'light'}
+                                    color="violet"
+                                    size="sm"
+                                    radius="md"
+                                    onClick={() => setActiveTab('unread')}
+                                    style={{ flex: 1, minWidth: 0 }}
+                                >
+                                    Non lues
+                                </Button>
+                                <Button
+                                    variant={activeTab === 'pinned' ? 'filled' : 'light'}
+                                    color="violet"
+                                    size="sm"
+                                    radius="md"
+                                    onClick={() => setActiveTab('pinned')}
+                                    style={{ flex: 1, minWidth: 0 }}
+                                >
+                                    Épinglées
+                                </Button>
+                            </Group>
 
-                                {/* Liste des conversations libre */}
-                                <ScrollArea style={{ flex: 1, minHeight: 0 }}>
-                                    <Stack gap="xs">
-                                        {sortedConversations.map((conv) => (
-                                    <UnstyledButton
-                                                key={conv.id}
-                                                onClick={() => setSelectedConversation(conv)}
-                                        style={{
-                                                    padding: '16px 20px',
-                                                    backgroundColor: selectedConversation?.id === conv.id ? 
-                                                        'var(--mantine-color-violet-0)' : 'transparent',
-                                                    borderRadius: '12px',
-                                                    transition: 'all 0.2s ease',
-                                                    cursor: 'pointer',
-                                                    border: selectedConversation?.id === conv.id ? 
-                                                        '1px solid var(--mantine-color-violet-2)' : '1px solid transparent',
-                                        }}
-                                        onMouseEnter={(e) => {
-                                                    if (selectedConversation?.id !== conv.id) {
-                                                        e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-0)';
-                                                        e.currentTarget.style.borderColor = 'var(--mantine-color-gray-2)';
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                                    if (selectedConversation?.id !== conv.id) {
-                                                e.currentTarget.style.backgroundColor = 'transparent';
-                                                        e.currentTarget.style.borderColor = 'transparent';
-                                            }
-                                        }}
-                                    >
-                                        <Group justify="space-between" align="flex-start">
-                                                    <Group gap="md" style={{ flex: 1, minWidth: 0 }}>
+                            {/* Liste des conversations libre */}
+                            <ScrollArea style={{ flex: 1, minHeight: 0 }}>
+                                <Stack gap="sm">
+                                    {sortedConversations.map((conv) => (
+                                        <UnstyledButton
+                                            key={conv.id}
+                                            onClick={() => setSelectedConversation(conv)}
+                                            style={{
+                                                padding: '16px 20px',
+                                                backgroundColor: selectedConversation?.id === conv.id ? 'var(--mantine-color-violet-0)' : 'transparent',
+                                                borderRadius: '12px',
+                                                transition: 'all 0.2s ease',
+                                                cursor: 'pointer',
+                                                border: selectedConversation?.id === conv.id ? '1px solid var(--mantine-color-violet-2)' : '1px solid transparent',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                if (selectedConversation?.id !== conv.id) {
+                                                    e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-0)';
+                                                    e.currentTarget.style.borderColor = 'var(--mantine-color-gray-2)';
+                                                }
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                if (selectedConversation?.id !== conv.id) {
+                                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                                    e.currentTarget.style.borderColor = 'transparent';
+                                                }
+                                            }}
+                                        >
+                                            <Group justify="space-between" align="flex-start">
+                                                <Group gap="lg" style={{ flex: 1, minWidth: 0 }}>
                                                     <Avatar
-                                                            size="lg" 
+                                                        size="md"
                                                         radius="md"
-                                                            src={conv.avatar}
+                                                        src={conv.avatar}
+                                                        style={{
+                                                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                                                        }}
+                                                    >
+                                                        {conv.name.charAt(0)}
+                                                    </Avatar>
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <Group justify="space-between" align="center" mb={4}>
+                                                            <Text
+                                                                fw={conv.unreadCount > 0 ? 600 : 500}
+                                                                size="sm"
+                                                                truncate
+                                                                c={conv.unreadCount > 0 ? 'dark' : 'gray.7'}
+                                                            >
+                                                                {!conv.isGroup && conv.participants.find(p => p.id !== currentUser.id)?.groupNumber &&
+                                                                    `${conv.participants.find(p => p.id !== currentUser.id)?.groupNumber} - `}
+                                                                {conv.name}
+                                                            </Text>
+                                                            <Group gap="sm">
+                                                                {conv.isPinned && (
+                                                                    <IconPinFilled size={14} color="var(--mantine-color-yellow-6)" />
+                                                                )}
+                                                                {conv.isMuted && (
+                                                                    <IconBellOff size={14} color="var(--mantine-color-gray-5)" />
+                                                                )}
+                                                                <Text size="xs" c="dimmed">
+                                                                    {formatTime(conv.updatedAt)}
+                                                                </Text>
+                                                            </Group>
+                                                        </Group>
+                                                        <Text
+                                                            size="sm"
+                                                            c="dimmed"
+                                                            lineClamp={1}
+                                                            fw={conv.unreadCount > 0 ? 500 : 400}
+                                                        >
+                                                            {conv.lastMessage?.content || 'Aucun message'}
+                                                        </Text>
+                                                        {conv.isGroup && (
+                                                            <Group gap="xs" mt={4}>
+                                                                <IconUsers size={12} color="var(--mantine-color-violet-5)" />
+                                                                <Text size="xs" c="violet.6" fw={600}>
+                                                                    {conv.participants.length} membres
+                                                                </Text>
+                                                            </Group>
+                                                        )}
+                                                    </div>
+                                                </Group>
+                                                <Group gap="xs">
+                                                    {conv.unreadCount > 0 && (
+                                                        <Badge
+                                                            size="sm"
+                                                            color="violet"
+                                                            variant="filled"
+                                                            radius="md"
                                                             style={{
-                                                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                                                                fontWeight: 600,
+                                                                boxShadow: '0 2px 4px rgba(139, 69, 255, 0.3)'
                                                             }}
                                                         >
-                                                            {conv.name.charAt(0)}
-                                                        </Avatar>
-                                                        <div style={{ flex: 1, minWidth: 0 }}>
-                                                            <Group justify="space-between" align="center" mb="xs">
-                                                                <Text 
-                                                                    fw={conv.unreadCount > 0 ? 600 : 500} 
-                                                                    size="sm" 
-                                                                    truncate
-                                                                    c={conv.unreadCount > 0 ? 'dark' : 'gray.7'}
-                                                                >
-                                                                    {!conv.isGroup && conv.participants.find(p => p.id !== currentUser.id)?.groupNumber && 
-                                                                     `${conv.participants.find(p => p.id !== currentUser.id)?.groupNumber} - `}
-                                                                    {conv.name}
-                                                        </Text>
-                                                        <Group gap="xs">
-                                                                    {conv.isPinned && (
-                                                                        <IconPinFilled size={14} color="var(--mantine-color-yellow-6)" />
-                                                                    )}
-                                                                    {conv.isMuted && (
-                                                                        <IconBellOff size={14} color="var(--mantine-color-gray-5)" />
-                                                            )}
-                                                            <Text size="xs" c="dimmed">
-                                                                        {formatTime(conv.updatedAt)}
-                                                            </Text>
-                                                        </Group>
-                                                    </Group>
-                                                            <Text 
-                                                                size="sm" 
-                                                                c="dimmed" 
-                                                                lineClamp={1}
-                                                                fw={conv.unreadCount > 0 ? 500 : 400}
-                                                            >
-                                                                {conv.lastMessage?.content || 'Aucun message'}
-                                                    </Text>
-                                                            {conv.isGroup && (
-                                                                <Group gap="xs" mt="xs">
-                                                                    <IconUsers size={12} color="var(--mantine-color-violet-5)" />
-                                                                    <Text size="xs" c="violet.6" fw={500}>
-                                                                        {conv.participants.length} membres
-                                                                    </Text>
-                                            </Group>
-                                                            )}
-                                                        </div>
-                                                    </Group>
-                                            <Group gap="xs">
-                                                        {conv.unreadCount > 0 && (
-                                                            <Badge 
-                                                                size="sm" 
-                                                                color="violet" 
-                                                                variant="filled"
-                                                                radius="md"
-                                                                style={{ 
-                                                                    fontWeight: 600,
-                                                                    boxShadow: '0 2px 4px rgba(139, 69, 255, 0.3)'
+                                                            {conv.unreadCount}
+                                                        </Badge>
+                                                    )}
+                                                    <Menu shadow="md" width={200}>
+                                                        <Menu.Target>
+                                                            <ActionIcon
+                                                                variant="subtle"
+                                                                color="gray"
+                                                                size="sm"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                                style={{ opacity: 0.6 }}
+                                                                onMouseEnter={(e) => {
+                                                                    e.currentTarget.style.opacity = '1';
+                                                                }}
+                                                                onMouseLeave={(e) => {
+                                                                    e.currentTarget.style.opacity = '0.6';
                                                                 }}
                                                             >
-                                                                {conv.unreadCount}
-                                                    </Badge>
-                                                )}
-                                                        <Menu shadow="md" width={200}>
-                                                    <Menu.Target>
-                                                                <ActionIcon
-                                                                    variant="subtle"
-                                                                    color="gray"
-                                                                    size="sm"
-                                                                    onClick={(e) => e.stopPropagation()}
-                                                                    style={{ opacity: 0.6 }}
-                                                                    onMouseEnter={(e) => {
-                                                                        e.currentTarget.style.opacity = '1';
-                                                                    }}
-                                                                    onMouseLeave={(e) => {
-                                                                        e.currentTarget.style.opacity = '0.6';
-                                                                    }}
-                                                                >
-                                                                    <IconDots size={16} />
-                                                        </ActionIcon>
-                                                    </Menu.Target>
-                                                    <Menu.Dropdown>
-                                                        <Menu.Item 
-                                                                    leftSection={<IconPin size={16} />}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handlePinConversation(conv.id);
-                                                                    }}
-                                                                >
-                                                                    {conv.isPinned ? 'Désépingler' : 'Épingler'}
-                                                        </Menu.Item>
-                                                        <Menu.Item 
-                                                                    leftSection={conv.isMuted ? <IconBell size={16} /> : <IconBellOff size={16} />}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleMuteConversation(conv.id);
-                                                                    }}
-                                                                >
-                                                                    {conv.isMuted ? 'Activer les notifications' : 'Désactiver les notifications'}
-                                                                </Menu.Item>
-                                                                <Menu.Item
-                                                                    leftSection={<IconArchive size={16} />}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleArchiveConversation(conv.id);
-                                                                    }}
-                                                        >
-                                                            Archiver
-                                                        </Menu.Item>
-                                                        <Menu.Divider />
-                                                        <Menu.Item 
-                                                                    leftSection={<IconTrash size={16} />}
-                                                            color="red"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        // Supprimer la conversation
-                                                                    }}
-                                                        >
-                                                            Supprimer
-                                                        </Menu.Item>
-                                                    </Menu.Dropdown>
-                                                </Menu>
-                                            </Group>
-                                        </Group>
-                                    </UnstyledButton>
-                                ))}
-                            </Stack>
-                        </ScrollArea>
-                            </Stack>
-                        </Box>
-                    </Box>
-
-                    {/* Colonne 2: Chat */}
-                    <Box style={{
-                            flex: 1,
-                            display: 'flex',
-                        flexDirection: 'column',
-                        overflow: 'hidden'
-                    }}>
-                        {selectedConversation ? (
-                            <Box style={{
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                backgroundColor: 'white',
-                                overflow: 'hidden'
-                            }}>
-                                {/* En-tête du chat */}
-                                <Box p="lg" style={{
-                                    backgroundColor: 'white',
-                                    borderBottom: '1px solid var(--mantine-color-gray-1)',
-                                    flexShrink: 0,
-                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
-                                }}>
-                                    <Group justify="space-between" align="center">
-                                        <Group gap="md">
-                                                <Avatar
-                                                size="lg" 
-                                                    radius="md"
-                                                src={selectedConversation.avatar}
-                                                style={{
-                                                    border: '2px solid var(--mantine-color-violet-2)',
-                                                    boxShadow: '0 2px 8px rgba(139, 69, 255, 0.15)'
-                                                }}
-                                            >
-                                                {selectedConversation.name.charAt(0)}
-                                                </Avatar>
-                                            <div>
-                                                <Text fw={700} size="md" c="dark">
-                                                    {!selectedConversation.isGroup && selectedConversation.participants.find(p => p.id !== currentUser.id)?.groupNumber && 
-                                                     `${selectedConversation.participants.find(p => p.id !== currentUser.id)?.groupNumber} - `}
-                                                    {selectedConversation.name}
-                                                </Text>
-                                                <Group gap="xs" mt="xs">
-                                                    {selectedConversation.isGroup ? (
-                                                        <>
-                                                            <IconUsers size={14} color="var(--mantine-color-violet-5)" />
-                                                            <Text size="sm" c="violet.6" fw={500}>
-                                                                {selectedConversation.participants.length} membres
-                                                            </Text>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Group gap="xs">
-                                                                <Box
-                                                                    w={8}
-                                                                    h={8}
-                                                        style={{
-                                                            borderRadius: '50%',
-                                                                        backgroundColor: 'var(--mantine-color-green-5)',
-                                                                        boxShadow: '0 0 0 2px var(--mantine-color-green-1)'
-                                                                    }}
-                                                                />
-                                                                <Text size="sm" c="green.6" fw={500}>
-                                                                    En ligne
-                                                </Text>
-                                                            </Group>
-                                                            {/* Statut de l'utilisateur */}
-                                                            {(() => {
-                                                                const otherUser = selectedConversation.participants.find(p => p.id !== currentUser.id);
-                                                                if (otherUser) {
-                                                                    return (
-                                                                        <Group gap="xs">
-                                                                            {otherUser.role === 'student' ? (
-                                                                                <>
-                                                                                    <Box
-                                                                                        w={6}
-                                                                                        h={6}
-                                                                                        style={{
-                                                                                            borderRadius: '50%',
-                                                                                            backgroundColor: 'var(--mantine-color-blue-5)',
-                                                                                            boxShadow: '0 0 0 1px var(--mantine-color-blue-1)'
-                                                                                        }}
-                                                                                    />
-                                                                                    <Text size="sm" c="blue.6" fw={500}>
-                                                                                        Étudiant - {otherUser.class}
-                                                </Text>
-                                                                                </>
-                                                                            ) : (
-                                                                                <>
-                                                                                    <Box
-                                                                                        w={6}
-                                                                                        h={6}
-                                                                                        style={{
-                                                                                            borderRadius: '50%',
-                                                                                            backgroundColor: 'var(--mantine-color-orange-5)',
-                                                                                            boxShadow: '0 0 0 1px var(--mantine-color-orange-1)'
-                                                                                        }}
-                                                                                    />
-                                                                                    <Text size="sm" c="orange.6" fw={500}>
-                                                                                        Professeur {otherUser.subject}
-                                                                                    </Text>
-                                                                                </>
-                                                                            )}
-                                                                        </Group>
-                                                                    );
-                                                                }
-                                                                return null;
-                                                            })()}
-                                                        </>
-                                                    )}
+                                                                <IconDots size={16} />
+                                                            </ActionIcon>
+                                                        </Menu.Target>
+                                                        <Menu.Dropdown>
+                                                            <Menu.Item
+                                                                leftSection={<IconPin size={16} />}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handlePinConversation(conv.id);
+                                                                }}
+                                                            >
+                                                                {conv.isPinned ? 'Désépingler' : 'Épingler'}
+                                                            </Menu.Item>
+                                                            <Menu.Item
+                                                                leftSection={conv.isMuted ? <IconBell size={16} /> : <IconBellOff size={16} />}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleMuteConversation(conv.id);
+                                                                }}
+                                                            >
+                                                                {conv.isMuted ? 'Activer les notifications' : 'Désactiver les notifications'}
+                                                            </Menu.Item>
+                                                            <Menu.Item
+                                                                leftSection={<IconArchive size={16} />}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleArchiveConversation(conv.id);
+                                                                }}
+                                                            >
+                                                                Archiver
+                                                            </Menu.Item>
+                                                            <Menu.Divider />
+                                                            <Menu.Item
+                                                                leftSection={<IconTrash size={16} />}
+                                                                color="red"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    // Supprimer la conversation
+                                                                }}
+                                                            >
+                                                                Supprimer
+                                                            </Menu.Item>
+                                                        </Menu.Dropdown>
+                                                    </Menu>
                                                 </Group>
-                                            </div>
-                                        </Group>
-                                        <Group gap="xs">
-                                            <ActionIcon 
-                                                variant="subtle" 
+                                            </Group>
+                                        </UnstyledButton>
+                                    ))}
+                                </Stack>
+                            </ScrollArea>
+                        </Stack>
+                    </Box>
+                </Box>
+
+                {/* Colonne 2: Chat */}
+                <Box style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden'
+                }}>
+                    {selectedConversation ? (
+                        <Box style={{
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            backgroundColor: 'white',
+                            overflow: 'hidden'
+                        }}>
+                            {/* En-tête du chat */}
+                            <Box p="md" style={{
+                                backgroundColor: 'white',
+                                borderBottom: '1px solid var(--mantine-color-gray-1)',
+                                flexShrink: 0,
+                                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
+                            }}>
+                                <Group justify="space-between" align="center">
+                                    <Group gap="md">
+                                        <Avatar
+                                            size="lg"
+                                            radius="md"
+                                            src={selectedConversation.avatar}
+                                            style={{
+                                                border: '2px solid var(--mantine-color-violet-2)',
+                                                boxShadow: '0 2px 8px rgba(139, 69, 255, 0.15)'
+                                            }}
+                                        >
+                                            {selectedConversation.name.charAt(0)}
+                                        </Avatar>
+                                        <div>
+                                            <Text fw={700} size="md" c="dark">
+                                                {!selectedConversation.isGroup && selectedConversation.participants.find(p => p.id !== currentUser.id)?.groupNumber &&
+                                                    `${selectedConversation.participants.find(p => p.id !== currentUser.id)?.groupNumber} - `}
+                                                {selectedConversation.name}
+                                            </Text>
+                                            <Group gap="xs" mt={4}>
+                                                {selectedConversation.isGroup ? (
+                                                    <>
+                                                        <IconUsers size={14} color="var(--mantine-color-violet-5)" />
+                                                        <Text size="sm" c="violet.6" fw={500}>
+                                                            {selectedConversation.participants.length} membres
+                                                        </Text>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Group gap="xs">
+                                                            <Box
+                                                                w={8}
+                                                                h={8}
+                                                                style={{
+                                                                    borderRadius: '50%',
+                                                                    backgroundColor: 'var(--mantine-color-green-5)',
+                                                                    boxShadow: '0 0 0 2px var(--mantine-color-green-1)'
+                                                                }}
+                                                            />
+                                                            <Text size="sm" c="green.6" fw={500}>
+                                                                En ligne
+                                                            </Text>
+                                                        </Group>
+                                                        {/* Statut de l'utilisateur */}
+                                                        {(() => {
+                                                            const otherUser = selectedConversation.participants.find(p => p.id !== currentUser.id);
+                                                            if (otherUser) {
+                                                                return (
+                                                                    <Group gap="xs">
+                                                                        {otherUser.role === 'student' ? (
+                                                                            <>
+                                                                                <Box
+                                                                                    w={6}
+                                                                                    h={6}
+                                                                                    style={{
+                                                                                        borderRadius: '50%',
+                                                                                        backgroundColor: 'var(--mantine-color-blue-5)',
+                                                                                        boxShadow: '0 0 0 1px var(--mantine-color-blue-1)'
+                                                                                    }}
+                                                                                />
+                                                                                <Text size="sm" c="blue.6" fw={500}>
+                                                                                    Étudiant - {otherUser.class}
+                                                                                </Text>
+                                                                            </>
+                                                                        ) : (
+                                                                            <>
+                                                                                <Box
+                                                                                    w={6}
+                                                                                    h={6}
+                                                                                    style={{
+                                                                                        borderRadius: '50%',
+                                                                                        backgroundColor: 'var(--mantine-color-orange-5)',
+                                                                                        boxShadow: '0 0 0 1px var(--mantine-color-orange-1)'
+                                                                                    }}
+                                                                                />
+                                                                                <Text size="sm" c="orange.6" fw={500}>
+                                                                                    Professeur {otherUser.subject}
+                                                                                </Text>
+                                                                            </>
+                                                                        )}
+                                                                    </Group>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        })()}
+                                                    </>
+                                                )}
+                                            </Group>
+                                        </div>
+                                    </Group>
+                                    <Group gap="xs">
+                                        <Tooltip label="Appel vocal" position="bottom-start">
+                                            <ActionIcon
+                                                variant="subtle"
                                                 color="violet"
-                                                size="md"
+                                                size="lg"
                                                 radius="md"
                                                 title="Appel vocal"
                                                 style={{
@@ -1218,10 +1218,12 @@ const MessagingPage: React.FC = () => {
                                             >
                                                 <IconPhone size={18} />
                                             </ActionIcon>
-                                            <ActionIcon 
-                                                variant="subtle" 
+                                        </Tooltip>
+                                        <Tooltip label="Appel vidéo" position="bottom-center">
+                                            <ActionIcon
+                                                variant="subtle"
                                                 color="violet"
-                                                size="md"
+                                                size="lg"
                                                 radius="md"
                                                 onClick={handleStartVideoCall}
                                                 title="Appel vidéo"
@@ -1232,10 +1234,12 @@ const MessagingPage: React.FC = () => {
                                             >
                                                 <IconVideo size={18} />
                                             </ActionIcon>
-                                            <ActionIcon 
-                                                variant="subtle" 
+                                        </Tooltip>
+                                        <Tooltip label="Informations" position="bottom-end">
+                                            <ActionIcon
+                                                variant="subtle"
                                                 color="gray"
-                                                size="md"
+                                                size="lg"
                                                 radius="md"
                                                 title="Informations"
                                                 style={{
@@ -1245,38 +1249,39 @@ const MessagingPage: React.FC = () => {
                                             >
                                                 <IconInfoCircle size={18} />
                                             </ActionIcon>
-                                        </Group>
+                                        </Tooltip>
                                     </Group>
-                                </Box>
+                                </Group>
+                            </Box>
 
-                                {/* Zone des messages avec hauteur fixe */}
-                                <Box style={{
-                                        flex: 1,
-                                    overflow: 'auto',
-                                    minHeight: 0,
-                                    backgroundColor: 'var(--mantine-color-gray-0)'
-                                }} ref={messagesEndRef}>
-                                    <Box p="lg">
-                                        <Stack gap="md">
-                                                {(messages[selectedConversation.id] || []).map((message, index) => {
-                                                const isCurrentUser = message.senderId === currentUser.id;
-                                                const prevMessage = index > 0 ? messages[selectedConversation.id][index - 1] : null;
-                                                const isConsecutive = prevMessage && prevMessage.senderId === message.senderId;
-                                                const timeDiff = prevMessage ? 
-                                                    message.timestamp.getTime() - prevMessage.timestamp.getTime() : 
-                                                    Infinity;
-                                                const showAvatar = !isConsecutive || timeDiff > 5 * 60 * 1000; // 5 minutes
-                                                
-                                                return (
-                                                    <Box key={message.id}>
-                                                        {/* Séparateur de date si nécessaire */}
-                                                        {index === 0 || 
-                                                         (prevMessage && 
-                                                          message.timestamp.toDateString() !== prevMessage.timestamp.toDateString()) && (
+                            {/* Zone des messages avec hauteur fixe */}
+                            <Box style={{
+                                flex: 1,
+                                overflow: 'auto',
+                                minHeight: 0,
+                                backgroundColor: 'var(--mantine-color-gray-0)'
+                            }} ref={messagesEndRef}>
+                                <Box p="md">
+                                    <Stack gap="sm">
+                                        {(messages[selectedConversation.id] || []).map((message, index) => {
+                                            const isCurrentUser = message.senderId === currentUser.id;
+                                            const prevMessage = index > 0 ? messages[selectedConversation.id][index - 1] : null;
+                                            const isConsecutive = prevMessage && prevMessage.senderId === message.senderId;
+                                            const timeDiff = prevMessage ?
+                                                message.timestamp.getTime() - prevMessage.timestamp.getTime() :
+                                                Infinity;
+                                            const showAvatar = !isConsecutive || timeDiff > 5 * 60 * 1000; // 5 minutes
+
+                                            return (
+                                                <Box key={message.id}>
+                                                    {/* Séparateur de date si nécessaire */}
+                                                    {index === 0 ||
+                                                        (prevMessage &&
+                                                            message.timestamp.toDateString() !== prevMessage.timestamp.toDateString()) && (
                                                             <Center my="md">
-                                                                <Text 
-                                                                    size="xs" 
-                                                                    c="dimmed" 
+                                                                <Text
+                                                                    size="xs"
+                                                                    c="dimmed"
                                                                     fw={600}
                                                                     style={{
                                                                         backgroundColor: 'var(--mantine-color-gray-1)',
@@ -1285,460 +1290,466 @@ const MessagingPage: React.FC = () => {
                                                                         border: '1px solid var(--mantine-color-gray-2)'
                                                                     }}
                                                                 >
-                                                                    {message.timestamp.toLocaleDateString('fr-FR', { 
-                                                                        weekday: 'long', 
-                                                                        day: 'numeric', 
-                                                                        month: 'long' 
+                                                                    {message.timestamp.toLocaleDateString('fr-FR', {
+                                                                        weekday: 'long',
+                                                                        day: 'numeric',
+                                                                        month: 'long'
                                                                     })}
                                                                 </Text>
                                                             </Center>
                                                         )}
-                                                        
-                                            <Group
-                                                            justify={isCurrentUser ? 'flex-end' : 'flex-start'}
-                                                align="flex-start"
-                                                gap="sm"
-                                                            mb={isConsecutive ? 2 : 8}
-                                            >
-                                                            {!isCurrentUser && (
-                                                                <Box style={{ minWidth: 32 }}>
-                                                                    {showAvatar ? (
-                                                    <Avatar
-                                                        size="sm"
-                                                        radius="md"
-                                                                            src={message.sender.avatar}
-                                                                            style={{
-                                                                                border: '2px solid var(--mantine-color-violet-1)',
-                                                                                boxShadow: '0 2px 4px rgba(139, 69, 255, 0.15)',
-                                                                                transition: 'all 0.2s ease'
-                                                                            }}
-                                                                            onMouseEnter={(e) => {
-                                                                                e.currentTarget.style.transform = 'scale(1.05)';
-                                                                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(139, 69, 255, 0.25)';
-                                                                            }}
-                                                                            onMouseLeave={(e) => {
-                                                                                e.currentTarget.style.transform = 'scale(1)';
-                                                                                e.currentTarget.style.boxShadow = '0 2px 4px rgba(139, 69, 255, 0.15)';
-                                                                            }}
-                                                                        >
-                                                                            {message.sender.name.charAt(0)}
-                                                                        </Avatar>
-                                                                    ) : (
-                                                                        <Box w={32} />
-                                                                    )}
-                                                                </Box>
-                                                            )}
-                                                            
-                                                            <Box style={{ maxWidth: '70%', minWidth: '120px' }}>
-                                                                {/* Nom de l'expéditeur pour les messages de groupe */}
-                                                                {!isCurrentUser && showAvatar && selectedConversation.isGroup && (
-                                                                    <Text 
-                                                                        size="xs" 
-                                                                        c="violet.6" 
-                                                                        fw={600} 
-                                                                        mb="xs"
-                                                                        style={{ marginLeft: '4px' }}
-                                                                    >
-                                                                        {message.sender.name}
-                                                                    </Text>
-                                                                )}
-                                                                
-                                                <Box
-                                                    style={{
-                                                                        backgroundColor: isCurrentUser ? 
-                                                                            'var(--mantine-color-violet-6)' : 
-                                                                            'white',
-                                                                        color: isCurrentUser ? 
-                                                                            'white' : 'var(--mantine-color-gray-8)',
-                                                        padding: '12px 16px',
-                                                                        borderRadius: '18px',
-                                                                        borderBottomRightRadius: isCurrentUser ? '6px' : '18px',
-                                                                        borderBottomLeftRadius: isCurrentUser ? '18px' : '6px',
-                                                                        border: isCurrentUser ? 'none' : '1px solid var(--mantine-color-gray-2)',
-                                                                        boxShadow: isCurrentUser ? 
-                                                                            '0 2px 8px rgba(139, 69, 255, 0.25)' : 
-                                                                            '0 1px 3px rgba(0, 0, 0, 0.08)',
-                                                                        transition: 'all 0.2s ease',
-                                                                        position: 'relative',
-                                                                        overflow: 'hidden'
-                                                                    }}
-                                                                    onMouseEnter={(e) => {
-                                                                        e.currentTarget.style.transform = 'translateY(-1px)';
-                                                                        e.currentTarget.style.boxShadow = isCurrentUser ? 
-                                                                            '0 4px 12px rgba(139, 69, 255, 0.35)' : 
-                                                                            '0 2px 6px rgba(0, 0, 0, 0.12)';
-                                                                    }}
-                                                                    onMouseLeave={(e) => {
-                                                                        e.currentTarget.style.transform = 'none';
-                                                                        e.currentTarget.style.boxShadow = isCurrentUser ? 
-                                                                            '0 2px 8px rgba(139, 69, 255, 0.25)' : 
-                                                                            '0 1px 3px rgba(0, 0, 0, 0.08)';
-                                                                    }}
-                                                                >
-                                                                    {/* Effet de gradient subtil */}
-                                                                    {isCurrentUser && (
-                                                                        <Box
-                                                                            style={{
-                                                                                position: 'absolute',
-                                                                                top: 0,
-                                                                                left: 0,
-                                                                                right: 0,
-                                                                                height: '1px',
-                                                                                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)'
-                                                                            }}
-                                                                        />
-                                                                    )}
-                                                                    
-                                                                    <Text 
-                                                                        size="sm" 
-                                                                        style={{ 
-                                                                            wordBreak: 'break-word', 
-                                                                            lineHeight: 1.5,
-                                                                            position: 'relative',
-                                                                            zIndex: 1
+
+                                                    <Group
+                                                        justify={isCurrentUser ? 'flex-end' : 'flex-start'}
+                                                        align="flex-start"
+                                                        gap="sm"
+                                                        mb={isConsecutive ? 2 : 8}
+                                                    >
+                                                        {!isCurrentUser && (
+                                                            <Box style={{ minWidth: 32 }}>
+                                                                {showAvatar ? (
+                                                                    <Avatar
+                                                                        size="sm"
+                                                                        radius="md"
+                                                                        src={message.sender.avatar}
+                                                                        style={{
+                                                                            border: '2px solid var(--mantine-color-violet-1)',
+                                                                            boxShadow: '0 2px 4px rgba(139, 69, 255, 0.15)',
+                                                                            transition: 'all 0.2s ease'
+                                                                        }}
+                                                                        onMouseEnter={(e) => {
+                                                                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(139, 69, 255, 0.25)';
+                                                                        }}
+                                                                        onMouseLeave={(e) => {
+                                                                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(139, 69, 255, 0.15)';
                                                                         }}
                                                                     >
-                                                        {message.content}
-                                                    </Text>
-                                                                    
-                                                                    <Group 
-                                                                        justify="space-between" 
-                                                                        align="center" 
-                                                                        mt="xs"
-                                                                        style={{ position: 'relative', zIndex: 1 }}
-                                                                    >
-                                                                        <Text 
-                                                                            size="xs" 
-                                                                            c={isCurrentUser ? 'rgba(255,255,255,0.7)' : 'dimmed'}
-                                                                            fw={500}
-                                                                        >
-                                                            {formatMessageTime(message.timestamp)}
-                                                        </Text>
-                                                                        
-                                                                        {isCurrentUser && (
-                                                            <Group gap="xs">
-                                                                                {message.status === 'sending' && (
-                                                                                    <Loader size="xs" color="rgba(255,255,255,0.8)" />
-                                                                                )}
-                                                                                {message.status === 'sent' && (
-                                                                                    <IconCheck 
-                                                                                        size={12} 
-                                                                                        color="rgba(255,255,255,0.8)"
-                                                                                        style={{ opacity: 0.8 }}
-                                                                                    />
-                                                                                )}
-                                                                                {message.status === 'delivered' && (
-                                                                                    <IconChecks 
-                                                                                        size={12} 
-                                                                                        color="rgba(255,255,255,0.8)"
-                                                                                        style={{ opacity: 0.8 }}
-                                                                                    />
-                                                                                )}
-                                                                                {message.status === 'read' && (
-                                                                                    <IconChecks 
-                                                                                        size={12} 
-                                                                                        color="var(--mantine-color-yellow-3)"
-                                                                                        style={{ 
-                                                                                            filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))'
-                                                                                        }}
-                                                                                    />
+                                                                        {message.sender.name.charAt(0)}
+                                                                    </Avatar>
+                                                                ) : (
+                                                                    <Box w={32} />
                                                                 )}
-                                                            </Group>
+                                                            </Box>
                                                         )}
+
+                                                        <Box style={{ maxWidth: '70%', minWidth: '120px' }}>
+                                                            {/* Nom de l'expéditeur pour les messages de groupe */}
+                                                            {!isCurrentUser && showAvatar && selectedConversation.isGroup && (
+                                                                <Text
+                                                                    size="xs"
+                                                                    c="violet.6"
+                                                                    fw={600}
+                                                                    mb="xs"
+                                                                    style={{ marginLeft: '4px' }}
+                                                                >
+                                                                    {message.sender.name}
+                                                                </Text>
+                                                            )}
+
+                                                            <Box
+                                                                style={{
+                                                                    backgroundColor: isCurrentUser ?
+                                                                        'var(--mantine-color-violet-6)' :
+                                                                        'white',
+                                                                    color: isCurrentUser ?
+                                                                        'white' : 'var(--mantine-color-gray-8)',
+                                                                    padding: '12px 16px',
+                                                                    borderRadius: '18px',
+                                                                    borderBottomRightRadius: isCurrentUser ? '6px' : '18px',
+                                                                    borderBottomLeftRadius: isCurrentUser ? '18px' : '6px',
+                                                                    border: isCurrentUser ? 'none' : '1px solid var(--mantine-color-gray-2)',
+                                                                    boxShadow: isCurrentUser ?
+                                                                        '0 2px 8px rgba(139, 69, 255, 0.25)' :
+                                                                        '0 1px 3px rgba(0, 0, 0, 0.08)',
+                                                                    transition: 'all 0.2s ease',
+                                                                    position: 'relative',
+                                                                    overflow: 'hidden'
+                                                                }}
+                                                                onMouseEnter={(e) => {
+                                                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                                                    e.currentTarget.style.boxShadow = isCurrentUser ?
+                                                                        '0 4px 12px rgba(139, 69, 255, 0.35)' :
+                                                                        '0 2px 6px rgba(0, 0, 0, 0.12)';
+                                                                }}
+                                                                onMouseLeave={(e) => {
+                                                                    e.currentTarget.style.transform = 'none';
+                                                                    e.currentTarget.style.boxShadow = isCurrentUser ?
+                                                                        '0 2px 8px rgba(139, 69, 255, 0.25)' :
+                                                                        '0 1px 3px rgba(0, 0, 0, 0.08)';
+                                                                }}
+                                                            >
+                                                                {/* Effet de gradient subtil */}
+                                                                {isCurrentUser && (
+                                                                    <Box
+                                                                        style={{
+                                                                            position: 'absolute',
+                                                                            top: 0,
+                                                                            left: 0,
+                                                                            right: 0,
+                                                                            height: '1px',
+                                                                            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)'
+                                                                        }}
+                                                                    />
+                                                                )}
+
+                                                                <Text
+                                                                    size="sm"
+                                                                    style={{
+                                                                        wordBreak: 'break-word',
+                                                                        lineHeight: 1.5,
+                                                                        position: 'relative',
+                                                                        zIndex: 1
+                                                                    }}
+                                                                >
+                                                                    {message.content}
+                                                                </Text>
+
+                                                                <Group
+                                                                    justify="space-between"
+                                                                    align="center"
+                                                                    mt="sm"
+                                                                    style={{ position: 'relative', zIndex: 1 }}
+                                                                >
+                                                                    <Text
+                                                                        size="xs"
+                                                                        c={isCurrentUser ? 'rgba(255,255,255,0.7)' : 'dimmed'}
+                                                                        fw={500}
+                                                                    >
+                                                                        {formatMessageTime(message.timestamp)}
+                                                                    </Text>
+
+                                                                    {isCurrentUser && (
+                                                                        <Group gap="xs">
+                                                                            {message.status === 'sending' && (
+                                                                                <Loader size="xs" color="rgba(255,255,255,0.8)" />
+                                                                            )}
+                                                                            {message.status === 'sent' && (
+                                                                                <IconCheck
+                                                                                    size={12}
+                                                                                    color="rgba(255,255,255,0.8)"
+                                                                                    style={{ opacity: 0.8 }}
+                                                                                />
+                                                                            )}
+                                                                            {message.status === 'delivered' && (
+                                                                                <IconChecks
+                                                                                    size={12}
+                                                                                    color="rgba(255,255,255,0.8)"
+                                                                                    style={{ opacity: 0.8 }}
+                                                                                />
+                                                                            )}
+                                                                            {message.status === 'read' && (
+                                                                                <IconChecks
+                                                                                    size={12}
+                                                                                    color="var(--mantine-color-yellow-3)"
+                                                                                    style={{
+                                                                                        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))'
+                                                                                    }}
+                                                                                />
+                                                                            )}
+                                                                        </Group>
+                                                                    )}
+                                                                </Group>
+                                                            </Box>
+                                                        </Box>
                                                     </Group>
                                                 </Box>
-                                                            </Box>
-                                            </Group>
-                                                    </Box>
-                                                );
-                                            })}
-                                            <div />
+                                            );
+                                        })}
+                                        <div />
                                     </Stack>
-                                    </Box>
                                 </Box>
+                            </Box>
 
-                                {/* Zone de saisie */}
-                                <Box p="lg" style={{
-                                    backgroundColor: 'white',
-                                    borderTop: '1px solid var(--mantine-color-gray-1)',
-                                    flexShrink: 0,
-                                    boxShadow: '0 -1px 3px rgba(0, 0, 0, 0.05)'
-                                }}>
-                                        <Group gap="sm" align="flex-end">
-                                            <ActionIcon 
-                                                variant="subtle" 
-                                                color="gray"
-                                                size="md"
-                                                radius="md"
-                                                title="Joindre un fichier"
-                                                style={{
-                                                    backgroundColor: 'var(--mantine-color-gray-0)',
-                                                    border: '1px solid var(--mantine-color-gray-2)'
-                                                }}
-                                            >
-                                                <IconPaperclip size={18} />
-                                        </ActionIcon>
-                                            <ActionIcon 
-                                                variant="subtle" 
-                                                color="gray"
-                                                size="md"
-                                                radius="md"
-                                                title="Envoyer une photo"
-                                                style={{
-                                                    backgroundColor: 'var(--mantine-color-gray-0)',
-                                                    border: '1px solid var(--mantine-color-gray-2)'
-                                                }}
-                                            >
-                                                <IconPhoto size={18} />
-                                        </ActionIcon>
-                                        <Textarea
-                                            placeholder="Tapez votre message..."
-                                            value={newMessage}
-                                            onChange={(e) => setNewMessage(e.target.value)}
-                                            onKeyPress={(e) => {
-                                                if (e.key === 'Enter' && !e.shiftKey) {
-                                                    e.preventDefault();
-                                                    handleSendMessage();
-                                                }
-                                            }}
-                                            style={{ flex: 1 }}
-                                            minRows={1}
-                                            maxRows={4}
-                                            autosize
+                            {/* Zone de saisie */}
+                            <Box p="lg" style={{
+                                backgroundColor: 'white',
+                                borderTop: '1px solid var(--mantine-color-gray-1)',
+                                flexShrink: 0,
+                                boxShadow: '0 -1px 3px rgba(0, 0, 0, 0.05)'
+                            }}>
+                                <Group gap="sm" align="flex-end">
+                                    <Tooltip label="Joindre un fichier" position="bottom-center">
+                                        <ActionIcon
+                                            variant="subtle"
+                                            color="gray"
+                                            size="lg"
                                             radius="md"
-                                                styles={{
-                                                    input: {
-                                                        backgroundColor: 'white',
-                                                        border: '1px solid var(--mantine-color-gray-3)',
-                                                        '&:focus': {
-                                                            borderColor: 'var(--mantine-color-violet-4)',
-                                                            boxShadow: '0 0 0 1px var(--mantine-color-violet-4)'
-                                                        }
-                                                    }
-                                                }}
-                                            />
-                                            <ActionIcon 
-                                                variant="subtle" 
-                                                color="gray"
-                                                size="md"
-                                                radius="md"
-                                                title="Ajouter un emoji"
-                                                style={{
-                                                    backgroundColor: 'var(--mantine-color-gray-0)',
-                                                    border: '1px solid var(--mantine-color-gray-2)'
-                                                }}
-                                            >
-                                                <IconMoodSmile size={18} />
-                                            </ActionIcon>
+                                            title="Joindre un fichier"
+                                            style={{
+                                                backgroundColor: 'var(--mantine-color-gray-0)',
+                                                border: '1px solid var(--mantine-color-gray-2)'
+                                            }}
+                                        >
+                                            <IconPaperclip size={18} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                    <Tooltip label="Envoyer une photo" position="bottom-center">
+                                        <ActionIcon
+                                            variant="subtle"
+                                            color="gray"
+                                            size="lg"
+                                            radius="md"
+                                            title="Envoyer une photo"
+                                            style={{
+                                                backgroundColor: 'var(--mantine-color-gray-0)',
+                                                border: '1px solid var(--mantine-color-gray-2)'
+                                            }}
+                                        >
+                                            <IconPhoto size={18} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                    <Textarea
+                                        placeholder="Tapez votre message..."
+                                        value={newMessage}
+                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                handleSendMessage();
+                                            }
+                                        }}
+                                        style={{ flex: 1 }}
+                                        minRows={1}
+                                        maxRows={4}
+                                        autosize
+                                        radius="md"
+                                        styles={{
+                                            input: {
+                                                backgroundColor: 'white',
+                                                border: '1px solid var(--mantine-color-gray-3)',
+                                                '&:focus': {
+                                                    borderColor: 'var(--mantine-color-violet-4)',
+                                                    boxShadow: '0 0 0 1px var(--mantine-color-violet-4)'
+                                                }
+                                            }
+                                        }}
+                                    />
+                                    <Tooltip label="Ajouter un emoji" position="bottom-center">
+                                        <ActionIcon
+                                            variant="subtle"
+                                            color="gray"
+                                            size="lg"
+                                            radius="md"
+                                            title="Ajouter un emoji"
+                                            style={{
+                                                backgroundColor: 'var(--mantine-color-gray-0)',
+                                                border: '1px solid var(--mantine-color-gray-2)'
+                                            }}
+                                        >
+                                            <IconMoodSmile size={18} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                    <Tooltip label="Envoyer le message" position="bottom-center">
                                         <ActionIcon
                                             variant="filled"
                                             color="violet"
-                                                size="md"
+                                            size="lg"
                                             radius="md"
                                             onClick={handleSendMessage}
                                             disabled={!newMessage.trim()}
-                                                title="Envoyer le message"
-                                                style={{
-                                                    backgroundColor: 'var(--mantine-color-violet-6)',
-                                                    border: '1px solid var(--mantine-color-violet-6)',
-                                                    boxShadow: '0 2px 8px rgba(139, 69, 255, 0.3)',
-                                                    transition: 'all 0.2s ease'
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    if (newMessage.trim()) {
-                                                        e.currentTarget.style.transform = 'translateY(-1px)';
-                                                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 69, 255, 0.4)';
-                                                    }
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.currentTarget.style.transform = 'none';
-                                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 69, 255, 0.3)';
-                                                }}
-                                            >
-                                                <IconSend size={18} />
+                                            title="Envoyer le message"
+                                            style={{
+                                                backgroundColor: 'var(--mantine-color-violet-6)',
+                                                border: '1px solid var(--mantine-color-violet-6)',
+                                                boxShadow: '0 2px 8px rgba(139, 69, 255, 0.3)',
+                                                transition: 'all 0.2s ease'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                if (newMessage.trim()) {
+                                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 69, 255, 0.4)';
+                                                }
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.transform = 'none';
+                                                e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 69, 255, 0.3)';
+                                            }}
+                                        >
+                                            <IconSend size={18} />
                                         </ActionIcon>
-                                    </Group>
-                                </Box>
+                                    </Tooltip>
+                                </Group>
                             </Box>
-                        ) : (
-                                <Card withBorder={false} p="xl" radius="md" style={{
-                                    height: '100%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    flexDirection: 'column',
-                                    backgroundColor: 'var(--mantine-color-gray-0)',
-                                    border: '2px dashed var(--mantine-color-gray-3)'
-                                }}>
-                                    <ThemeIcon 
-                                        size={80} 
-                                        radius="md" 
-                                        color="violet" 
-                                        variant="light"
-                                        style={{
-                                            boxShadow: '0 4px 12px rgba(139, 69, 255, 0.15)'
-                                        }}
-                                    >
-                                        <IconMessage size={40} />
-                                    </ThemeIcon>
-                                    <Text fw={700} size="xl" c="dark" mt="lg" ta="center">
-                                        Sélectionnez une conversation
-                                    </Text>
-                                    <Text c="dimmed" size="md" ta="center" mt="sm" maw={400}>
-                                        Choisissez une conversation dans la liste pour commencer à discuter avec vos collègues et amis
-                                    </Text>
-                                    <Button
-                                        variant="light"
-                                        color="violet"
-                                        size="md"
-                                        radius="md"
-                                        leftSection={<IconPlus size={16} />}
-                                        onClick={() => setModalOpened(true)}
-                                        mt="lg"
-                                    >
-                                        Nouvelle conversation
-                                    </Button>
-                                </Card>
-                        )}
-                    </Box>
-                </Box>
-
-                {/* Modal de nouvelle conversation */}
-                <Modal
-                    opened={modalOpened}
-                    onClose={() => setModalOpened(false)}
-                    title={
-                        <Group gap="sm">
-                            <ThemeIcon size="sm" radius="md" color="violet" variant="light">
-                                <IconPlus size={16} />
+                        </Box>
+                    ) : (
+                        <Card withBorder={false} p="xl" radius="md" style={{
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexDirection: 'column',
+                            backgroundColor: 'var(--mantine-color-gray-0)',
+                            border: '2px dashed var(--mantine-color-gray-3)'
+                        }}>
+                            <ThemeIcon
+                                size={80}
+                                radius="md"
+                                color="violet"
+                                variant="light"
+                                style={{
+                                    boxShadow: '0 4px 12px rgba(139, 69, 255, 0.15)'
+                                }}
+                            >
+                                <IconMessage size={40} />
                             </ThemeIcon>
-                            <Text fw={600}>Nouvelle conversation</Text>
-                        </Group>
-                    }
-                    size="md"
-                    radius="md"
-                    styles={{
-                        header: {
-                            borderBottom: '1px solid var(--mantine-color-gray-2)',
-                            paddingBottom: 'var(--mantine-spacing-md)'
-                        }
-                    }}
-                >
-                    <Stack gap="lg">
-                        {/* Type de conversation - EN PREMIER */}
-                        <Group gap="xs">
+                            <Text fw={700} size="xl" c="dark" mt="lg" ta="center">
+                                Sélectionnez une conversation
+                            </Text>
+                            <Text c="dimmed" size="md" ta="center" mt="sm" maw={400}>
+                                Choisissez une conversation dans la liste pour commencer à discuter avec vos collègues et amis
+                            </Text>
                             <Button
-                                variant={newConversationType === 'direct' ? 'filled' : 'light'}
+                                variant="light"
                                 color="violet"
                                 size="md"
                                 radius="md"
-                                leftSection={<IconUser size={16} />}
-                                onClick={() => setNewConversationType('direct')}
-                                style={{ flex: 1 }}
+                                leftSection={<IconPlus size={16} />}
+                                onClick={() => setModalOpened(true)}
+                                mt="lg"
                             >
-                                Message privé
+                                Nouvelle conversation
                             </Button>
-                            <Button
-                                variant={newConversationType === 'group' ? 'filled' : 'light'}
-                                color="violet"
-                                size="md"
-                                radius="md"
-                                leftSection={<IconUsers size={16} />}
-                                onClick={() => setNewConversationType('group')}
-                                style={{ flex: 1 }}
-                            >
-                                Groupe
-                            </Button>
-                        </Group>
+                        </Card>
+                    )}
+                </Box>
+            </Box>
 
-                        {/* Champ de nom - CONDITIONNEL */}
-                        {newConversationType === 'group' ? (
+            {/* Modal de nouvelle conversation */}
+            <Modal
+                opened={modalOpened}
+                onClose={() => setModalOpened(false)}
+                title={
+                    <Group gap="sm">
+                        <ThemeIcon size="sm" radius="md" color="violet" variant="light">
+                            <IconPlus size={16} />
+                        </ThemeIcon>
+                        <Text fw={600}>Nouvelle conversation</Text>
+                    </Group>
+                }
+                size="md"
+                radius="md"
+                styles={{
+                    header: {
+                        borderBottom: '1px solid var(--mantine-color-gray-2)',
+                        paddingBottom: 'var(--mantine-spacing-md)'
+                    }
+                }}
+            >
+                <Stack gap="lg">
+                    {/* Type de conversation - EN PREMIER */}
+                    <Group gap="xs">
+                        <Button
+                            variant={newConversationType === 'direct' ? 'filled' : 'light'}
+                            color="violet"
+                            size="md"
+                            radius="md"
+                            leftSection={<IconUser size={16} />}
+                            onClick={() => setNewConversationType('direct')}
+                            style={{ flex: 1 }}
+                        >
+                            Message privé
+                        </Button>
+                        <Button
+                            variant={newConversationType === 'group' ? 'filled' : 'light'}
+                            color="violet"
+                            size="md"
+                            radius="md"
+                            leftSection={<IconUsers size={16} />}
+                            onClick={() => setNewConversationType('group')}
+                            style={{ flex: 1 }}
+                        >
+                            Groupe
+                        </Button>
+                    </Group>
+
+                    {/* Champ de nom - CONDITIONNEL */}
+                    {newConversationType === 'group' ? (
                         <TextInput
-                                label="Nom du groupe"
-                                placeholder="Entrez le nom du groupe"
+                            label="Nom du groupe"
+                            placeholder="Entrez le nom du groupe"
                             value={newConversationName}
                             onChange={(e) => setNewConversationName(e.target.value)}
                             required
                             radius="md"
-                                styles={{
-                                    input: {
-                                        '&:focus': {
-                                            borderColor: 'var(--mantine-color-violet-4)',
-                                            boxShadow: '0 0 0 1px var(--mantine-color-violet-4)'
-                                        }
+                            styles={{
+                                input: {
+                                    '&:focus': {
+                                        borderColor: 'var(--mantine-color-violet-4)',
+                                        boxShadow: '0 0 0 1px var(--mantine-color-violet-4)'
                                     }
-                                }}
-                            />
-                        ) : (
-                            <Select
-                                label="Sélectionner une personne"
-                                placeholder="Rechercher une personne..."
-                                data={userOptions}
-                                value={selectedPerson}
-                                onChange={setSelectedPerson}
-                                searchable
-                                clearable
-                                required
-                                radius="md"
-                                styles={{
-                                    input: {
-                                        '&:focus': {
-                                            borderColor: 'var(--mantine-color-violet-4)',
-                                            boxShadow: '0 0 0 1px var(--mantine-color-violet-4)'
-                                        }
-                                    }
-                                }}
-                            />
-                        )}
-
-                        {/* Sélection des utilisateurs - SEULEMENT POUR LES GROUPES */}
-                        {newConversationType === 'group' && (
-                            <MultiSelect
-                                label="Membres du groupe"
-                                placeholder="Sélectionnez les utilisateurs à ajouter"
-                                data={userOptions}
-                                value={selectedUsers}
-                                onChange={setSelectedUsers}
-                                searchable
-                                clearable
-                                required
-                                radius="md"
-                                styles={{
-                                    input: {
-                                        '&:focus': {
-                                            borderColor: 'var(--mantine-color-violet-4)',
-                                            boxShadow: '0 0 0 1px var(--mantine-color-violet-4)'
-                                        }
-                                    }
-                                }}
-                            />
-                        )}
-
-                        <Group justify="flex-end" mt="md">
-                            <Button 
-                                variant="light" 
-                                onClick={() => setModalOpened(false)}
-                                radius="md"
-                            >
-                                Annuler
-                            </Button>
-                            <Button 
-                                onClick={handleCreateConversation} 
-                                color="violet"
-                                radius="md"
-                                disabled={
-                                    (newConversationType === 'group' && (!newConversationName.trim() || selectedUsers.length === 0)) ||
-                                    (newConversationType === 'direct' && !selectedPerson)
                                 }
-                                style={{
-                                    boxShadow: '0 2px 8px rgba(139, 69, 255, 0.3)'
-                                }}
-                            >
-                                Créer la conversation
-                            </Button>
-                        </Group>
-                    </Stack>
-                </Modal>
+                            }}
+                        />
+                    ) : (
+                        <Select
+                            label="Sélectionner une personne"
+                            placeholder="Rechercher une personne..."
+                            data={userOptions}
+                            value={selectedPerson}
+                            onChange={setSelectedPerson}
+                            searchable
+                            clearable
+                            required
+                            radius="md"
+                            styles={{
+                                input: {
+                                    '&:focus': {
+                                        borderColor: 'var(--mantine-color-violet-4)',
+                                        boxShadow: '0 0 0 1px var(--mantine-color-violet-4)'
+                                    }
+                                }
+                            }}
+                        />
+                    )}
+
+                    {/* Sélection des utilisateurs - SEULEMENT POUR LES GROUPES */}
+                    {newConversationType === 'group' && (
+                        <MultiSelect
+                            label="Membres du groupe"
+                            placeholder="Sélectionnez les utilisateurs à ajouter"
+                            data={userOptions}
+                            value={selectedUsers}
+                            onChange={setSelectedUsers}
+                            searchable
+                            clearable
+                            required
+                            radius="md"
+                            styles={{
+                                input: {
+                                    '&:focus': {
+                                        borderColor: 'var(--mantine-color-violet-4)',
+                                        boxShadow: '0 0 0 1px var(--mantine-color-violet-4)'
+                                    }
+                                }
+                            }}
+                        />
+                    )}
+
+                    <Group justify="flex-end" mt="md">
+                        <Button
+                            variant="light"
+                            onClick={() => setModalOpened(false)}
+                            radius="md"
+                        >
+                            Annuler
+                        </Button>
+                        <Button
+                            onClick={handleCreateConversation}
+                            color="violet"
+                            radius="md"
+                            disabled={
+                                (newConversationType === 'group' && (!newConversationName.trim() || selectedUsers.length === 0)) ||
+                                (newConversationType === 'direct' && !selectedPerson)
+                            }
+                            style={{
+                                boxShadow: '0 2px 8px rgba(139, 69, 255, 0.3)'
+                            }}
+                        >
+                            Créer la conversation
+                        </Button>
+                    </Group>
+                </Stack>
+            </Modal>
         </MainLayout>
     );
 };

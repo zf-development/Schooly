@@ -118,7 +118,7 @@ const SubscriptionsPage: React.FC = () => {
         <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
                 <Stack gap="xl">
                     {/* En-tête avec statistiques à droite */}
-                    <Group justify="space-between" align="center" mb="xl">
+                    <Group justify="space-between" align="center">
                         <Group>
                             <ThemeIcon size={40} radius="md" color="violet">
                                 <IconBuildingPlus size={24} />
