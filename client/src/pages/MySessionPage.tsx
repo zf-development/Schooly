@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-    Container,
     Title,
     Stack,
     Card,
@@ -11,18 +10,11 @@ import {
     Paper,
     Grid,
     ThemeIcon,
-    ActionIcon,
-    Progress,
     Box,
     Center,
     Loader,
     SimpleGrid,
-    Divider,
-    Tabs,
-    Table,
     ScrollArea,
-    Blockquote,
-    Flex
 } from '@mantine/core';
 import {
     LineChart,
@@ -36,19 +28,13 @@ import {
 } from 'recharts';
 import {
     IconCalendar,
-    IconCalendarPlus,
     IconChartLine,
     IconTrendingUp,
     IconTrendingDown,
     IconMinus,
     IconBook,
     IconTrophy,
-    IconClock,
-    IconUsers,
-    IconTarget,
-    IconX,
-    IconMessageCircle,
-    IconQuote
+    IconClock
 } from '@tabler/icons-react';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';

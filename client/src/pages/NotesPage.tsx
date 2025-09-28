@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Container,
     Title,
     Group,
     ThemeIcon,
@@ -10,23 +9,16 @@ import {
     Button,
     Grid,
     Badge,
-    Modal,
     TextInput,
     Textarea,
     ActionIcon,
-    Tooltip,
     Box,
-    SimpleGrid,
     Paper,
     Divider,
     Center,
     Loader,
     Menu,
-    Alert,
-    Tabs,
     ScrollArea,
-    Flex,
-    Select
 } from '@mantine/core';
 import {
     IconNotes,
@@ -34,7 +26,6 @@ import {
     IconEdit,
     IconTrash,
     IconSearch,
-    IconTag,
     IconStar,
     IconStarFilled,
     IconDots,
@@ -44,7 +35,6 @@ import {
     IconShare,
     IconCopy,
     IconDownload,
-    IconFilter,
     IconSortAscending,
     IconSortDescending,
     IconCalendar,
@@ -54,9 +44,6 @@ import {
     IconCheck,
     IconX
 } from '@tabler/icons-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeHighlight from 'rehype-highlight';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
 
@@ -182,22 +169,22 @@ const NotesPage: React.FC = () => {
     // Filtrage et tri des notes
     const filteredNotes = notes.filter(note => {
         const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-        
-        const matchesTab = activeTab === 'all' || 
-                          (activeTab === 'starred' && note.isStarred) ||
-                          (activeTab === 'pinned' && note.isPinned) ||
-                          (activeTab === 'archived' && note.isArchived);
-        
+            note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        const matchesTab = activeTab === 'all' ||
+            (activeTab === 'starred' && note.isStarred) ||
+            (activeTab === 'pinned' && note.isPinned) ||
+            (activeTab === 'archived' && note.isArchived);
+
         const matchesFolder = !selectedFolder || note.folder === selectedFolder;
-        
+
         return matchesSearch && matchesTab && matchesFolder;
     });
 
     const sortedNotes = [...filteredNotes].sort((a, b) => {
         let comparison = 0;
-        
+
         switch (sortBy) {
             case 'title':
                 comparison = a.title.localeCompare(b.title);
@@ -210,7 +197,7 @@ const NotesPage: React.FC = () => {
                 comparison = a.modifiedAt.getTime() - b.modifiedAt.getTime();
                 break;
         }
-        
+
         return sortOrder === 'asc' ? comparison : -comparison;
     });
 
@@ -230,7 +217,7 @@ const NotesPage: React.FC = () => {
             color: '#ffffff',
             wordCount: 0
         };
-        
+
         setNotes([newNote, ...notes]);
         setSelectedNote(newNote);
         setEditingContent(newNote.content);
@@ -246,7 +233,7 @@ const NotesPage: React.FC = () => {
 
     const handleSaveNote = () => {
         if (!selectedNote) return;
-        
+
         const updatedNote = {
             ...selectedNote,
             content: editingContent,
@@ -254,20 +241,20 @@ const NotesPage: React.FC = () => {
             modifiedAt: new Date(),
             wordCount: editingContent.split(' ').length
         };
-        
+
         setNotes(notes.map(note => note.id === selectedNote.id ? updatedNote : note));
         setSelectedNote(updatedNote);
     };
 
     const handleSaveTags = () => {
         if (!selectedNote) return;
-        
+
         const updatedNote = {
             ...selectedNote,
             tags: editingTags.split(',').map(tag => tag.trim()).filter(tag => tag),
             modifiedAt: new Date()
         };
-        
+
         setNotes(notes.map(note => note.id === selectedNote.id ? updatedNote : note));
         setSelectedNote(updatedNote);
         setIsEditingTags(false);
@@ -322,19 +309,19 @@ const NotesPage: React.FC = () => {
     };
 
     const handleToggleStar = (id: string) => {
-        setNotes(notes.map(note => 
+        setNotes(notes.map(note =>
             note.id === id ? { ...note, isStarred: !note.isStarred } : note
         ));
     };
 
     const handleTogglePin = (id: string) => {
-        setNotes(notes.map(note => 
+        setNotes(notes.map(note =>
             note.id === id ? { ...note, isPinned: !note.isPinned } : note
         ));
     };
 
     const handleArchiveNote = (id: string) => {
-        setNotes(notes.map(note => 
+        setNotes(notes.map(note =>
             note.id === id ? { ...note, isArchived: !note.isArchived } : note
         ));
     };
@@ -371,7 +358,7 @@ const NotesPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader color="violet" size="lg" />
                 </Center>
@@ -380,7 +367,7 @@ const NotesPage: React.FC = () => {
     }
 
     return (
-        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+        <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
             {/* En-tête */}
             <Group justify="space-between" align="center" mb="xl">
                 <Group>
@@ -580,7 +567,7 @@ const NotesPage: React.FC = () => {
                                 <IconPlus size={18} />
                             </ActionIcon>
                         </Group>
-                        
+
                         <ScrollArea h="calc(100% - 60px)">
                             <Stack gap="md">
                                 {sortedNotes.map(note => (
@@ -824,9 +811,9 @@ const NotesPage: React.FC = () => {
                                         </Menu>
                                     </Group>
                                 </Group>
-                                
+
                                 <Divider />
-                                
+
                                 {/* Contenu de la note */}
                                 <Box style={{ flex: 1, minHeight: 0 }}>
                                     <Textarea
@@ -853,9 +840,9 @@ const NotesPage: React.FC = () => {
                                         }}
                                     />
                                 </Box>
-                                
+
                                 <Divider />
-                                
+
                                 {/* Métadonnées */}
                                 <Group justify="space-between" align="center">
                                     <Text size="sm" c="dimmed">

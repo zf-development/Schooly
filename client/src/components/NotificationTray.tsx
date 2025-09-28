@@ -14,9 +14,7 @@ import {
     Menu,
     Tooltip,
     ThemeIcon,
-    Flex,
     Center,
-    Loader
 } from '@mantine/core';
 import {
     IconBell,
@@ -26,16 +24,13 @@ import {
     IconChecks,
     IconSettings,
     IconTrash,
-    IconArchive,
     IconMessage,
     IconHeart,
     IconCalendar,
     IconFile,
-    IconUsers,
     IconAlertCircle,
     IconInfoCircle,
     IconCircleCheck,
-    IconClock,
     IconDots
 } from '@tabler/icons-react';
 
@@ -176,7 +171,7 @@ const NotificationTray: React.FC<NotificationTrayProps> = ({ isOpen, onClose }) 
     const formatTime = (date: Date) => {
         const now = new Date();
         const diff = now.getTime() - date.getTime();
-        
+
         if (diff < 1000 * 60) return 'Maintenant';
         if (diff < 1000 * 60 * 60) return `${Math.floor(diff / (1000 * 60))}m`;
         if (diff < 1000 * 60 * 60 * 24) return `${Math.floor(diff / (1000 * 60 * 60))}h`;
@@ -184,7 +179,7 @@ const NotificationTray: React.FC<NotificationTrayProps> = ({ isOpen, onClose }) 
     };
 
     const handleMarkAsRead = (notificationId: string) => {
-        setNotifications(notifications.map(notif => 
+        setNotifications(notifications.map(notif =>
             notif.id === notificationId ? { ...notif, isRead: true } : notif
         ));
     };
@@ -270,11 +265,11 @@ const NotificationTray: React.FC<NotificationTrayProps> = ({ isOpen, onClose }) 
                                     radius="md"
                                     style={{
                                         cursor: 'pointer',
-                                        border: notification.isRead 
-                                            ? '1px solid var(--mantine-color-gray-2)' 
+                                        border: notification.isRead
+                                            ? '1px solid var(--mantine-color-gray-2)'
                                             : '1px solid var(--mantine-color-violet-3)',
-                                        backgroundColor: notification.isRead 
-                                            ? 'transparent' 
+                                        backgroundColor: notification.isRead
+                                            ? 'transparent'
                                             : 'var(--mantine-color-violet-0)'
                                     }}
                                     onClick={() => handleMarkAsRead(notification.id)}
@@ -314,14 +309,14 @@ const NotificationTray: React.FC<NotificationTrayProps> = ({ isOpen, onClose }) 
                                                     </ActionIcon>
                                                 </Menu.Target>
                                                 <Menu.Dropdown>
-                                                    <Menu.Item 
+                                                    <Menu.Item
                                                         leftSection={<IconCheck size={14} />}
                                                         onClick={() => handleMarkAsRead(notification.id)}
                                                         disabled={notification.isRead}
                                                     >
                                                         Marquer comme lu
                                                     </Menu.Item>
-                                                    <Menu.Item 
+                                                    <Menu.Item
                                                         leftSection={<IconTrash size={14} />}
                                                         color="red"
                                                         onClick={() => handleDeleteNotification(notification.id)}

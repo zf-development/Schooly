@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    Container,
     Title,
     Group,
     ThemeIcon,
@@ -8,8 +7,6 @@ import {
     Card,
     Text,
     Button,
-    Grid,
-    Badge,
     Modal,
     TextInput,
     FileInput,
@@ -17,26 +14,15 @@ import {
     Tooltip,
     Box,
     SimpleGrid,
-    Paper,
-    Divider,
     Center,
     Loader,
-    Menu,
-    Progress,
     Alert,
     Breadcrumbs,
     Anchor,
     ScrollArea,
-    Flex,
-    Tabs,
     Image,
-    Avatar,
     Timeline,
-    RingProgress,
     Progress as MantineProgress,
-    Collapse,
-    UnstyledButton,
-    HoverCard,
 } from '@mantine/core';
 import {
     IconCloud,
@@ -49,54 +35,16 @@ import {
     IconFileTypePdf,
     IconDownload,
     IconShare,
-    IconTrash,
-    IconEdit,
     IconDots,
     IconSearch,
-    IconFilter,
     IconLayoutGrid,
     IconList,
-    IconPlus,
-    IconFolderPlus,
     IconHome,
     IconChevronRight,
-    IconCopy,
     IconArrowRight,
-    IconEye,
     IconStar,
-    IconClock,
-    IconUsers,
-    IconDatabase,
-    IconSettings,
-    IconRefresh,
-    IconDragDrop,
-    IconLayoutSidebar,
     IconTimeline,
-    IconPhoto as IconGallery,
-    IconTable,
-    IconCalendar,
-    IconTag,
-    IconHeart,
-    IconBookmark,
-    IconArchive,
-    IconLock,
-    IconExternalLink,
-    IconMaximize,
-    IconMinimize,
-    IconX,
-    IconCheck,
-    IconAlertCircle,
-    IconInfoCircle,
-    IconChevronDown,
-    IconChevronUp,
-    IconGripVertical,
-    IconPalette,
-    IconAdjustments,
-    IconZoomIn,
-    IconZoomOut,
-    IconRotateClockwise,
-    IconFlipHorizontal,
-    IconFlipVertical
+    IconPhoto as IconGallery
 } from '@tabler/icons-react';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
@@ -534,7 +482,7 @@ const FileExplorerPage: React.FC = () => {
 
     if (!user) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -544,7 +492,7 @@ const FileExplorerPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -562,7 +510,7 @@ const FileExplorerPage: React.FC = () => {
 
     const getFileIcon = (file: FileItem) => {
         if (file.type === 'folder') return <IconFolder size={24} />;
-        
+
         const mimeType = file.mimeType || '';
         if (mimeType.startsWith('image/')) return <IconPhoto size={24} />;
         if (mimeType.includes('pdf')) return <IconFileTypePdf size={24} />;
@@ -573,7 +521,7 @@ const FileExplorerPage: React.FC = () => {
 
     const getFileTypeColor = (file: FileItem) => {
         if (file.type === 'folder') return 'blue';
-        
+
         const mimeType = file.mimeType || '';
         if (mimeType.startsWith('image/')) return 'green';
         if (mimeType.includes('pdf')) return 'red';
@@ -655,12 +603,12 @@ const FileExplorerPage: React.FC = () => {
         console.log('Partage de:', file.name);
     };
 
-    const filteredFiles = files.filter(file => 
+    const filteredFiles = files.filter(file =>
         file.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
         file.path.startsWith(currentPath)
     );
 
-    const filteredFolders = folders.filter(folder => 
+    const filteredFolders = folders.filter(folder =>
         folder.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
         folder.path.startsWith(currentPath) &&
         folder.path !== currentPath
@@ -695,7 +643,7 @@ const FileExplorerPage: React.FC = () => {
 
 
     return (
-        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+        <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
             <Box style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 {/* En-tête */}
                 <Box pb="md">
@@ -816,107 +764,107 @@ const FileExplorerPage: React.FC = () => {
                             {viewMode === 'grid' && (
                                 <ScrollArea style={{ flex: 1 }}>
                                     <SimpleGrid cols={{ base: 2, sm: 3, md: 4, lg: 6 }} spacing="md">
-                                    {/* Bouton de retour si on est dans un dossier */}
-                                    {currentPath !== '/' && (
-                                        <Card
-                                            p="md"
-                                            radius="lg"
-                                            withBorder
-                                            style={{
-                                                cursor: 'pointer',
-                                                background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-                                                border: '1px solid #cbd5e1',
-                                                transition: 'all 0.3s ease'
-                                            }}
-                                            onClick={handleBackToParent}
-                                        >
-                                            <Stack align="center" gap="sm">
-                                                <ThemeIcon size={60} radius="lg" color="gray">
-                                                    <IconArrowRight size={24} style={{ transform: 'rotate(180deg)' }} />
-                                                </ThemeIcon>
-                                                <Text size="sm" fw={600} ta="center">
-                                                    Retour
-                                                </Text>
-                                                <Text size="xs" c="dimmed" ta="center">
-                                                    Dossier parent
-                                                </Text>
-                                            </Stack>
-                                        </Card>
-                                    )}
-
-                                    {filteredFolders.map(folder => (
-                                        <Card
-                                            key={folder.id}
-                                            p="md"
-                                            radius="lg"
-                                            withBorder
-                                            style={{
-                                                cursor: 'pointer',
-                                                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                                                border: '1px solid #e2e8f0',
-                                                transition: 'all 0.3s ease'
-                                            }}
-                                            onClick={() => setCurrentPath(folder.path)}
-                                        >
-                                            <Stack align="center" gap="sm">
-                                                <ThemeIcon size={60} radius="lg" color="blue">
-                                                    <IconFolder size={24} />
-                                                </ThemeIcon>
-                                                <Text size="sm" fw={600} ta="center" truncate>
-                                                    {folder.name}
-                                                </Text>
-                                                <Text size="xs" c="dimmed" ta="center">
-                                                    {folder.itemCount} éléments
-                                                </Text>
-                                            </Stack>
-                                        </Card>
-                                    ))}
-
-                                    {filteredFiles.map(file => (
-                                        <Card
-                                            key={file.id}
-                                            p="md"
-                                            radius="lg"
-                                            withBorder
-                                            style={{
-                                                cursor: 'pointer',
-                                                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                                                border: '1px solid #e2e8f0',
-                                                transition: 'all 0.3s ease',
-                                                position: 'relative'
-                                            }}
-                                            onClick={() => setPreviewFile(file)}
-                                        >
-                                            <Stack align="center" gap="sm">
-                                                {file.thumbnail ? (
-                                                    <Image
-                                                        src={file.thumbnail}
-                                                        alt={file.name}
-                                                        height={60}
-                                                        width={60}
-                                                        radius="md"
-                                                        fit="cover"
-                                                    />
-                                                ) : (
-                                                    <ThemeIcon size={60} radius="lg" color={getFileTypeColor(file)}>
-                                                        {getFileIcon(file)}
+                                        {/* Bouton de retour si on est dans un dossier */}
+                                        {currentPath !== '/' && (
+                                            <Card
+                                                p="md"
+                                                radius="lg"
+                                                withBorder
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                                                    border: '1px solid #cbd5e1',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                                onClick={handleBackToParent}
+                                            >
+                                                <Stack align="center" gap="sm">
+                                                    <ThemeIcon size={60} radius="lg" color="gray">
+                                                        <IconArrowRight size={24} style={{ transform: 'rotate(180deg)' }} />
                                                     </ThemeIcon>
-                                                )}
-                                                
-                                                <Text size="sm" fw={600} ta="center" truncate>
-                                                    {file.name}
-                                                </Text>
-                                                
-                                                <Group gap="xs" justify="center">
-                                                    <Text size="xs" c="dimmed">
-                                                        {file.size ? formatFileSize(file.size) : 'N/A'}
+                                                    <Text size="sm" fw={600} ta="center">
+                                                        Retour
                                                     </Text>
-                                                    {file.isStarred && <IconStar size={12} color="gold" />}
-                                                    {file.isShared && <IconShare size={12} color="green" />}
-                                                </Group>
-                                            </Stack>
-                                        </Card>
-                                    ))}
+                                                    <Text size="xs" c="dimmed" ta="center">
+                                                        Dossier parent
+                                                    </Text>
+                                                </Stack>
+                                            </Card>
+                                        )}
+
+                                        {filteredFolders.map(folder => (
+                                            <Card
+                                                key={folder.id}
+                                                p="md"
+                                                radius="lg"
+                                                withBorder
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                                                    border: '1px solid #e2e8f0',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                                onClick={() => setCurrentPath(folder.path)}
+                                            >
+                                                <Stack align="center" gap="sm">
+                                                    <ThemeIcon size={60} radius="lg" color="blue">
+                                                        <IconFolder size={24} />
+                                                    </ThemeIcon>
+                                                    <Text size="sm" fw={600} ta="center" truncate>
+                                                        {folder.name}
+                                                    </Text>
+                                                    <Text size="xs" c="dimmed" ta="center">
+                                                        {folder.itemCount} éléments
+                                                    </Text>
+                                                </Stack>
+                                            </Card>
+                                        ))}
+
+                                        {filteredFiles.map(file => (
+                                            <Card
+                                                key={file.id}
+                                                p="md"
+                                                radius="lg"
+                                                withBorder
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                                                    border: '1px solid #e2e8f0',
+                                                    transition: 'all 0.3s ease',
+                                                    position: 'relative'
+                                                }}
+                                                onClick={() => setPreviewFile(file)}
+                                            >
+                                                <Stack align="center" gap="sm">
+                                                    {file.thumbnail ? (
+                                                        <Image
+                                                            src={file.thumbnail}
+                                                            alt={file.name}
+                                                            height={60}
+                                                            width={60}
+                                                            radius="md"
+                                                            fit="cover"
+                                                        />
+                                                    ) : (
+                                                        <ThemeIcon size={60} radius="lg" color={getFileTypeColor(file)}>
+                                                            {getFileIcon(file)}
+                                                        </ThemeIcon>
+                                                    )}
+
+                                                    <Text size="sm" fw={600} ta="center" truncate>
+                                                        {file.name}
+                                                    </Text>
+
+                                                    <Group gap="xs" justify="center">
+                                                        <Text size="xs" c="dimmed">
+                                                            {file.size ? formatFileSize(file.size) : 'N/A'}
+                                                        </Text>
+                                                        {file.isStarred && <IconStar size={12} color="gold" />}
+                                                        {file.isShared && <IconShare size={12} color="green" />}
+                                                    </Group>
+                                                </Stack>
+                                            </Card>
+                                        ))}
                                     </SimpleGrid>
                                     <Box style={{ height: '20px' }} />
                                 </ScrollArea>
@@ -1004,28 +952,28 @@ const FileExplorerPage: React.FC = () => {
                             {viewMode === 'timeline' && (
                                 <ScrollArea style={{ flex: 1 }}>
                                     <Timeline active={-1} bulletSize={24} lineWidth={2}>
-                                    {[...filteredFolders.map(f => ({ ...f, type: 'folder' as const })), ...filteredFiles]
-                                        .sort((a, b) => b.modifiedAt.getTime() - a.modifiedAt.getTime())
-                                        .map((item, index) => (
-                                            <Timeline.Item
-                                                key={item.id}
-                                                bullet={
-                                                    item.type === 'folder' ? (
-                                                        <Text size="sm">{(item as any).icon}</Text>
-                                                    ) : (
-                                                        <ThemeIcon size={20} radius="xl" color={getFileTypeColor(item as FileItem)}>
-                                                            {getFileIcon(item as FileItem)}
-                                                        </ThemeIcon>
-                                                    )
-                                                }
-                                                title={item.name}
-                                            >
-                                                <Text size="sm" c="dimmed">
-                                                    {item.type === 'folder' ? 'Dossier' : 'Fichier'} • 
-                                                    Modifié le {item.modifiedAt.toLocaleDateString('fr-FR')}
-                                                </Text>
-                                            </Timeline.Item>
-                                        ))}
+                                        {[...filteredFolders.map(f => ({ ...f, type: 'folder' as const })), ...filteredFiles]
+                                            .sort((a, b) => b.modifiedAt.getTime() - a.modifiedAt.getTime())
+                                            .map((item, index) => (
+                                                <Timeline.Item
+                                                    key={item.id}
+                                                    bullet={
+                                                        item.type === 'folder' ? (
+                                                            <Text size="sm">{(item as any).icon}</Text>
+                                                        ) : (
+                                                            <ThemeIcon size={20} radius="xl" color={getFileTypeColor(item as FileItem)}>
+                                                                {getFileIcon(item as FileItem)}
+                                                            </ThemeIcon>
+                                                        )
+                                                    }
+                                                    title={item.name}
+                                                >
+                                                    <Text size="sm" c="dimmed">
+                                                        {item.type === 'folder' ? 'Dossier' : 'Fichier'} •
+                                                        Modifié le {item.modifiedAt.toLocaleDateString('fr-FR')}
+                                                    </Text>
+                                                </Timeline.Item>
+                                            ))}
                                     </Timeline>
                                     <Box style={{ height: '20px' }} />
                                 </ScrollArea>
@@ -1034,32 +982,32 @@ const FileExplorerPage: React.FC = () => {
                             {viewMode === 'gallery' && (
                                 <ScrollArea style={{ flex: 1 }}>
                                     <SimpleGrid cols={{ base: 2, sm: 3, md: 4, lg: 6 }} spacing="md">
-                                    {filteredFiles
-                                        .filter(file => file.mimeType?.startsWith('image/'))
-                                        .map(file => (
-                                            <Card
-                                                key={file.id}
-                                                p={0}
-                                                radius="lg"
-                                                withBorder
-                                                style={{ overflow: 'hidden' }}
-                                            >
-                                                <Image
-                                                    src={file.thumbnail || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop'}
-                                                    alt={file.name}
-                                                    height={200}
-                                                    fit="cover"
-                                                />
-                                                <Box p="sm">
-                                                    <Text size="sm" fw={600} truncate>
-                                                        {file.name}
-                                                    </Text>
-                                                    <Text size="xs" c="dimmed">
-                                                        {file.size ? formatFileSize(file.size) : 'N/A'}
-                                                    </Text>
-                                                </Box>
-                                            </Card>
-                                        ))}
+                                        {filteredFiles
+                                            .filter(file => file.mimeType?.startsWith('image/'))
+                                            .map(file => (
+                                                <Card
+                                                    key={file.id}
+                                                    p={0}
+                                                    radius="lg"
+                                                    withBorder
+                                                    style={{ overflow: 'hidden' }}
+                                                >
+                                                    <Image
+                                                        src={file.thumbnail || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop'}
+                                                        alt={file.name}
+                                                        height={200}
+                                                        fit="cover"
+                                                    />
+                                                    <Box p="sm">
+                                                        <Text size="sm" fw={600} truncate>
+                                                            {file.name}
+                                                        </Text>
+                                                        <Text size="xs" c="dimmed">
+                                                            {file.size ? formatFileSize(file.size) : 'N/A'}
+                                                        </Text>
+                                                    </Box>
+                                                </Card>
+                                            ))}
                                     </SimpleGrid>
                                 </ScrollArea>
                             )}

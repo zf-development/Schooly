@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Text, CloseButton } from '@mantine/core';
+import { Alert, Text } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 
 interface ErrorAlertProps {

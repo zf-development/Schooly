@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-    Paper,
-    Title,
     Text,
     Stack,
     Group,
@@ -9,28 +7,18 @@ import {
     Button,
     Alert,
     Skeleton,
-    Divider,
     Card,
     Avatar,
     SimpleGrid,
     Box,
     Flex,
-    Select,
-    MultiSelect,
-    TextInput,
-    ActionIcon,
 } from "@mantine/core";
 import {
-    IconPlus,
     IconSchool,
     IconBuilding,
     IconCertificate,
     IconUsers,
     IconMapPin,
-    IconSearch,
-    IconX,
-    IconSortAscending,
-    IconFilter,
 } from "@tabler/icons-react";
 import subscriptionService from "../services/subscriptionService";
 
@@ -220,7 +208,7 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
     const getInstitutionType = (name: string, description: string) => {
         const nameLower = name.toLowerCase();
         const descLower = description.toLowerCase();
-        
+
         if (nameLower.includes('université') || nameLower.includes('university') || descLower.includes('université')) {
             return { type: 'Université', icon: IconCertificate, color: 'blue' };
         }
@@ -236,7 +224,7 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
         if (descLower.includes('privé')) {
             return { type: 'Privé', icon: IconBuilding, color: 'grape' };
         }
-        
+
         return { type: 'Établissement', icon: IconSchool, color: 'gray' };
     };
 
@@ -288,21 +276,21 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
 
     const filteredInstitutions = Array.isArray(allInstitutions)
         ? sortInstitutions(
-              allInstitutions.filter(
-                  (institution) => {
-                      const institutionType = getInstitutionType(institution.name, institution.description || '');
-                      
-                      return (
-                          institution.id !== userInstitutionId &&
-                          !isFollowing(institution.id) &&
-                          institution.name
-                              .toLowerCase()
-                              .includes(searchTerm.toLowerCase()) &&
-                          (filterTypes.length === 0 || filterTypes.includes(institutionType.type))
-                      );
-                  }
-              )
-          )
+            allInstitutions.filter(
+                (institution) => {
+                    const institutionType = getInstitutionType(institution.name, institution.description || '');
+
+                    return (
+                        institution.id !== userInstitutionId &&
+                        !isFollowing(institution.id) &&
+                        institution.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) &&
+                        (filterTypes.length === 0 || filterTypes.includes(institutionType.type))
+                    );
+                }
+            )
+        )
         : [];
 
 
@@ -357,14 +345,14 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
                         const institutionType = getInstitutionType(institution.name, institution.description || '');
                         const city = getCityFromDescription(institution.description || '');
                         const IconComponent = institutionType.icon;
-                        
+
                         return (
-                            <Card 
-                                key={institution.id} 
-                                withBorder 
-                                p="lg" 
+                            <Card
+                                key={institution.id}
+                                withBorder
+                                p="lg"
                                 radius="md"
-                                style={{ 
+                                style={{
                                     transition: 'all 0.2s ease',
                                     cursor: 'pointer',
                                     height: '100%'
@@ -404,7 +392,7 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
                                         <Text fw={700} size="md" mb="xs" lineClamp={2}>
                                             {institution.name}
                                         </Text>
-                                        
+
                                         {/* Ville et informations */}
                                         {city && (
                                             <Group gap="xs" mb="sm">
@@ -414,7 +402,7 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
                                                 </Text>
                                             </Group>
                                         )}
-                                        
+
                                         {/* Description courte */}
                                         {institution.description && (
                                             <Text size="sm" c="dimmed" lineClamp={2} mb="md">
@@ -448,14 +436,14 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
                         const institutionType = getInstitutionType(institution.name, institution.description || '');
                         const city = getCityFromDescription(institution.description || '');
                         const IconComponent = institutionType.icon;
-                        
+
                         return (
-                            <Card 
-                                key={institution.id} 
-                                withBorder 
-                                p="md" 
+                            <Card
+                                key={institution.id}
+                                withBorder
+                                p="md"
                                 radius="md"
-                                style={{ 
+                                style={{
                                     transition: 'all 0.2s ease',
                                     cursor: 'pointer'
                                 }}
@@ -492,7 +480,7 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
                                                     {institutionType.type}
                                                 </Badge>
                                             </Group>
-                                            
+
                                             {city && (
                                                 <Group gap="xs" mb="xs">
                                                     <IconMapPin size={12} color="var(--mantine-color-gray-6)" />
@@ -501,7 +489,7 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
                                                     </Text>
                                                 </Group>
                                             )}
-                                            
+
                                             {institution.description && (
                                                 <Text size="sm" c="dimmed" lineClamp={1}>
                                                     {institution.description.split(',')[0]}
@@ -509,7 +497,7 @@ const DiscoverInstitutions: React.FC<DiscoverInstitutionsProps> = ({
                                             )}
                                         </Box>
                                     </Group>
-                                    
+
                                     <Button
                                         variant="filled"
                                         color="violet"

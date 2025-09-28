@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-    Paper,
-    Title,
     Text,
     Stack,
     Group,
@@ -14,12 +12,8 @@ import {
     SimpleGrid,
     Box,
 } from "@mantine/core";
-import {
-    IconSchool,
-    IconUserCheck,
-} from "@tabler/icons-react";
+import { IconSchool } from "@tabler/icons-react";
 import subscriptionService from "../services/subscriptionService";
-import institutionService from "../services/institutionService";
 
 interface SubscriptionsListProps {
     onSubscriptionChange?: () => void;
@@ -62,7 +56,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
     // Utiliser les props si disponibles, sinon les états locaux
     const subscriptions = propSubscriptions || [];
     const loadingState = propLoading !== undefined ? propLoading : loading;
-    
+
     const errorState = propError !== undefined ? propError : error;
 
     // Charger seulement les établissements si les abonnements sont fournis en props
@@ -97,7 +91,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             if (!institutionsResponse.success) {
                 setError(
                     institutionsResponse.error ||
-                        "Erreur lors du chargement des établissements"
+                    "Erreur lors du chargement des établissements"
                 );
             }
         } catch (err) {
@@ -151,14 +145,14 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             if (!subscriptionsResponse.success) {
                 setError(
                     subscriptionsResponse.error ||
-                        "Erreur lors du chargement des abonnements"
+                    "Erreur lors du chargement des abonnements"
                 );
             }
 
             if (!institutionsResponse.success) {
                 setError(
                     institutionsResponse.error ||
-                        "Erreur lors du chargement des établissements"
+                    "Erreur lors du chargement des établissements"
                 );
             }
         } catch (err) {
@@ -238,85 +232,85 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
 
     return (
         <Stack gap="lg">
-                {/* Section des abonnements actuels */}
-                <div>
+            {/* Section des abonnements actuels */}
+            <div>
 
-                    {loadingState ? (
-                        <Stack gap="sm">
-                            {[...Array(3)].map((_, index) => (
-                                <Card key={index} withBorder p="sm">
-                                    <Group justify="space-between">
-                                        <Group gap="sm">
-                                            <Skeleton height={40} circle />
-                                            <div style={{ flex: 1 }}>
-                                                <Skeleton
-                                                    height={18}
-                                                    width="60%"
-                                                    mb={4}
-                                                />
-                                                <Skeleton
-                                                    height={14}
-                                                    width="40%"
-                                                />
-                                            </div>
-                                        </Group>
-                                        <Skeleton height={32} width={100} />
+                {loadingState ? (
+                    <Stack gap="sm">
+                        {[...Array(3)].map((_, index) => (
+                            <Card key={index} withBorder p="sm">
+                                <Group justify="space-between">
+                                    <Group gap="sm">
+                                        <Skeleton height={40} circle />
+                                        <div style={{ flex: 1 }}>
+                                            <Skeleton
+                                                height={18}
+                                                width="60%"
+                                                mb={4}
+                                            />
+                                            <Skeleton
+                                                height={14}
+                                                width="40%"
+                                            />
+                                        </div>
                                     </Group>
-                                </Card>
-                            ))}
-                        </Stack>
-                    ) : !subscriptions || subscriptions.length === 0 ? (
-                        <Alert color="violet" title="Aucun abonnement">
-                            Vous n'êtes abonné à aucun établissement pour le
-                            moment.
-                        </Alert>
-                    ) : (
-                        <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
-                            {/* Afficher l'établissement de l'utilisateur */}
-                            {userInstitutionId && (
-                                <Card 
-                                    withBorder 
-                                    p="md" 
-                                    radius="md"
-                                    style={{ 
-                                        backgroundColor: 'var(--mantine-color-green-0)',
-                                        borderColor: 'var(--mantine-color-green-3)'
-                                    }}
-                                >
-                                    <Stack gap="md" align="center">
-                                        <Avatar
-                                            src={userInstitutionId ? allInstitutions.find(inst => inst.id === userInstitutionId)?.logoUrl : undefined}
-                                            size="xl"
+                                    <Skeleton height={32} width={100} />
+                                </Group>
+                            </Card>
+                        ))}
+                    </Stack>
+                ) : !subscriptions || subscriptions.length === 0 ? (
+                    <Alert color="violet" title="Aucun abonnement">
+                        Vous n'êtes abonné à aucun établissement pour le
+                        moment.
+                    </Alert>
+                ) : (
+                    <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
+                        {/* Afficher l'établissement de l'utilisateur */}
+                        {userInstitutionId && (
+                            <Card
+                                withBorder
+                                p="md"
+                                radius="md"
+                                style={{
+                                    backgroundColor: 'var(--mantine-color-green-0)',
+                                    borderColor: 'var(--mantine-color-green-3)'
+                                }}
+                            >
+                                <Stack gap="md" align="center">
+                                    <Avatar
+                                        src={userInstitutionId ? allInstitutions.find(inst => inst.id === userInstitutionId)?.logoUrl : undefined}
+                                        size="xl"
+                                        color="green"
+                                        radius="md"
+                                    >
+                                        <IconSchool size={24} />
+                                    </Avatar>
+                                    <Box ta="center">
+                                        <Text fw={600} size="md" mb="xs">
+                                            {userInstitutionName || "Mon établissement"}
+                                        </Text>
+                                        <Badge
                                             color="green"
-                                            radius="md"
+                                            variant="light"
+                                            size="sm"
                                         >
-                                            <IconSchool size={24} />
-                                        </Avatar>
-                                        <Box ta="center">
-                                            <Text fw={600} size="md" mb="xs">
-                                                {userInstitutionName || "Mon établissement"}
-                                            </Text>
-                                            <Badge
-                                                color="green"
-                                                variant="light"
-                                                size="sm"
-                                            >
-                                                Établissement principal
-                                            </Badge>
-                                        </Box>
-                                    </Stack>
-                                </Card>
-                            )}
-                            
-                            {subscriptions
-                                .filter((subscription) => subscription.institution_id !== userInstitutionId)
-                                .map((subscription) => {
+                                            Établissement principal
+                                        </Badge>
+                                    </Box>
+                                </Stack>
+                            </Card>
+                        )}
+
+                        {subscriptions
+                            .filter((subscription) => subscription.institution_id !== userInstitutionId)
+                            .map((subscription) => {
                                 const institution = allInstitutions
                                     ? allInstitutions.find(
-                                          (inst) =>
-                                              inst.id ===
-                                              subscription.institution_id
-                                      )
+                                        (inst) =>
+                                            inst.id ===
+                                            subscription.institution_id
+                                    )
                                     : null;
                                 if (!institution) return null;
 
@@ -326,7 +320,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                         withBorder
                                         p="md"
                                         radius="md"
-                                        style={{ 
+                                        style={{
                                             transition: 'all 0.2s ease',
                                             cursor: 'pointer'
                                         }}
@@ -382,11 +376,11 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                     </Card>
                                 );
                             })}
-                        </SimpleGrid>
-                    )}
-                </div>
+                    </SimpleGrid>
+                )}
+            </div>
 
-            </Stack>
+        </Stack>
     );
 };
 

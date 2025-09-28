@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-    Container,
     Title,
     Text,
     Group,
@@ -11,30 +10,20 @@ import {
     ThemeIcon,
     SimpleGrid,
     Tabs,
-    Progress,
     Divider,
-    ActionIcon,
     Modal,
     TextInput,
     Textarea,
     Select,
     NumberInput,
     Switch,
-    Alert,
-    Timeline,
-    Avatar,
     Paper,
-    Flex,
-    Box
 } from '@mantine/core';
 import {
     IconBrain,
-    IconClock,
     IconTrophy,
     IconTarget,
     IconPlus,
-    IconEdit,
-    IconTrash,
     IconEye,
     IconPlayerPlay,
     IconCheck,
@@ -43,13 +32,9 @@ import {
     IconUsers,
     IconChartBar,
     IconBook,
-    IconAward,
-    IconTrendingUp,
-    IconAlertCircle,
-    IconInfoCircle
 } from '@tabler/icons-react';
 import MainLayout from '../layouts/MainLayout';
-// Fonction simple pour formater les dates
+
 const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR', {
@@ -363,124 +348,242 @@ const QuizzesPage: React.FC = () => {
     };
 
     return (
-        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                {/* En-tête */}
-                <Group justify="space-between" align="center" mb="xl">
-                    <Group>
-                        <ThemeIcon size={40} radius="md" color="violet">
-                            <IconBrain size={24} />
-                        </ThemeIcon>
-                        <div>
-                            <Title order={1} size="h2">
-                                Quiz
-                            </Title>
-                            <Text c="dimmed" size="sm">
-                                Évaluations et tests de connaissances
-                            </Text>
-                        </div>
-                    </Group>
-                    <Group>
-                        <Button
-                            leftSection={<IconPlus size={16} />}
-                            onClick={handleCreateQuiz}
-                            variant="light"
-                        >
-                            Créer un quiz
-                        </Button>
-                    </Group>
+        <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
+            {/* En-tête */}
+            <Group justify="space-between" align="center" mb="xl">
+                <Group>
+                    <ThemeIcon size={40} radius="md" color="violet">
+                        <IconBrain size={24} />
+                    </ThemeIcon>
+                    <div>
+                        <Title order={1} size="h2">
+                            Quiz
+                        </Title>
+                        <Text c="dimmed" size="sm">
+                            Évaluations et tests de connaissances
+                        </Text>
+                    </div>
                 </Group>
+                <Group>
+                    <Button
+                        leftSection={<IconPlus size={16} />}
+                        onClick={handleCreateQuiz}
+                        variant="light"
+                    >
+                        Créer un quiz
+                    </Button>
+                </Group>
+            </Group>
 
-                <Stack gap="xl">
-                    {/* Statistiques */}
-                    <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="lg">
-                        <Card withBorder p="lg" radius="md">
-                            <Group justify="space-between">
-                                <div>
-                                    <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                                        Total
-                                    </Text>
-                                    <Text size="xl" fw={700} c="violet">
-                                        {stats.totalQuizzes}
-                                    </Text>
-                                </div>
-                                <ThemeIcon size={40} radius="md" color="violet" variant="light">
-                                    <IconBrain size={20} />
-                                </ThemeIcon>
-                            </Group>
-                        </Card>
+            <Stack gap="xl">
+                {/* Statistiques */}
+                <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="lg">
+                    <Card withBorder p="lg" radius="md">
+                        <Group justify="space-between">
+                            <div>
+                                <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                                    Total
+                                </Text>
+                                <Text size="xl" fw={700} c="violet">
+                                    {stats.totalQuizzes}
+                                </Text>
+                            </div>
+                            <ThemeIcon size={40} radius="md" color="violet" variant="light">
+                                <IconBrain size={20} />
+                            </ThemeIcon>
+                        </Group>
+                    </Card>
 
-                        <Card withBorder p="lg" radius="md">
-                            <Group justify="space-between">
-                                <div>
-                                    <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                                        Disponibles
-                                    </Text>
-                                    <Text size="xl" fw={700} c="blue">
-                                        {stats.availableQuizzes}
-                                    </Text>
-                                </div>
-                                <ThemeIcon size={40} radius="md" color="blue" variant="light">
-                                    <IconTarget size={20} />
-                                </ThemeIcon>
-                            </Group>
-                        </Card>
+                    <Card withBorder p="lg" radius="md">
+                        <Group justify="space-between">
+                            <div>
+                                <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                                    Disponibles
+                                </Text>
+                                <Text size="xl" fw={700} c="blue">
+                                    {stats.availableQuizzes}
+                                </Text>
+                            </div>
+                            <ThemeIcon size={40} radius="md" color="blue" variant="light">
+                                <IconTarget size={20} />
+                            </ThemeIcon>
+                        </Group>
+                    </Card>
 
-                        <Card withBorder p="lg" radius="md">
-                            <Group justify="space-between">
-                                <div>
-                                    <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                                        Terminés
-                                    </Text>
-                                    <Text size="xl" fw={700} c="green">
-                                        {stats.completedQuizzes}
-                                    </Text>
-                                </div>
-                                <ThemeIcon size={40} radius="md" color="green" variant="light">
-                                    <IconCheck size={20} />
-                                </ThemeIcon>
-                            </Group>
-                        </Card>
+                    <Card withBorder p="lg" radius="md">
+                        <Group justify="space-between">
+                            <div>
+                                <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                                    Terminés
+                                </Text>
+                                <Text size="xl" fw={700} c="green">
+                                    {stats.completedQuizzes}
+                                </Text>
+                            </div>
+                            <ThemeIcon size={40} radius="md" color="green" variant="light">
+                                <IconCheck size={20} />
+                            </ThemeIcon>
+                        </Group>
+                    </Card>
 
-                        <Card withBorder p="lg" radius="md">
-                            <Group justify="space-between">
-                                <div>
-                                    <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                                        Score moyen
-                                    </Text>
-                                    <Text size="xl" fw={700} c="orange">
-                                        {stats.averageScore.toFixed(1)}%
-                                    </Text>
-                                </div>
-                                <ThemeIcon size={40} radius="md" color="orange" variant="light">
-                                    <IconTrophy size={20} />
-                                </ThemeIcon>
-                            </Group>
-                        </Card>
-                    </SimpleGrid>
+                    <Card withBorder p="lg" radius="md">
+                        <Group justify="space-between">
+                            <div>
+                                <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                                    Score moyen
+                                </Text>
+                                <Text size="xl" fw={700} c="orange">
+                                    {stats.averageScore.toFixed(1)}%
+                                </Text>
+                            </div>
+                            <ThemeIcon size={40} radius="md" color="orange" variant="light">
+                                <IconTrophy size={20} />
+                            </ThemeIcon>
+                        </Group>
+                    </Card>
+                </SimpleGrid>
 
-                    {/* Onglets de filtrage */}
-                    <Tabs value={selectedTab} onChange={(value) => setSelectedTab(value || 'all')}>
-                        <Tabs.List>
-                            <Tabs.Tab value="all" leftSection={<IconBook size={16} />}>
-                                Tous ({mockQuizzes.length})
-                            </Tabs.Tab>
-                            <Tabs.Tab value="available" leftSection={<IconTarget size={16} />}>
-                                Disponibles ({stats.availableQuizzes})
-                            </Tabs.Tab>
-                            <Tabs.Tab value="completed" leftSection={<IconCheck size={16} />}>
-                                Terminés ({stats.completedQuizzes})
-                            </Tabs.Tab>
-                            <Tabs.Tab value="expired" leftSection={<IconX size={16} />}>
-                                Expirés ({mockQuizzes.filter(q => q.status === 'expired').length})
-                            </Tabs.Tab>
-                        </Tabs.List>
+                {/* Onglets de filtrage */}
+                <Tabs value={selectedTab} onChange={(value) => setSelectedTab(value || 'all')}>
+                    <Tabs.List>
+                        <Tabs.Tab value="all" leftSection={<IconBook size={16} />}>
+                            Tous ({mockQuizzes.length})
+                        </Tabs.Tab>
+                        <Tabs.Tab value="available" leftSection={<IconTarget size={16} />}>
+                            Disponibles ({stats.availableQuizzes})
+                        </Tabs.Tab>
+                        <Tabs.Tab value="completed" leftSection={<IconCheck size={16} />}>
+                            Terminés ({stats.completedQuizzes})
+                        </Tabs.Tab>
+                        <Tabs.Tab value="expired" leftSection={<IconX size={16} />}>
+                            Expirés ({mockQuizzes.filter(q => q.status === 'expired').length})
+                        </Tabs.Tab>
+                    </Tabs.List>
 
-                        <Tabs.Panel value="all" pt="md">
-                            <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
-                                {filteredQuizzes.map((quiz) => (
+                    <Tabs.Panel value="all" pt="md">
+                        <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
+                            {filteredQuizzes.map((quiz) => (
+                                <Card key={quiz.id} withBorder p="lg" radius="md" h="100%">
+                                    <Stack gap="md" h="100%">
+                                        {/* En-tête du quiz */}
+                                        <Group justify="space-between" align="flex-start">
+                                            <div style={{ flex: 1 }}>
+                                                <Title order={3} size="h4" mb="xs">
+                                                    {quiz.title}
+                                                </Title>
+                                                <Text size="sm" c="dimmed" lineClamp={2}>
+                                                    {quiz.description}
+                                                </Text>
+                                            </div>
+                                            <Badge
+                                                color={getStatusColor(quiz.status)}
+                                                variant="light"
+                                                size="sm"
+                                            >
+                                                {getStatusLabel(quiz.status)}
+                                            </Badge>
+                                        </Group>
+
+                                        {/* Informations du quiz */}
+                                        <Stack gap="xs">
+                                            <Group justify="space-between">
+                                                <Text size="sm" fw={500}>
+                                                    {quiz.subject}
+                                                </Text>
+                                                <Badge
+                                                    color={getDifficultyColor(quiz.difficulty)}
+                                                    variant="light"
+                                                    size="sm"
+                                                >
+                                                    {quiz.difficulty}
+                                                </Badge>
+                                            </Group>
+
+                                            <Group justify="space-between">
+                                                <Text size="sm" c="dimmed">
+                                                    {quiz.questionsCount} questions
+                                                </Text>
+                                                <Text size="sm" c="dimmed">
+                                                    {quiz.duration} min
+                                                </Text>
+                                            </Group>
+
+                                            {quiz.dueDate && (
+                                                <Group gap="xs">
+                                                    <IconCalendar size={14} />
+                                                    <Text size="sm" c="dimmed">
+                                                        Échéance: {formatDate(quiz.dueDate)}
+                                                    </Text>
+                                                </Group>
+                                            )}
+
+                                            {quiz.attempts > 0 && (
+                                                <Group gap="xs">
+                                                    <IconUsers size={14} />
+                                                    <Text size="sm" c="dimmed">
+                                                        {quiz.attempts}/{quiz.maxAttempts} tentatives
+                                                    </Text>
+                                                </Group>
+                                            )}
+                                        </Stack>
+
+                                        {/* Statistiques si disponibles */}
+                                        {quiz.statistics && (
+                                            <Paper p="sm" radius="md" bg="gray.0">
+                                                <Stack gap="xs">
+                                                    <Group justify="space-between">
+                                                        <Text size="xs" c="dimmed">
+                                                            Score moyen
+                                                        </Text>
+                                                        <Text size="sm" fw={600}>
+                                                            {quiz.statistics.averageScore}%
+                                                        </Text>
+                                                    </Group>
+                                                    <Group justify="space-between">
+                                                        <Text size="xs" c="dimmed">
+                                                            Taux de réussite
+                                                        </Text>
+                                                        <Text size="sm" fw={600}>
+                                                            {quiz.statistics.completionRate}%
+                                                        </Text>
+                                                    </Group>
+                                                </Stack>
+                                            </Paper>
+                                        )}
+
+                                        {/* Actions */}
+                                        <Group justify="space-between" mt="auto">
+                                            <Button
+                                                variant="light"
+                                                size="sm"
+                                                leftSection={<IconEye size={16} />}
+                                                onClick={() => handleViewDetails(quiz)}
+                                            >
+                                                Détails
+                                            </Button>
+                                            {quiz.status === 'published' && quiz.attempts < quiz.maxAttempts && (
+                                                <Button
+                                                    size="sm"
+                                                    leftSection={<IconPlayerPlay size={16} />}
+                                                    onClick={() => handleStartQuiz(quiz)}
+                                                >
+                                                    Commencer
+                                                </Button>
+                                            )}
+                                        </Group>
+                                    </Stack>
+                                </Card>
+                            ))}
+                        </SimpleGrid>
+                    </Tabs.Panel>
+
+                    <Tabs.Panel value="available" pt="md">
+                        <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
+                            {mockQuizzes
+                                .filter(q => q.status === 'published' && q.attempts < q.maxAttempts)
+                                .map((quiz) => (
                                     <Card key={quiz.id} withBorder p="lg" radius="md" h="100%">
                                         <Stack gap="md" h="100%">
-                                            {/* En-tête du quiz */}
                                             <Group justify="space-between" align="flex-start">
                                                 <div style={{ flex: 1 }}>
                                                     <Title order={3} size="h4" mb="xs">
@@ -490,16 +593,11 @@ const QuizzesPage: React.FC = () => {
                                                         {quiz.description}
                                                     </Text>
                                                 </div>
-                                                <Badge
-                                                    color={getStatusColor(quiz.status)}
-                                                    variant="light"
-                                                    size="sm"
-                                                >
-                                                    {getStatusLabel(quiz.status)}
+                                                <Badge color="blue" variant="light" size="sm">
+                                                    Disponible
                                                 </Badge>
                                             </Group>
 
-                                            {/* Informations du quiz */}
                                             <Stack gap="xs">
                                                 <Group justify="space-between">
                                                     <Text size="sm" fw={500}>
@@ -531,6 +629,74 @@ const QuizzesPage: React.FC = () => {
                                                         </Text>
                                                     </Group>
                                                 )}
+                                            </Stack>
+
+                                            <Group justify="space-between" mt="auto">
+                                                <Button
+                                                    variant="light"
+                                                    size="sm"
+                                                    leftSection={<IconEye size={16} />}
+                                                    onClick={() => handleViewDetails(quiz)}
+                                                >
+                                                    Détails
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    leftSection={<IconPlayerPlay size={16} />}
+                                                    onClick={() => handleStartQuiz(quiz)}
+                                                >
+                                                    Commencer
+                                                </Button>
+                                            </Group>
+                                        </Stack>
+                                    </Card>
+                                ))}
+                        </SimpleGrid>
+                    </Tabs.Panel>
+
+                    <Tabs.Panel value="completed" pt="md">
+                        <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
+                            {mockQuizzes
+                                .filter(q => q.status === 'completed')
+                                .map((quiz) => (
+                                    <Card key={quiz.id} withBorder p="lg" radius="md" h="100%">
+                                        <Stack gap="md" h="100%">
+                                            <Group justify="space-between" align="flex-start">
+                                                <div style={{ flex: 1 }}>
+                                                    <Title order={3} size="h4" mb="xs">
+                                                        {quiz.title}
+                                                    </Title>
+                                                    <Text size="sm" c="dimmed" lineClamp={2}>
+                                                        {quiz.description}
+                                                    </Text>
+                                                </div>
+                                                <Badge color="green" variant="light" size="sm">
+                                                    Terminé
+                                                </Badge>
+                                            </Group>
+
+                                            <Stack gap="xs">
+                                                <Group justify="space-between">
+                                                    <Text size="sm" fw={500}>
+                                                        {quiz.subject}
+                                                    </Text>
+                                                    <Badge
+                                                        color={getDifficultyColor(quiz.difficulty)}
+                                                        variant="light"
+                                                        size="sm"
+                                                    >
+                                                        {quiz.difficulty}
+                                                    </Badge>
+                                                </Group>
+
+                                                <Group justify="space-between">
+                                                    <Text size="sm" c="dimmed">
+                                                        {quiz.questionsCount} questions
+                                                    </Text>
+                                                    <Text size="sm" c="dimmed">
+                                                        {quiz.duration} min
+                                                    </Text>
+                                                </Group>
 
                                                 {quiz.attempts > 0 && (
                                                     <Group gap="xs">
@@ -542,7 +708,6 @@ const QuizzesPage: React.FC = () => {
                                                 )}
                                             </Stack>
 
-                                            {/* Statistiques si disponibles */}
                                             {quiz.statistics && (
                                                 <Paper p="sm" radius="md" bg="gray.0">
                                                     <Stack gap="xs">
@@ -566,7 +731,6 @@ const QuizzesPage: React.FC = () => {
                                                 </Paper>
                                             )}
 
-                                            {/* Actions */}
                                             <Group justify="space-between" mt="auto">
                                                 <Button
                                                     variant="light"
@@ -576,562 +740,383 @@ const QuizzesPage: React.FC = () => {
                                                 >
                                                     Détails
                                                 </Button>
-                                                {quiz.status === 'published' && quiz.attempts < quiz.maxAttempts && (
-                                                    <Button
-                                                        size="sm"
-                                                        leftSection={<IconPlayerPlay size={16} />}
-                                                        onClick={() => handleStartQuiz(quiz)}
-                                                    >
-                                                        Commencer
-                                                    </Button>
-                                                )}
+                                                <Button
+                                                    variant="light"
+                                                    size="sm"
+                                                    leftSection={<IconChartBar size={16} />}
+                                                    onClick={() => handleViewDetails(quiz)}
+                                                >
+                                                    Résultats
+                                                </Button>
                                             </Group>
                                         </Stack>
                                     </Card>
                                 ))}
-                            </SimpleGrid>
-                        </Tabs.Panel>
+                        </SimpleGrid>
+                    </Tabs.Panel>
 
-                        <Tabs.Panel value="available" pt="md">
-                            <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
-                                {mockQuizzes
-                                    .filter(q => q.status === 'published' && q.attempts < q.maxAttempts)
-                                    .map((quiz) => (
-                                        <Card key={quiz.id} withBorder p="lg" radius="md" h="100%">
-                                            <Stack gap="md" h="100%">
-                                                <Group justify="space-between" align="flex-start">
-                                                    <div style={{ flex: 1 }}>
-                                                        <Title order={3} size="h4" mb="xs">
-                                                            {quiz.title}
-                                                        </Title>
-                                                        <Text size="sm" c="dimmed" lineClamp={2}>
-                                                            {quiz.description}
-                                                        </Text>
-                                                    </div>
-                                                    <Badge color="blue" variant="light" size="sm">
-                                                        Disponible
-                                                    </Badge>
-                                                </Group>
-
-                                                <Stack gap="xs">
-                                                    <Group justify="space-between">
-                                                        <Text size="sm" fw={500}>
-                                                            {quiz.subject}
-                                                        </Text>
-                                                        <Badge
-                                                            color={getDifficultyColor(quiz.difficulty)}
-                                                            variant="light"
-                                                            size="sm"
-                                                        >
-                                                            {quiz.difficulty}
-                                                        </Badge>
-                                                    </Group>
-
-                                                    <Group justify="space-between">
-                                                        <Text size="sm" c="dimmed">
-                                                            {quiz.questionsCount} questions
-                                                        </Text>
-                                                        <Text size="sm" c="dimmed">
-                                                            {quiz.duration} min
-                                                        </Text>
-                                                    </Group>
-
-                                                    {quiz.dueDate && (
-                                                        <Group gap="xs">
-                                                            <IconCalendar size={14} />
-                                                            <Text size="sm" c="dimmed">
-                                                                Échéance: {formatDate(quiz.dueDate)}
-                                                            </Text>
-                                                        </Group>
-                                                    )}
-                                                </Stack>
-
-                                                <Group justify="space-between" mt="auto">
-                                                    <Button
-                                                        variant="light"
-                                                        size="sm"
-                                                        leftSection={<IconEye size={16} />}
-                                                        onClick={() => handleViewDetails(quiz)}
-                                                    >
-                                                        Détails
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        leftSection={<IconPlayerPlay size={16} />}
-                                                        onClick={() => handleStartQuiz(quiz)}
-                                                    >
-                                                        Commencer
-                                                    </Button>
-                                                </Group>
-                                            </Stack>
-                                        </Card>
-                                    ))}
-                            </SimpleGrid>
-                        </Tabs.Panel>
-
-                        <Tabs.Panel value="completed" pt="md">
-                            <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
-                                {mockQuizzes
-                                    .filter(q => q.status === 'completed')
-                                    .map((quiz) => (
-                                        <Card key={quiz.id} withBorder p="lg" radius="md" h="100%">
-                                            <Stack gap="md" h="100%">
-                                                <Group justify="space-between" align="flex-start">
-                                                    <div style={{ flex: 1 }}>
-                                                        <Title order={3} size="h4" mb="xs">
-                                                            {quiz.title}
-                                                        </Title>
-                                                        <Text size="sm" c="dimmed" lineClamp={2}>
-                                                            {quiz.description}
-                                                        </Text>
-                                                    </div>
-                                                    <Badge color="green" variant="light" size="sm">
-                                                        Terminé
-                                                    </Badge>
-                                                </Group>
-
-                                                <Stack gap="xs">
-                                                    <Group justify="space-between">
-                                                        <Text size="sm" fw={500}>
-                                                            {quiz.subject}
-                                                        </Text>
-                                                        <Badge
-                                                            color={getDifficultyColor(quiz.difficulty)}
-                                                            variant="light"
-                                                            size="sm"
-                                                        >
-                                                            {quiz.difficulty}
-                                                        </Badge>
-                                                    </Group>
-
-                                                    <Group justify="space-between">
-                                                        <Text size="sm" c="dimmed">
-                                                            {quiz.questionsCount} questions
-                                                        </Text>
-                                                        <Text size="sm" c="dimmed">
-                                                            {quiz.duration} min
-                                                        </Text>
-                                                    </Group>
-
-                                                    {quiz.attempts > 0 && (
-                                                        <Group gap="xs">
-                                                            <IconUsers size={14} />
-                                                            <Text size="sm" c="dimmed">
-                                                                {quiz.attempts}/{quiz.maxAttempts} tentatives
-                                                            </Text>
-                                                        </Group>
-                                                    )}
-                                                </Stack>
-
-                                                {quiz.statistics && (
-                                                    <Paper p="sm" radius="md" bg="gray.0">
-                                                        <Stack gap="xs">
-                                                            <Group justify="space-between">
-                                                                <Text size="xs" c="dimmed">
-                                                                    Score moyen
-                                                                </Text>
-                                                                <Text size="sm" fw={600}>
-                                                                    {quiz.statistics.averageScore}%
-                                                                </Text>
-                                                            </Group>
-                                                            <Group justify="space-between">
-                                                                <Text size="xs" c="dimmed">
-                                                                    Taux de réussite
-                                                                </Text>
-                                                                <Text size="sm" fw={600}>
-                                                                    {quiz.statistics.completionRate}%
-                                                                </Text>
-                                                            </Group>
-                                                        </Stack>
-                                                    </Paper>
-                                                )}
-
-                                                <Group justify="space-between" mt="auto">
-                                                    <Button
-                                                        variant="light"
-                                                        size="sm"
-                                                        leftSection={<IconEye size={16} />}
-                                                        onClick={() => handleViewDetails(quiz)}
-                                                    >
-                                                        Détails
-                                                    </Button>
-                                                    <Button
-                                                        variant="light"
-                                                        size="sm"
-                                                        leftSection={<IconChartBar size={16} />}
-                                                        onClick={() => handleViewDetails(quiz)}
-                                                    >
-                                                        Résultats
-                                                    </Button>
-                                                </Group>
-                                            </Stack>
-                                        </Card>
-                                    ))}
-                            </SimpleGrid>
-                        </Tabs.Panel>
-
-                        <Tabs.Panel value="expired" pt="md">
-                            <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
-                                {mockQuizzes
-                                    .filter(q => q.status === 'expired')
-                                    .map((quiz) => (
-                                        <Card key={quiz.id} withBorder p="lg" radius="md" h="100%" opacity={0.7}>
-                                            <Stack gap="md" h="100%">
-                                                <Group justify="space-between" align="flex-start">
-                                                    <div style={{ flex: 1 }}>
-                                                        <Title order={3} size="h4" mb="xs">
-                                                            {quiz.title}
-                                                        </Title>
-                                                        <Text size="sm" c="dimmed" lineClamp={2}>
-                                                            {quiz.description}
-                                                        </Text>
-                                                    </div>
-                                                    <Badge color="red" variant="light" size="sm">
-                                                        Expiré
-                                                    </Badge>
-                                                </Group>
-
-                                                <Stack gap="xs">
-                                                    <Group justify="space-between">
-                                                        <Text size="sm" fw={500}>
-                                                            {quiz.subject}
-                                                        </Text>
-                                                        <Badge
-                                                            color={getDifficultyColor(quiz.difficulty)}
-                                                            variant="light"
-                                                            size="sm"
-                                                        >
-                                                            {quiz.difficulty}
-                                                        </Badge>
-                                                    </Group>
-
-                                                    <Group justify="space-between">
-                                                        <Text size="sm" c="dimmed">
-                                                            {quiz.questionsCount} questions
-                                                        </Text>
-                                                        <Text size="sm" c="dimmed">
-                                                            {quiz.duration} min
-                                                        </Text>
-                                                    </Group>
-
-                                                    {quiz.dueDate && (
-                                                        <Group gap="xs">
-                                                            <IconCalendar size={14} />
-                                                            <Text size="sm" c="dimmed">
-                                                                Échéance: {formatDate(quiz.dueDate)}
-                                                            </Text>
-                                                        </Group>
-                                                    )}
-                                                </Stack>
-
-                                                <Group justify="space-between" mt="auto">
-                                                    <Button
-                                                        variant="light"
-                                                        size="sm"
-                                                        leftSection={<IconEye size={16} />}
-                                                        onClick={() => handleViewDetails(quiz)}
-                                                    >
-                                                        Détails
-                                                    </Button>
-                                                    <Button
-                                                        variant="light"
-                                                        size="sm"
-                                                        leftSection={<IconChartBar size={16} />}
-                                                        onClick={() => handleViewDetails(quiz)}
-                                                        disabled
-                                                    >
-                                                        Résultats
-                                                    </Button>
-                                                </Group>
-                                            </Stack>
-                                        </Card>
-                                    ))}
-                            </SimpleGrid>
-                        </Tabs.Panel>
-                    </Tabs>
-
-                    {/* Modal de détails du quiz */}
-                    <Modal
-                        opened={isDetailsModalOpen}
-                        onClose={() => setIsDetailsModalOpen(false)}
-                        title={selectedQuiz?.title}
-                        size="lg"
-                    >
-                        {selectedQuiz && (
-                            <Stack gap="md">
-                                <Text size="sm" c="dimmed">
-                                    {selectedQuiz.description}
-                                </Text>
-
-                                <Divider />
-
-                                <SimpleGrid cols={2} spacing="md">
-                                    <div>
-                                        <Text size="sm" fw={600} mb="xs">
-                                            Informations générales
-                                        </Text>
-                                        <Stack gap="xs">
-                                            <Group justify="space-between">
-                                                <Text size="sm">Matière:</Text>
-                                                <Text size="sm" fw={500}>{selectedQuiz.subject}</Text>
-                                            </Group>
-                                            <Group justify="space-between">
-                                                <Text size="sm">Difficulté:</Text>
-                                                <Badge
-                                                    color={getDifficultyColor(selectedQuiz.difficulty)}
-                                                    variant="light"
-                                                    size="sm"
-                                                >
-                                                    {selectedQuiz.difficulty}
+                    <Tabs.Panel value="expired" pt="md">
+                        <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
+                            {mockQuizzes
+                                .filter(q => q.status === 'expired')
+                                .map((quiz) => (
+                                    <Card key={quiz.id} withBorder p="lg" radius="md" h="100%" opacity={0.7}>
+                                        <Stack gap="md" h="100%">
+                                            <Group justify="space-between" align="flex-start">
+                                                <div style={{ flex: 1 }}>
+                                                    <Title order={3} size="h4" mb="xs">
+                                                        {quiz.title}
+                                                    </Title>
+                                                    <Text size="sm" c="dimmed" lineClamp={2}>
+                                                        {quiz.description}
+                                                    </Text>
+                                                </div>
+                                                <Badge color="red" variant="light" size="sm">
+                                                    Expiré
                                                 </Badge>
                                             </Group>
-                                            <Group justify="space-between">
-                                                <Text size="sm">Questions:</Text>
-                                                <Text size="sm" fw={500}>{selectedQuiz.questionsCount}</Text>
-                                            </Group>
-                                            <Group justify="space-between">
-                                                <Text size="sm">Durée:</Text>
-                                                <Text size="sm" fw={500}>{selectedQuiz.duration} min</Text>
-                                            </Group>
-                                            <Group justify="space-between">
-                                                <Text size="sm">Score max:</Text>
-                                                <Text size="sm" fw={500}>{selectedQuiz.maxScore}</Text>
-                                            </Group>
-                                        </Stack>
-                                    </div>
 
-                                    <div>
-                                        <Text size="sm" fw={600} mb="xs">
-                                            Paramètres
-                                        </Text>
-                                        <Stack gap="xs">
-                                            <Group justify="space-between">
-                                                <Text size="sm">Tentatives:</Text>
-                                                <Text size="sm" fw={500}>
-                                                    {selectedQuiz.attempts}/{selectedQuiz.maxAttempts}
-                                                </Text>
-                                            </Group>
-                                            <Group justify="space-between">
-                                                <Text size="sm">Chronométré:</Text>
-                                                <Text size="sm" fw={500}>
-                                                    {selectedQuiz.isTimed ? 'Oui' : 'Non'}
-                                                </Text>
-                                            </Group>
-                                            <Group justify="space-between">
-                                                <Text size="sm">Nouvelle tentative:</Text>
-                                                <Text size="sm" fw={500}>
-                                                    {selectedQuiz.allowRetake ? 'Oui' : 'Non'}
-                                                </Text>
-                                            </Group>
-                                            {selectedQuiz.dueDate && (
+                                            <Stack gap="xs">
                                                 <Group justify="space-between">
-                                                    <Text size="sm">Échéance:</Text>
                                                     <Text size="sm" fw={500}>
-                                                        {formatDate(selectedQuiz.dueDate)}
+                                                        {quiz.subject}
+                                                    </Text>
+                                                    <Badge
+                                                        color={getDifficultyColor(quiz.difficulty)}
+                                                        variant="light"
+                                                        size="sm"
+                                                    >
+                                                        {quiz.difficulty}
+                                                    </Badge>
+                                                </Group>
+
+                                                <Group justify="space-between">
+                                                    <Text size="sm" c="dimmed">
+                                                        {quiz.questionsCount} questions
+                                                    </Text>
+                                                    <Text size="sm" c="dimmed">
+                                                        {quiz.duration} min
                                                     </Text>
                                                 </Group>
-                                            )}
-                                        </Stack>
-                                    </div>
-                                </SimpleGrid>
 
-                                {selectedQuiz.instructions && (
-                                    <>
-                                        <Divider />
-                                        <div>
-                                            <Text size="sm" fw={600} mb="xs">
-                                                Instructions
-                                            </Text>
-                                            <Text size="sm" c="dimmed">
-                                                {selectedQuiz.instructions}
-                                            </Text>
-                                        </div>
-                                    </>
-                                )}
+                                                {quiz.dueDate && (
+                                                    <Group gap="xs">
+                                                        <IconCalendar size={14} />
+                                                        <Text size="sm" c="dimmed">
+                                                            Échéance: {formatDate(quiz.dueDate)}
+                                                        </Text>
+                                                    </Group>
+                                                )}
+                                            </Stack>
 
-                                {selectedQuiz.tags.length > 0 && (
-                                    <>
-                                        <Divider />
-                                        <div>
-                                            <Text size="sm" fw={600} mb="xs">
-                                                Tags
-                                            </Text>
-                                            <Group gap="xs">
-                                                {selectedQuiz.tags.map((tag, index) => (
-                                                    <Badge key={index} variant="light" size="sm">
-                                                        {tag}
-                                                    </Badge>
-                                                ))}
+                                            <Group justify="space-between" mt="auto">
+                                                <Button
+                                                    variant="light"
+                                                    size="sm"
+                                                    leftSection={<IconEye size={16} />}
+                                                    onClick={() => handleViewDetails(quiz)}
+                                                >
+                                                    Détails
+                                                </Button>
+                                                <Button
+                                                    variant="light"
+                                                    size="sm"
+                                                    leftSection={<IconChartBar size={16} />}
+                                                    onClick={() => handleViewDetails(quiz)}
+                                                    disabled
+                                                >
+                                                    Résultats
+                                                </Button>
                                             </Group>
-                                        </div>
-                                    </>
-                                )}
+                                        </Stack>
+                                    </Card>
+                                ))}
+                        </SimpleGrid>
+                    </Tabs.Panel>
+                </Tabs>
 
-                                {selectedQuiz.statistics && (
-                                    <>
-                                        <Divider />
-                                        <div>
-                                            <Text size="sm" fw={600} mb="xs">
-                                                Statistiques
-                                            </Text>
-                                            <SimpleGrid cols={2} spacing="md">
-                                                <div>
-                                                    <Text size="sm" c="dimmed">Score moyen</Text>
-                                                    <Text size="lg" fw={700} c="violet">
-                                                        {selectedQuiz.statistics.averageScore}%
-                                                    </Text>
-                                                </div>
-                                                <div>
-                                                    <Text size="sm" c="dimmed">Taux de réussite</Text>
-                                                    <Text size="lg" fw={700} c="green">
-                                                        {selectedQuiz.statistics.completionRate}%
-                                                    </Text>
-                                                </div>
-                                                <div>
-                                                    <Text size="sm" c="dimmed">Total tentatives</Text>
-                                                    <Text size="lg" fw={700} c="blue">
-                                                        {selectedQuiz.statistics.totalAttempts}
-                                                    </Text>
-                                                </div>
-                                                <div>
-                                                    <Text size="sm" c="dimmed">Meilleur score</Text>
-                                                    <Text size="lg" fw={700} c="orange">
-                                                        {selectedQuiz.statistics.bestScore}%
-                                                    </Text>
-                                                </div>
-                                            </SimpleGrid>
-                                        </div>
-                                    </>
-                                )}
-
-                                <Group justify="flex-end" mt="md">
-                                    <Button
-                                        variant="light"
-                                        onClick={() => setIsDetailsModalOpen(false)}
-                                    >
-                                        Fermer
-                                    </Button>
-                                    {selectedQuiz.status === 'published' && selectedQuiz.attempts < selectedQuiz.maxAttempts && (
-                                        <Button
-                                            leftSection={<IconPlayerPlay size={16} />}
-                                            onClick={() => {
-                                                setIsDetailsModalOpen(false);
-                                                handleStartQuiz(selectedQuiz);
-                                            }}
-                                        >
-                                            Commencer le quiz
-                                        </Button>
-                                    )}
-                                </Group>
-                            </Stack>
-                        )}
-                    </Modal>
-
-                    {/* Modal de création de quiz */}
-                    <Modal
-                        opened={isCreateModalOpen}
-                        onClose={() => setIsCreateModalOpen(false)}
-                        title="Créer un nouveau quiz"
-                        size="lg"
-                    >
+                {/* Modal de détails du quiz */}
+                <Modal
+                    opened={isDetailsModalOpen}
+                    onClose={() => setIsDetailsModalOpen(false)}
+                    title={selectedQuiz?.title}
+                    size="lg"
+                >
+                    {selectedQuiz && (
                         <Stack gap="md">
-                            <TextInput
-                                label="Titre du quiz"
-                                placeholder="Entrez le titre du quiz"
-                                required
-                            />
-                            <Textarea
-                                label="Description"
-                                placeholder="Décrivez le contenu du quiz"
-                                rows={3}
-                            />
-                            <Select
-                                label="Matière"
-                                placeholder="Sélectionnez une matière"
-                                data={['Mathématiques', 'Physique', 'Chimie', 'Biologie', 'Histoire', 'Géographie']}
-                                required
-                            />
-                            <Select
-                                label="Difficulté"
-                                placeholder="Sélectionnez la difficulté"
-                                data={[
-                                    { value: 'facile', label: 'Facile' },
-                                    { value: 'moyen', label: 'Moyen' },
-                                    { value: 'difficile', label: 'Difficile' }
-                                ]}
-                                required
-                            />
-                            <NumberInput
-                                label="Nombre de questions"
-                                placeholder="Entrez le nombre de questions"
-                                min={1}
-                                max={100}
-                                required
-                            />
-                            <NumberInput
-                                label="Durée (minutes)"
-                                placeholder="Entrez la durée en minutes"
-                                min={1}
-                                max={300}
-                                required
-                            />
-                            <NumberInput
-                                label="Score maximum"
-                                placeholder="Entrez le score maximum"
-                                min={1}
-                                max={1000}
-                                required
-                            />
-                            <NumberInput
-                                label="Nombre maximum de tentatives"
-                                placeholder="Entrez le nombre maximum de tentatives"
-                                min={1}
-                                max={10}
-                                required
-                            />
-                            <Switch
-                                label="Quiz chronométré"
-                                description="Le quiz aura une limite de temps"
-                            />
-                            <Switch
-                                label="Permettre de refaire le quiz"
-                                description="Les étudiants peuvent refaire le quiz plusieurs fois"
-                            />
-                            <TextInput
-                                label="Date d'échéance"
-                                type="datetime-local"
-                                placeholder="Sélectionnez la date d'échéance"
-                            />
-                            <Textarea
-                                label="Instructions"
-                                placeholder="Instructions spéciales pour les étudiants"
-                                rows={3}
-                            />
-                            <TextInput
-                                label="Tags (séparés par des virgules)"
-                                placeholder="ex: algèbre, matrices, déterminants"
-                            />
+                            <Text size="sm" c="dimmed">
+                                {selectedQuiz.description}
+                            </Text>
+
+                            <Divider />
+
+                            <SimpleGrid cols={2} spacing="md">
+                                <div>
+                                    <Text size="sm" fw={600} mb="xs">
+                                        Informations générales
+                                    </Text>
+                                    <Stack gap="xs">
+                                        <Group justify="space-between">
+                                            <Text size="sm">Matière:</Text>
+                                            <Text size="sm" fw={500}>{selectedQuiz.subject}</Text>
+                                        </Group>
+                                        <Group justify="space-between">
+                                            <Text size="sm">Difficulté:</Text>
+                                            <Badge
+                                                color={getDifficultyColor(selectedQuiz.difficulty)}
+                                                variant="light"
+                                                size="sm"
+                                            >
+                                                {selectedQuiz.difficulty}
+                                            </Badge>
+                                        </Group>
+                                        <Group justify="space-between">
+                                            <Text size="sm">Questions:</Text>
+                                            <Text size="sm" fw={500}>{selectedQuiz.questionsCount}</Text>
+                                        </Group>
+                                        <Group justify="space-between">
+                                            <Text size="sm">Durée:</Text>
+                                            <Text size="sm" fw={500}>{selectedQuiz.duration} min</Text>
+                                        </Group>
+                                        <Group justify="space-between">
+                                            <Text size="sm">Score max:</Text>
+                                            <Text size="sm" fw={500}>{selectedQuiz.maxScore}</Text>
+                                        </Group>
+                                    </Stack>
+                                </div>
+
+                                <div>
+                                    <Text size="sm" fw={600} mb="xs">
+                                        Paramètres
+                                    </Text>
+                                    <Stack gap="xs">
+                                        <Group justify="space-between">
+                                            <Text size="sm">Tentatives:</Text>
+                                            <Text size="sm" fw={500}>
+                                                {selectedQuiz.attempts}/{selectedQuiz.maxAttempts}
+                                            </Text>
+                                        </Group>
+                                        <Group justify="space-between">
+                                            <Text size="sm">Chronométré:</Text>
+                                            <Text size="sm" fw={500}>
+                                                {selectedQuiz.isTimed ? 'Oui' : 'Non'}
+                                            </Text>
+                                        </Group>
+                                        <Group justify="space-between">
+                                            <Text size="sm">Nouvelle tentative:</Text>
+                                            <Text size="sm" fw={500}>
+                                                {selectedQuiz.allowRetake ? 'Oui' : 'Non'}
+                                            </Text>
+                                        </Group>
+                                        {selectedQuiz.dueDate && (
+                                            <Group justify="space-between">
+                                                <Text size="sm">Échéance:</Text>
+                                                <Text size="sm" fw={500}>
+                                                    {formatDate(selectedQuiz.dueDate)}
+                                                </Text>
+                                            </Group>
+                                        )}
+                                    </Stack>
+                                </div>
+                            </SimpleGrid>
+
+                            {selectedQuiz.instructions && (
+                                <>
+                                    <Divider />
+                                    <div>
+                                        <Text size="sm" fw={600} mb="xs">
+                                            Instructions
+                                        </Text>
+                                        <Text size="sm" c="dimmed">
+                                            {selectedQuiz.instructions}
+                                        </Text>
+                                    </div>
+                                </>
+                            )}
+
+                            {selectedQuiz.tags.length > 0 && (
+                                <>
+                                    <Divider />
+                                    <div>
+                                        <Text size="sm" fw={600} mb="xs">
+                                            Tags
+                                        </Text>
+                                        <Group gap="xs">
+                                            {selectedQuiz.tags.map((tag, index) => (
+                                                <Badge key={index} variant="light" size="sm">
+                                                    {tag}
+                                                </Badge>
+                                            ))}
+                                        </Group>
+                                    </div>
+                                </>
+                            )}
+
+                            {selectedQuiz.statistics && (
+                                <>
+                                    <Divider />
+                                    <div>
+                                        <Text size="sm" fw={600} mb="xs">
+                                            Statistiques
+                                        </Text>
+                                        <SimpleGrid cols={2} spacing="md">
+                                            <div>
+                                                <Text size="sm" c="dimmed">Score moyen</Text>
+                                                <Text size="lg" fw={700} c="violet">
+                                                    {selectedQuiz.statistics.averageScore}%
+                                                </Text>
+                                            </div>
+                                            <div>
+                                                <Text size="sm" c="dimmed">Taux de réussite</Text>
+                                                <Text size="lg" fw={700} c="green">
+                                                    {selectedQuiz.statistics.completionRate}%
+                                                </Text>
+                                            </div>
+                                            <div>
+                                                <Text size="sm" c="dimmed">Total tentatives</Text>
+                                                <Text size="lg" fw={700} c="blue">
+                                                    {selectedQuiz.statistics.totalAttempts}
+                                                </Text>
+                                            </div>
+                                            <div>
+                                                <Text size="sm" c="dimmed">Meilleur score</Text>
+                                                <Text size="lg" fw={700} c="orange">
+                                                    {selectedQuiz.statistics.bestScore}%
+                                                </Text>
+                                            </div>
+                                        </SimpleGrid>
+                                    </div>
+                                </>
+                            )}
 
                             <Group justify="flex-end" mt="md">
                                 <Button
                                     variant="light"
-                                    onClick={() => setIsCreateModalOpen(false)}
+                                    onClick={() => setIsDetailsModalOpen(false)}
                                 >
-                                    Annuler
+                                    Fermer
                                 </Button>
-                                <Button
-                                    leftSection={<IconPlus size={16} />}
-                                    onClick={() => {
-                                        setIsCreateModalOpen(false);
-                                        // Ici, vous pourriez sauvegarder le quiz
-                                    }}
-                                >
-                                    Créer le quiz
-                                </Button>
+                                {selectedQuiz.status === 'published' && selectedQuiz.attempts < selectedQuiz.maxAttempts && (
+                                    <Button
+                                        leftSection={<IconPlayerPlay size={16} />}
+                                        onClick={() => {
+                                            setIsDetailsModalOpen(false);
+                                            handleStartQuiz(selectedQuiz);
+                                        }}
+                                    >
+                                        Commencer le quiz
+                                    </Button>
+                                )}
                             </Group>
                         </Stack>
-                    </Modal>
-                </Stack>
+                    )}
+                </Modal>
+
+                {/* Modal de création de quiz */}
+                <Modal
+                    opened={isCreateModalOpen}
+                    onClose={() => setIsCreateModalOpen(false)}
+                    title="Créer un nouveau quiz"
+                    size="lg"
+                >
+                    <Stack gap="md">
+                        <TextInput
+                            label="Titre du quiz"
+                            placeholder="Entrez le titre du quiz"
+                            required
+                        />
+                        <Textarea
+                            label="Description"
+                            placeholder="Décrivez le contenu du quiz"
+                            rows={3}
+                        />
+                        <Select
+                            label="Matière"
+                            placeholder="Sélectionnez une matière"
+                            data={['Mathématiques', 'Physique', 'Chimie', 'Biologie', 'Histoire', 'Géographie']}
+                            required
+                        />
+                        <Select
+                            label="Difficulté"
+                            placeholder="Sélectionnez la difficulté"
+                            data={[
+                                { value: 'facile', label: 'Facile' },
+                                { value: 'moyen', label: 'Moyen' },
+                                { value: 'difficile', label: 'Difficile' }
+                            ]}
+                            required
+                        />
+                        <NumberInput
+                            label="Nombre de questions"
+                            placeholder="Entrez le nombre de questions"
+                            min={1}
+                            max={100}
+                            required
+                        />
+                        <NumberInput
+                            label="Durée (minutes)"
+                            placeholder="Entrez la durée en minutes"
+                            min={1}
+                            max={300}
+                            required
+                        />
+                        <NumberInput
+                            label="Score maximum"
+                            placeholder="Entrez le score maximum"
+                            min={1}
+                            max={1000}
+                            required
+                        />
+                        <NumberInput
+                            label="Nombre maximum de tentatives"
+                            placeholder="Entrez le nombre maximum de tentatives"
+                            min={1}
+                            max={10}
+                            required
+                        />
+                        <Switch
+                            label="Quiz chronométré"
+                            description="Le quiz aura une limite de temps"
+                        />
+                        <Switch
+                            label="Permettre de refaire le quiz"
+                            description="Les étudiants peuvent refaire le quiz plusieurs fois"
+                        />
+                        <TextInput
+                            label="Date d'échéance"
+                            type="datetime-local"
+                            placeholder="Sélectionnez la date d'échéance"
+                        />
+                        <Textarea
+                            label="Instructions"
+                            placeholder="Instructions spéciales pour les étudiants"
+                            rows={3}
+                        />
+                        <TextInput
+                            label="Tags (séparés par des virgules)"
+                            placeholder="ex: algèbre, matrices, déterminants"
+                        />
+
+                        <Group justify="flex-end" mt="md">
+                            <Button
+                                variant="light"
+                                onClick={() => setIsCreateModalOpen(false)}
+                            >
+                                Annuler
+                            </Button>
+                            <Button
+                                leftSection={<IconPlus size={16} />}
+                                onClick={() => {
+                                    setIsCreateModalOpen(false);
+                                    // Ici, vous pourriez sauvegarder le quiz
+                                }}
+                            >
+                                Créer le quiz
+                            </Button>
+                        </Group>
+                    </Stack>
+                </Modal>
+            </Stack>
         </MainLayout>
     );
 };

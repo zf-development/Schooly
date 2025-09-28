@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button, Paper, Skeleton } from "@mantine/core";
 import type { PostFormProps } from "../types";
-import PostFormAreaEditor, {
-    PostFormAreaEditorRef,
-} from "./PostFormAreaEditor";
+import PostFormAreaEditor, { PostFormAreaEditorRef } from "./PostFormAreaEditor";
 
 const PostForm: React.FC<PostFormProps> = ({
     onSubmit,

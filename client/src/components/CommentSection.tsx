@@ -10,11 +10,9 @@ import {
     Box,
     ActionIcon,
     Menu,
-    Modal,
     Tooltip,
 } from "@mantine/core";
 import {
-    IconMessageCircle,
     IconSend,
     IconDotsVertical,
     IconEdit,
@@ -94,9 +92,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         try {
             const result = await feedService.getComments(postId);
             const comments = (result as any).data?.comments || result.comments || [];
-            
 
-            
+
+
             // S'assurer que chaque commentaire a un ID unique
             const uniqueComments = comments.filter(
                 (comment: any, index: number, self: any[]) =>
@@ -130,7 +128,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
             );
             // Gérer les deux structures possibles
             const commentToAdd = (result as any).data || result;
-            
+
             if (commentToAdd) {
                 setComments((prev) => [commentToAdd, ...prev]);
                 setNewComment("");
@@ -288,10 +286,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                                             <Box style={{ flex: 1 }}>
                                                 <Group gap="xs" mb={4}>
                                                     <Text size="sm" fw={500}>
-                                                        {comment.users?.display_name || 
-                                                         (comment as any).display_name ||
-                                                         (comment as any).author?.display_name ||
-                                                         "Utilisateur"}
+                                                        {comment.users?.display_name ||
+                                                            (comment as any).display_name ||
+                                                            (comment as any).author?.display_name ||
+                                                            "Utilisateur"}
                                                     </Text>
                                                     <Text size="xs" c="dimmed">
                                                         {formatCommentDate(
@@ -301,7 +299,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                                                 </Group>
 
                                                 {editingComment ===
-                                                comment.id ? (
+                                                    comment.id ? (
                                                     <Box>
                                                         <Textarea
                                                             value={editContent}

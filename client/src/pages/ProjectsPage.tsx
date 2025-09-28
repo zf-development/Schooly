@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Container,
     Title,
     Stack,
     Text,
     Group,
     Badge,
     Button,
-    Paper,
     SimpleGrid,
     ThemeIcon,
     Center,
@@ -16,14 +14,8 @@ import {
     Progress,
     ActionIcon,
     Menu,
-    Tabs,
-    Timeline,
-    Divider,
-    Flex,
     Box,
     ScrollArea,
-    UnstyledButton,
-    HoverCard,
     Tooltip
 } from '@mantine/core';
 import {
@@ -37,18 +29,9 @@ import {
     IconEye,
     IconShare,
     IconClock,
-    IconUser,
     IconPlus,
-    IconFlame,
-    IconStar,
-    IconTrendingUp,
-    IconMessage,
-    IconFileText,
-    IconSettings,
-    IconArrowRight,
     IconCircle,
     IconCircleCheck,
-    IconCircleX,
     IconClockPause,
     IconX
 } from '@tabler/icons-react';
@@ -239,7 +222,7 @@ const ProjectsPage: React.FC = () => {
 
     if (!user) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -249,7 +232,7 @@ const ProjectsPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -303,7 +286,7 @@ const ProjectsPage: React.FC = () => {
     const planningProjects = projects.filter(p => p.status === 'planning');
 
     return (
-        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+        <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
             <Box style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 {/* En-tête */}
                 <Box pb="md">
@@ -385,122 +368,122 @@ const ProjectsPage: React.FC = () => {
                             <Stack gap="lg">
                                 {/* Mes Projets */}
                                 {myProjects.map((project) => (
-                                            <Box
-                                                key={project.id}
-                                                style={{
-                                                    padding: '24px',
-                                                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                                                    border: '1px solid #e2e8f0',
-                                                    borderRadius: '12px',
-                                                    transition: 'all 0.3s ease',
-                                                    cursor: 'pointer'
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    e.currentTarget.style.transform = 'translateY(-2px)';
-                                                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.currentTarget.style.transform = 'translateY(0)';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }}
-                                            >
-                                                <Group justify="space-between" mb="md">
-                                                    <Box style={{ flex: 1 }}>
-                                                        <Group gap="sm" mb="xs">
-                                                            <Text fw={600} size="lg">{project.title}</Text>
-                                                            <Badge
-                                                                color={getStatusColor(project.status)}
-                                                                variant="light"
-                                                                leftSection={getStatusIcon(project.status)}
-                                                            >
-                                                                {project.status === 'in-progress' ? 'En cours' :
-                                                                 project.status === 'completed' ? 'Terminé' :
-                                                                 project.status === 'planning' ? 'Planification' : 'En pause'}
-                                                            </Badge>
-                                                            <Badge
-                                                                color={getPriorityColor(project.priority)}
-                                                                variant="outline"
-                                                                size="sm"
-                                                            >
-                                                                {getPriorityLabel(project.priority)}
-                                                            </Badge>
-                                                        </Group>
-                                                        <Text c="dimmed" size="sm" mb="md">
-                                                            {project.description}
-                                                        </Text>
-                                                    </Box>
-                                                    <Menu>
-                                                        <Menu.Target>
-                                                            <ActionIcon variant="subtle" size="sm">
-                                                                <IconDots size={16} />
-                                                            </ActionIcon>
-                                                        </Menu.Target>
-                                                        <Menu.Dropdown>
-                                                            <Menu.Item leftSection={<IconEye size={16} />}>
-                                                                Voir
-                                                            </Menu.Item>
-                                                            <Menu.Item leftSection={<IconEdit size={16} />}>
-                                                                Modifier
-                                                            </Menu.Item>
-                                                            <Menu.Item leftSection={<IconShare size={16} />}>
-                                                                Partager
-                                                            </Menu.Item>
-                                                            <Menu.Divider />
-                                                            <Menu.Item leftSection={<IconTrash size={16} />} color="red">
-                                                                Supprimer
-                                                            </Menu.Item>
-                                                        </Menu.Dropdown>
-                                                    </Menu>
-                                                </Group>
-
-                                                <Box mb="md">
-                                                    <Group justify="space-between" mb="xs">
-                                                        <Text size="sm" fw={500}>Progression</Text>
-                                                        <Text size="sm" c="dimmed">{project.progress}%</Text>
-                                                    </Group>
-                                                    <Progress
-                                                        value={project.progress}
-                                                        color={project.progress === 100 ? 'green' : 'blue'}
+                                    <Box
+                                        key={project.id}
+                                        style={{
+                                            padding: '24px',
+                                            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '12px',
+                                            transition: 'all 0.3s ease',
+                                            cursor: 'pointer'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-2px)';
+                                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = 'none';
+                                        }}
+                                    >
+                                        <Group justify="space-between" mb="md">
+                                            <Box style={{ flex: 1 }}>
+                                                <Group gap="sm" mb="xs">
+                                                    <Text fw={600} size="lg">{project.title}</Text>
+                                                    <Badge
+                                                        color={getStatusColor(project.status)}
+                                                        variant="light"
+                                                        leftSection={getStatusIcon(project.status)}
+                                                    >
+                                                        {project.status === 'in-progress' ? 'En cours' :
+                                                            project.status === 'completed' ? 'Terminé' :
+                                                                project.status === 'planning' ? 'Planification' : 'En pause'}
+                                                    </Badge>
+                                                    <Badge
+                                                        color={getPriorityColor(project.priority)}
+                                                        variant="outline"
                                                         size="sm"
-                                                        radius="xl"
-                                                    />
-                                                </Box>
-
-                                                <Group justify="space-between">
-                                                    <Group gap="xs">
-                                                        <Text size="sm" c="dimmed">
-                                                            <IconCalendar size={14} style={{ marginRight: '4px' }} />
-                                                            {new Date(project.startDate).toLocaleDateString('fr-FR')}
-                                                            {project.endDate && ` - ${new Date(project.endDate).toLocaleDateString('fr-FR')}`}
-                                                        </Text>
-                                                    </Group>
-                                                    <Group gap="xs">
-                                                        {project.participants.slice(0, 3).map((participant) => (
-                                                            <Tooltip key={participant.id} label={participant.name}>
-                                                                <Avatar
-                                                                    src={participant.avatar}
-                                                                    size="sm"
-                                                                    radius="xl"
-                                                                />
-                                                            </Tooltip>
-                                                        ))}
-                                                        {project.participants.length > 3 && (
-                                                            <Text size="xs" c="dimmed">
-                                                                +{project.participants.length - 3}
-                                                            </Text>
-                                                        )}
-                                                    </Group>
+                                                    >
+                                                        {getPriorityLabel(project.priority)}
+                                                    </Badge>
                                                 </Group>
-
-                                                <Group gap="xs" mt="md">
-                                                    {project.tags.map((tag) => (
-                                                        <Badge key={tag} variant="light" size="sm">
-                                                            {tag}
-                                                        </Badge>
-                                                    ))}
-                                                </Group>
+                                                <Text c="dimmed" size="sm" mb="md">
+                                                    {project.description}
+                                                </Text>
                                             </Box>
-                                        ))}
+                                            <Menu>
+                                                <Menu.Target>
+                                                    <ActionIcon variant="subtle" size="sm">
+                                                        <IconDots size={16} />
+                                                    </ActionIcon>
+                                                </Menu.Target>
+                                                <Menu.Dropdown>
+                                                    <Menu.Item leftSection={<IconEye size={16} />}>
+                                                        Voir
+                                                    </Menu.Item>
+                                                    <Menu.Item leftSection={<IconEdit size={16} />}>
+                                                        Modifier
+                                                    </Menu.Item>
+                                                    <Menu.Item leftSection={<IconShare size={16} />}>
+                                                        Partager
+                                                    </Menu.Item>
+                                                    <Menu.Divider />
+                                                    <Menu.Item leftSection={<IconTrash size={16} />} color="red">
+                                                        Supprimer
+                                                    </Menu.Item>
+                                                </Menu.Dropdown>
+                                            </Menu>
+                                        </Group>
+
+                                        <Box mb="md">
+                                            <Group justify="space-between" mb="xs">
+                                                <Text size="sm" fw={500}>Progression</Text>
+                                                <Text size="sm" c="dimmed">{project.progress}%</Text>
+                                            </Group>
+                                            <Progress
+                                                value={project.progress}
+                                                color={project.progress === 100 ? 'green' : 'blue'}
+                                                size="sm"
+                                                radius="xl"
+                                            />
+                                        </Box>
+
+                                        <Group justify="space-between">
+                                            <Group gap="xs">
+                                                <Text size="sm" c="dimmed">
+                                                    <IconCalendar size={14} style={{ marginRight: '4px' }} />
+                                                    {new Date(project.startDate).toLocaleDateString('fr-FR')}
+                                                    {project.endDate && ` - ${new Date(project.endDate).toLocaleDateString('fr-FR')}`}
+                                                </Text>
+                                            </Group>
+                                            <Group gap="xs">
+                                                {project.participants.slice(0, 3).map((participant) => (
+                                                    <Tooltip key={participant.id} label={participant.name}>
+                                                        <Avatar
+                                                            src={participant.avatar}
+                                                            size="sm"
+                                                            radius="xl"
+                                                        />
+                                                    </Tooltip>
+                                                ))}
+                                                {project.participants.length > 3 && (
+                                                    <Text size="xs" c="dimmed">
+                                                        +{project.participants.length - 3}
+                                                    </Text>
+                                                )}
+                                            </Group>
+                                        </Group>
+
+                                        <Group gap="xs" mt="md">
+                                            {project.tags.map((tag) => (
+                                                <Badge key={tag} variant="light" size="sm">
+                                                    {tag}
+                                                </Badge>
+                                            ))}
+                                        </Group>
+                                    </Box>
+                                ))}
 
                                 {/* Projets Disponibles */}
                                 {projects
@@ -527,8 +510,8 @@ const ProjectsPage: React.FC = () => {
                                                             leftSection={getStatusIcon(project.status)}
                                                         >
                                                             {project.status === 'in-progress' ? 'En cours' :
-                                                             project.status === 'completed' ? 'Terminé' :
-                                                             project.status === 'planning' ? 'Planification' : 'En pause'}
+                                                                project.status === 'completed' ? 'Terminé' :
+                                                                    project.status === 'planning' ? 'Planification' : 'En pause'}
                                                         </Badge>
                                                     </Group>
                                                     <Text c="dimmed" size="sm" mb="md">

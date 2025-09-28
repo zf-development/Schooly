@@ -9,24 +9,22 @@ import {
     ActionIcon,
     Divider,
     Box,
-    Flex,
     Tooltip,
     Button,
     Menu,
     Modal,
 } from "@mantine/core";
-import HashtagList from "./HashtagList";
 
 // Fonction pour rendre le contenu avec les hashtags transformés en badges
 const renderContentWithHashtags = (content: string) => {
     if (!content) return content;
-    
+
     // Regex pour détecter les hashtags
     const hashtagRegex = /#([a-zA-Z0-9\u00C0-\u017F\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF]+)/g;
-    
+
     // Diviser le contenu en parties (texte et hashtags)
     const parts = content.split(hashtagRegex);
-    
+
     return parts.map((part, index) => {
         // Si l'index est impair, c'est un hashtag (capturé par le groupe)
         if (index % 2 === 1) {
@@ -36,7 +34,7 @@ const renderContentWithHashtags = (content: string) => {
                     variant="filled"
                     color="grape"
                     size="xs"
-                    style={{ 
+                    style={{
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -182,10 +180,10 @@ const PostCard: React.FC<PostCardProps> = ({
     const handleLike = async () => {
         try {
             const result = await feedService.toggleLike(id);
-            
+
             // Gérer les deux structures possibles
             const likeData = (result as any).data || result;
-            
+
             setLocalLikes(likeData.likes_count);
             setLocalIsLiked(likeData.liked);
 
@@ -370,9 +368,9 @@ const PostCard: React.FC<PostCardProps> = ({
                 )}
 
                 <Box>
-                    <div 
-                        style={{ 
-                            fontSize: '14px', 
+                    <div
+                        style={{
+                            fontSize: '14px',
                             color: 'var(--mantine-color-dark-7)',
                             lineHeight: '1.5',
                             whiteSpace: 'pre-wrap'

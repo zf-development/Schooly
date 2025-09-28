@@ -17,12 +17,10 @@ import {
     IconSchool,
     IconUserScan,
     IconLogout,
-    IconHome,
     IconNews,
     IconNotes,
     IconCalendar,
     IconCloud,
-    IconBuilding,
     IconBuildingPlus,
     IconChevronLeft,
     IconChevronRight,
@@ -32,7 +30,6 @@ import {
     IconBook,
     IconChartLine,
     IconBrain,
-    IconTrendingUp,
 } from "@tabler/icons-react";
 
 const linksSections = {
@@ -161,9 +158,8 @@ const AppNavbar = React.memo(() => {
     return (
         <>
             <div
-                className={`${styles.toggleButton} ${
-                    isOpen ? styles.toggleOpen : styles.toggleClosed
-                }`}
+                className={`${styles.toggleButton} ${isOpen ? styles.toggleOpen : styles.toggleClosed
+                    }`}
             >
                 <Tooltip
                     label={isOpen ? "Réduire le menu" : "Étendre le menu"}

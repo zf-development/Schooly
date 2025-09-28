@@ -8,7 +8,6 @@ import {
     Text,
     Switch,
     Divider,
-    Box,
     Badge
 } from '@mantine/core';
 import {
@@ -28,8 +27,8 @@ interface FloatingActionButtonsProps {
     notificationCount?: number;
 }
 
-const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({ 
-    notificationCount = 0 
+const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
+    notificationCount = 0
 }) => {
     const { colorScheme, toggleColorScheme } = useMantineColorScheme();
     const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -85,7 +84,7 @@ const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
                     {expanded && (
                         <>
                             <Divider />
-                            
+
                             {/* Bouton de notifications */}
                             <Tooltip label="Notifications">
                                 <ActionIcon
@@ -166,7 +165,7 @@ const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
                         <Text fw={500} size="sm">
                             Apparence
                         </Text>
-                        
+
                         <Group justify="space-between" align="center">
                             <Group gap="xs">
                                 {colorScheme === 'light' ? (
@@ -195,9 +194,9 @@ const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
             )}
 
             {/* Tray de notifications */}
-            <NotificationTray 
-                isOpen={notificationsOpen} 
-                onClose={() => setNotificationsOpen(false)} 
+            <NotificationTray
+                isOpen={notificationsOpen}
+                onClose={() => setNotificationsOpen(false)}
             />
         </>
     );

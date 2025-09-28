@@ -1,6 +1,3 @@
-// TODO: Overlay de chargement
-// - Affiche un voile de chargement au-dessus d'une section
-
 import React from "react";
 import { Overlay, Skeleton, Center, Stack } from "@mantine/core";
 

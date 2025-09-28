@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Stack, Title, Alert, Text, Box, Container, Group, ThemeIcon, ActionIcon, Tooltip } from "@mantine/core";
+import { Stack, Title, Alert, Text, Box, Group, ThemeIcon, ActionIcon, Tooltip } from "@mantine/core";
 import { IconAlertCircle, IconNews, IconTrendingUp } from "@tabler/icons-react";
 import MainLayout from "../layouts/MainLayout";
 import PostForm from "../components/PostForm";

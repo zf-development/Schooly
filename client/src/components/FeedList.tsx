@@ -1,6 +1,3 @@
-// TODO: Liste de posts
-// - Afficher une liste de PostCard
-
 import React from "react";
 import {
     Stack,
@@ -8,7 +5,6 @@ import {
     Center,
     Skeleton,
     Group,
-    Avatar,
     Card,
     Divider,
     Box,

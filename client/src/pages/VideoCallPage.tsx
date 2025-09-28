@@ -7,14 +7,11 @@ import {
     Group,
     Badge,
     Button,
-    Paper,
-    SimpleGrid,
     ThemeIcon,
     Center,
     Loader,
     Avatar,
     ActionIcon,
-    Tabs,
     Divider,
     Flex,
     Grid,
@@ -22,7 +19,6 @@ import {
     Overlay,
     Card,
     ScrollArea,
-    UnstyledButton
 } from '@mantine/core';
 import {
     IconPhoneOff,
@@ -36,13 +32,8 @@ import {
     IconUsers,
     IconMessageCircle,
     IconSend,
-    IconStar,
     IconVolumeOff,
     IconChevronDown,
-    IconChevronUp,
-    IconDots,
-    IconBell,
-    IconBellOff
 } from '@tabler/icons-react';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
@@ -220,7 +211,7 @@ const VideoCallPage: React.FC = () => {
 
         // Désactiver le scroll de la page
         document.body.style.overflow = 'hidden';
-        
+
         return () => {
             clearInterval(timer);
             // Réactiver le scroll quand on quitte la page
@@ -234,7 +225,7 @@ const VideoCallPage: React.FC = () => {
 
     if (!user) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -244,7 +235,7 @@ const VideoCallPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -256,7 +247,7 @@ const VideoCallPage: React.FC = () => {
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
         const secs = seconds % 60;
-        
+
         if (hours > 0) {
             return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
@@ -320,11 +311,11 @@ const VideoCallPage: React.FC = () => {
     const currentUser = callInfo.participants.find(p => p.id === user?.id) || callInfo.participants[0];
 
     return (
-        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-            <Box style={{ 
-                height: 'calc(100vh - 60px)', 
-                overflow: 'hidden', 
-                display: 'flex', 
+        <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
+            <Box style={{
+                height: 'calc(100vh - 60px)',
+                overflow: 'hidden',
+                display: 'flex',
                 flexDirection: 'column',
                 width: '100%'
             }}>
@@ -368,22 +359,22 @@ const VideoCallPage: React.FC = () => {
                                 </Group>
                             </div>
                         </Group>
-                        
+
                         <Group gap="sm">
-                            <Badge 
-                                color="green" 
-                                variant="light" 
-                                size="md" 
+                            <Badge
+                                color="green"
+                                variant="light"
+                                size="md"
                                 radius="md"
                                 style={{ fontWeight: 600 }}
                             >
                                 En cours
                             </Badge>
                             {callInfo.isRecording && (
-                                <Badge 
-                                    color="red" 
-                                    variant="filled" 
-                                    size="md" 
+                                <Badge
+                                    color="red"
+                                    variant="filled"
+                                    size="md"
                                     radius="md"
                                     style={{ fontWeight: 600 }}
                                 >
@@ -435,7 +426,7 @@ const VideoCallPage: React.FC = () => {
                                             Cliquez sur "Arrêter le partage" pour reprendre la vue normale
                                         </Text>
                                     </Stack>
-                                    
+
                                     <Badge
                                         color="red"
                                         variant="filled"
@@ -445,7 +436,7 @@ const VideoCallPage: React.FC = () => {
                                         PARTAGE D'ÉCRAN
                                     </Badge>
                                 </Box>
-                                
+
                                 {/* Vue en miniature des participants */}
                                 <Box
                                     style={{
@@ -554,12 +545,12 @@ const VideoCallPage: React.FC = () => {
                                                             {participant.name}
                                                         </Text>
                                                         <Text size="sm" c="dimmed" ta="center" mt="xs">
-                                                            {participant.role === 'host' ? 'Organisateur' : 
-                                                             participant.role === 'presenter' ? 'Présentateur' : 'Participant'}
+                                                            {participant.role === 'host' ? 'Organisateur' :
+                                                                participant.role === 'presenter' ? 'Présentateur' : 'Participant'}
                                                         </Text>
                                                     </Box>
                                                 )}
-                                                
+
                                                 {/* Indicateurs de statut en overlay */}
                                                 <Box
                                                     style={{
@@ -574,10 +565,10 @@ const VideoCallPage: React.FC = () => {
                                                 >
                                                     <Group gap="xs">
                                                         {participant.isHost && (
-                                                            <Badge 
-                                                                color="blue" 
-                                                                variant="filled" 
-                                                                size="sm" 
+                                                            <Badge
+                                                                color="blue"
+                                                                variant="filled"
+                                                                size="sm"
                                                                 radius="md"
                                                                 style={{ fontWeight: 600 }}
                                                             >
@@ -585,10 +576,10 @@ const VideoCallPage: React.FC = () => {
                                                             </Badge>
                                                         )}
                                                         {participant.role === 'presenter' && (
-                                                            <Badge 
-                                                                color="green" 
-                                                                variant="filled" 
-                                                                size="sm" 
+                                                            <Badge
+                                                                color="green"
+                                                                variant="filled"
+                                                                size="sm"
                                                                 radius="md"
                                                                 style={{ fontWeight: 600 }}
                                                             >
@@ -596,13 +587,13 @@ const VideoCallPage: React.FC = () => {
                                                             </Badge>
                                                         )}
                                                     </Group>
-                                                    
+
                                                     <Group gap="xs">
                                                         {!participant.isAudioOn && (
-                                                            <ThemeIcon 
-                                                                size="md" 
-                                                                color="red" 
-                                                                radius="xl" 
+                                                            <ThemeIcon
+                                                                size="md"
+                                                                color="red"
+                                                                radius="xl"
                                                                 variant="filled"
                                                                 style={{ boxShadow: '0 2px 8px rgba(255, 0, 0, 0.3)' }}
                                                             >
@@ -610,10 +601,10 @@ const VideoCallPage: React.FC = () => {
                                                             </ThemeIcon>
                                                         )}
                                                         {participant.isMuted && (
-                                                            <ThemeIcon 
-                                                                size="md" 
-                                                                color="red" 
-                                                                radius="xl" 
+                                                            <ThemeIcon
+                                                                size="md"
+                                                                color="red"
+                                                                radius="xl"
                                                                 variant="filled"
                                                                 style={{ boxShadow: '0 2px 8px rgba(255, 0, 0, 0.3)' }}
                                                             >
@@ -732,10 +723,10 @@ const VideoCallPage: React.FC = () => {
                                             <div ref={chatEndRef} />
                                         </Stack>
                                     </ScrollArea>
-                                    
-                                    <Box 
-                                        p="md" 
-                                        style={{ 
+
+                                    <Box
+                                        p="md"
+                                        style={{
                                             borderTop: '1px solid var(--mantine-color-gray-1)',
                                             backgroundColor: 'var(--mantine-color-gray-0)'
                                         }}
@@ -781,10 +772,10 @@ const VideoCallPage: React.FC = () => {
                                 <ScrollArea style={{ flex: 1, minHeight: 0 }} p="md">
                                     <Stack gap="sm">
                                         {callInfo.participants.map((participant) => (
-                                            <Card 
-                                                key={participant.id} 
-                                                p="md" 
-                                                radius="md" 
+                                            <Card
+                                                key={participant.id}
+                                                p="md"
+                                                radius="md"
                                                 style={{
                                                     border: '1px solid var(--mantine-color-gray-2)',
                                                     backgroundColor: 'white',
@@ -815,12 +806,12 @@ const VideoCallPage: React.FC = () => {
                                                                 {participant.name}
                                                             </Text>
                                                             <Text size="xs" c="dimmed" mt={2}>
-                                                                {participant.role === 'host' ? 'Organisateur' : 
-                                                                 participant.role === 'presenter' ? 'Présentateur' : 'Participant'}
+                                                                {participant.role === 'host' ? 'Organisateur' :
+                                                                    participant.role === 'presenter' ? 'Présentateur' : 'Participant'}
                                                             </Text>
                                                         </div>
                                                     </Group>
-                                                    
+
                                                     <Group gap="xs">
                                                         {participant.isVideoOn ? (
                                                             <ThemeIcon size="sm" color="green" radius="xl" variant="light">

@@ -4,7 +4,6 @@ import {
     Title,
     Text,
     Group,
-    Badge,
     Box,
     Alert,
     Loader,
@@ -72,8 +71,7 @@ const HashtagPage: React.FC = () => {
                                 post.author?.display_name || "Utilisateur",
                             avatar_url:
                                 post.author?.avatar_url ||
-                                `https://api.dicebear.com/7.x/avataaars/svg?seed=${
-                                    post.author?.id || post.author_id
+                                `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.id || post.author_id
                                 }`,
                             institution:
                                 post.author?.institution || "MGR Parent",
@@ -114,8 +112,7 @@ const HashtagPage: React.FC = () => {
         onProfile: () => navigate("/profile"),
         userAvatar:
             user?.avatar_url ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${
-                user?.id || Date.now()
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id || Date.now()
             }`,
         userName: user?.name || "Utilisateur",
     };

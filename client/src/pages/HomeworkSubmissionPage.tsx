@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-    Container,
     Title,
     Stack,
     Card,
@@ -8,11 +7,6 @@ import {
     Group,
     Badge,
     Button,
-    TextInput,
-    Alert,
-    Timeline,
-    Avatar,
-    Divider,
     Paper,
     Grid,
     ThemeIcon,
@@ -22,23 +16,15 @@ import {
     Box,
     Center,
     Loader,
-    SimpleGrid
 } from '@mantine/core';
 import {
     IconUpload,
     IconFileText,
     IconCalendar,
-    IconClock,
     IconUser,
     IconDots,
-    IconCheck,
-    IconX,
-    IconAlertCircle,
     IconDownload,
     IconEye,
-    IconEdit,
-    IconTrash,
-    IconPlus,
     IconBook,
     IconClipboardCheck,
     IconClipboardList,
@@ -358,7 +344,7 @@ const HomeworkSubmissionPage: React.FC = () => {
 
     if (!user) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -368,7 +354,7 @@ const HomeworkSubmissionPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
+            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
                 <Center h="100vh">
                     <Loader size="lg" />
                 </Center>
@@ -433,50 +419,50 @@ const HomeworkSubmissionPage: React.FC = () => {
         : mockHomeworks.filter(h => h.session === 'current');
 
     return (
-        <MainLayout authProps={{ onLogout: () => {}, onLogin: () => {}, isAuthenticated: true }}>
-                {/* En-tête - caché dans la vue détaillée */}
-                {!showSubjectDetails && (
-                    <Group justify="space-between" align="center" mb="xl">
-                        <Group>
-                            <ThemeIcon size={40} radius="md" color="violet">
-                                <IconUpload size={24} />
-                            </ThemeIcon>
-                            <div>
-                                <Title order={1} size="h2">
-                                    Devoirs
-                                </Title>
-                                <Text c="dimmed" size="sm">
-                                    Gérez vos devoirs et remises académiques
-                                </Text>
-                            </div>
-                        </Group>
+        <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
+            {/* En-tête - caché dans la vue détaillée */}
+            {!showSubjectDetails && (
+                <Group justify="space-between" align="center" mb="xl">
+                    <Group>
+                        <ThemeIcon size={40} radius="md" color="violet">
+                            <IconUpload size={24} />
+                        </ThemeIcon>
+                        <div>
+                            <Title order={1} size="h2">
+                                Devoirs
+                            </Title>
+                            <Text c="dimmed" size="sm">
+                                Gérez vos devoirs et remises académiques
+                            </Text>
+                        </div>
                     </Group>
-                )}
+                </Group>
+            )}
 
-                <Stack gap="xl">
-                    {!showSubjectDetails ? (
-                        /* Vue d'ensemble des devoirs par matière */
-                        <Stack gap="lg">
-                            <Group justify="center" mb="md">
-                                <Text size="lg" c="dimmed" ta="center">
-                                    Sélectionnez une matière pour voir vos devoirs et votre progression
-                                </Text>
-                            </Group>
-                            
-                            <Grid>
+            <Stack gap="xl">
+                {!showSubjectDetails ? (
+                    /* Vue d'ensemble des devoirs par matière */
+                    <Stack gap="lg">
+                        <Group justify="center" mb="md">
+                            <Text size="lg" c="dimmed" ta="center">
+                                Sélectionnez une matière pour voir vos devoirs et votre progression
+                            </Text>
+                        </Group>
+
+                        <Grid>
                             {Array.from(new Set(mockHomeworks.map(h => h.subject))).map(subject => {
                                 const subjectHomeworks = mockHomeworks.filter(h => h.subject === subject);
                                 const pending = subjectHomeworks.filter(h => h.status === 'pending').length;
                                 const submitted = subjectHomeworks.filter(h => h.status === 'submitted').length;
                                 const graded = subjectHomeworks.filter(h => h.status === 'graded').length;
                                 const late = subjectHomeworks.filter(h => h.status === 'late').length;
-                                
-                                
+
+
                                 return (
                                     <Grid.Col key={subject} span={{ base: 12, sm: 6, md: 4 }}>
-                                        <Card 
-                                            withBorder 
-                                            p="lg" 
+                                        <Card
+                                            withBorder
+                                            p="lg"
                                             radius="md"
                                             shadow="sm"
                                             style={{
@@ -507,8 +493,8 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                     <Text fw={700} size="xl" c={selectedSubject === subject ? "violet" : "dark"}>
                                                         {subject}
                                                     </Text>
-                                                    <Badge 
-                                                        color={selectedSubject === subject ? "violet" : "blue"} 
+                                                    <Badge
+                                                        color={selectedSubject === subject ? "violet" : "blue"}
                                                         variant={selectedSubject === subject ? "filled" : "light"}
                                                         size="lg"
                                                         radius="md"
@@ -516,7 +502,7 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                         {subjectHomeworks.length} devoir{subjectHomeworks.length > 1 ? 's' : ''}
                                                     </Badge>
                                                 </Group>
-                                                
+
                                                 <Group gap="xs" wrap="wrap">
                                                     {pending > 0 && (
                                                         <Badge color="yellow" variant="filled" size="sm" radius="md">
@@ -539,7 +525,7 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                         </Badge>
                                                     )}
                                                 </Group>
-                                                
+
                                                 <Box>
                                                     <Group justify="space-between" mb="xs">
                                                         <Text size="sm" fw={500} c="dimmed">
@@ -549,9 +535,9 @@ const HomeworkSubmissionPage: React.FC = () => {
                                                             {Math.round(((submitted + graded) / subjectHomeworks.length) * 100)}%
                                                         </Text>
                                                     </Group>
-                                                    <Progress 
-                                                        value={((submitted + graded) / subjectHomeworks.length) * 100} 
-                                                        color={selectedSubject === subject ? "violet" : "blue"} 
+                                                    <Progress
+                                                        value={((submitted + graded) / subjectHomeworks.length) * 100}
+                                                        color={selectedSubject === subject ? "violet" : "blue"}
                                                         size="lg"
                                                         radius="md"
                                                         style={{ height: 8 }}
@@ -562,598 +548,598 @@ const HomeworkSubmissionPage: React.FC = () => {
                                     </Grid.Col>
                                 );
                             })}
-                            </Grid>
-                        </Stack>
-                    ) : (
-                        /* Vue détaillée d'une matière */
-                        <Stack gap="lg">
-                            {/* En-tête de la matière avec bouton retour et graphique */}
-                            <Group justify="space-between" align="center" mb="xl">
-                                <Group>
-                                    <ActionIcon
-                                        variant="subtle"
-                                        color="violet"
-                                        size="lg"
-                                        onClick={handleBackToOverview}
-                                        title="Retour à l'aperçu"
-                                    >
-                                        <IconArrowLeft size={20} />
-                                    </ActionIcon>
-                                    <ThemeIcon size={40} radius="md" color="violet">
-                                        <IconUpload size={24} />
-                                    </ThemeIcon>
-                                    <div>
-                                        <Title order={1} size="h2">
-                                            {selectedSubject}
-                                        </Title>
-                                        <Text c="dimmed" size="sm">
-                                            Détail des devoirs et progression
-                                        </Text>
-                                    </div>
-                                </Group>
-                                
-                                {/* Graphique de la moyenne des notes */}
-                                <Box style={{ minWidth: 200 }}>
-                                    {(() => {
-                                        const subjectHomeworks = mockHomeworks.filter(h => h.subject === selectedSubject);
-                                        const gradedHomeworks = subjectHomeworks.filter(h => h.points !== undefined);
-                                        const averageGrade = gradedHomeworks.length > 0 
-                                            ? gradedHomeworks.reduce((sum, h) => sum + (h.points! / h.maxPoints! * 100), 0) / gradedHomeworks.length
-                                            : null;
-                                        
-                                        return (
-                                            <Stack gap="xs" align="center">
-                                                <Text size="sm" c="dimmed" fw={500}>
-                                                    Moyenne des notes
-                                                </Text>
-                                                <Group gap="xs" align="center">
-                                                    <Text size="2rem" fw={800} c="violet">
-                                                        {averageGrade ? `${averageGrade.toFixed(1)}%` : 'N/A'}
-                                                    </Text>
-                                                    <ThemeIcon size="lg" color="violet" variant="light" radius="xl">
-                                                        <IconChartBar size={20} />
-                                                    </ThemeIcon>
-                                                </Group>
-                                                {averageGrade && (
-                                                    <Progress 
-                                                        value={averageGrade} 
-                                                        color="violet" 
-                                                        size="lg"
-                                                        radius="xl"
-                                                        style={{ width: 150, height: 8 }}
-                                                    />
-                                                )}
-                                            </Stack>
-                                        );
-                                    })()}
-                                </Box>
+                        </Grid>
+                    </Stack>
+                ) : (
+                    /* Vue détaillée d'une matière */
+                    <Stack gap="lg">
+                        {/* En-tête de la matière avec bouton retour et graphique */}
+                        <Group justify="space-between" align="center" mb="xl">
+                            <Group>
+                                <ActionIcon
+                                    variant="subtle"
+                                    color="violet"
+                                    size="lg"
+                                    onClick={handleBackToOverview}
+                                    title="Retour à l'aperçu"
+                                >
+                                    <IconArrowLeft size={20} />
+                                </ActionIcon>
+                                <ThemeIcon size={40} radius="md" color="violet">
+                                    <IconUpload size={24} />
+                                </ThemeIcon>
+                                <div>
+                                    <Title order={1} size="h2">
+                                        {selectedSubject}
+                                    </Title>
+                                    <Text c="dimmed" size="sm">
+                                        Détail des devoirs et progression
+                                    </Text>
+                                </div>
                             </Group>
 
-                            {/* Liste des devoirs de la matière */}
-                            <Paper withBorder p="lg" radius="md">
-                        <Group justify="space-between" align="center" mb="lg">
-                            <Group gap="md">
-                                <Title order={2} size="h3">
-                                    Détail des devoirs
-                                </Title>
-                            </Group>
-                            <Group gap="md">
-                                <Group gap="xs">
-                                    <Badge color="yellow" variant="light" size="lg">
-                                        {filteredHomeworks.filter(h => h.status === 'pending').length} À rendre
-                                    </Badge>
-                                    <Badge color="blue" variant="light" size="lg">
-                                        {filteredHomeworks.filter(h => h.status === 'submitted').length} Rendus
-                                    </Badge>
-                                    <Badge color="green" variant="light" size="lg">
-                                        {filteredHomeworks.filter(h => h.status === 'graded').length} Notés
-                                    </Badge>
-                                </Group>
-                            </Group>
+                            {/* Graphique de la moyenne des notes */}
+                            <Box style={{ minWidth: 200 }}>
+                                {(() => {
+                                    const subjectHomeworks = mockHomeworks.filter(h => h.subject === selectedSubject);
+                                    const gradedHomeworks = subjectHomeworks.filter(h => h.points !== undefined);
+                                    const averageGrade = gradedHomeworks.length > 0
+                                        ? gradedHomeworks.reduce((sum, h) => sum + (h.points! / h.maxPoints! * 100), 0) / gradedHomeworks.length
+                                        : null;
+
+                                    return (
+                                        <Stack gap="xs" align="center">
+                                            <Text size="sm" c="dimmed" fw={500}>
+                                                Moyenne des notes
+                                            </Text>
+                                            <Group gap="xs" align="center">
+                                                <Text size="2rem" fw={800} c="violet">
+                                                    {averageGrade ? `${averageGrade.toFixed(1)}%` : 'N/A'}
+                                                </Text>
+                                                <ThemeIcon size="lg" color="violet" variant="light" radius="xl">
+                                                    <IconChartBar size={20} />
+                                                </ThemeIcon>
+                                            </Group>
+                                            {averageGrade && (
+                                                <Progress
+                                                    value={averageGrade}
+                                                    color="violet"
+                                                    size="lg"
+                                                    radius="xl"
+                                                    style={{ width: 150, height: 8 }}
+                                                />
+                                            )}
+                                        </Stack>
+                                    );
+                                })()}
+                            </Box>
                         </Group>
-                        
-                        <Stack gap="md">
-                            {/* Devoirs à rendre - Triés par urgence */}
-                        {filteredHomeworks.filter(h => h.status === 'pending' || h.status === 'late').length > 0 && (
-                            <Box mb="xl">
-                                <Group gap="xs" mb="md">
-                                    <IconClipboardList size={20} color="var(--mantine-color-red-6)" />
-                                    <Title order={3} size="h4" c="red">
-                                        À rendre ({filteredHomeworks.filter(h => h.status === 'pending' || h.status === 'late').length})
+
+                        {/* Liste des devoirs de la matière */}
+                        <Paper withBorder p="lg" radius="md">
+                            <Group justify="space-between" align="center" mb="lg">
+                                <Group gap="md">
+                                    <Title order={2} size="h3">
+                                        Détail des devoirs
                                     </Title>
                                 </Group>
-                                <Stack gap="md">
-                                    {filteredHomeworks
-                                        .filter(h => h.status === 'pending' || h.status === 'late')
-                                        .sort((a, b) => {
-                                            // Tri par urgence : d'abord les en retard, puis par date d'échéance
-                                            if (a.status === 'late' && b.status !== 'late') return -1;
-                                            if (b.status === 'late' && a.status !== 'late') return 1;
-                                            return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-                                        })
-                                        .map((homework) => {
-                                            const submission = getSubmissionForHomework(homework.id);
-                                            const isOverdueHomework = isOverdue(homework.dueDate);
-                                            
-                                            return (
-                                                <Card 
-                                                    key={homework.id} 
-                                                    withBorder 
-                                                    shadow="sm" 
-                                                    radius="lg"
-                                                    p="lg"
-                                                    style={{
-                                                        transition: 'all 0.2s ease',
-                                                        borderColor: homework.status === 'graded' ? 'var(--mantine-color-green-3)' : 
-                                                                   homework.status === 'submitted' ? 'var(--mantine-color-blue-3)' :
-                                                                   homework.status === 'late' ? 'var(--mantine-color-red-3)' : 'var(--mantine-color-gray-3)',
-                                                        backgroundColor: homework.status === 'graded' ? 'var(--mantine-color-green-0)' : 
-                                                                      homework.status === 'submitted' ? 'var(--mantine-color-blue-0)' :
-                                                                      homework.status === 'late' ? 'var(--mantine-color-red-0)' : 'white'
-                                                    }}
-                                                >
-                                                    <Stack gap="md">
-                                                        <Group justify="space-between" align="flex-start">
-                                                            <div style={{ flex: 1 }}>
-                                                                <Group gap="sm" mb="xs">
-                                                                    <Title order={3} size="h4">
-                                                                        {homework.title}
-                                                                    </Title>
-                                                                    <Badge 
-                                                                        color={getStatusColor(homework.status)}
-                                                                        variant="filled"
-                                                                        size="md"
-                                                                        radius="md"
-                                                                    >
-                                                                        {getStatusLabel(homework.status)}
-                                                                    </Badge>
-                                                                    {isOverdueHomework && homework.status === 'pending' && (
-                                                                        <Badge color="red" variant="filled" size="md" radius="md">
-                                                                            En retard
-                                                                        </Badge>
-                                                                    )}
-                                                                </Group>
-                                                                
-                                                                <Text size="sm" c="dimmed" mb="sm">
-                                                                    {homework.description}
-                                                                </Text>
-                                                                
-                                                                <Group gap="lg" mb="sm">
-                                                                    <Group gap="xs">
-                                                                        <IconCalendar size={16} />
-                                                                        <Text size="sm">
-                                                                            Échéance: {formatDate(homework.dueDate)}
-                                                                        </Text>
-                                                                    </Group>
-                                                                    <Group gap="xs">
-                                                                        <IconUser size={16} />
-                                                                        <Text size="sm">
-                                                                            {homework.teacher.name}
-                                                                        </Text>
-                                                                    </Group>
-                                                                    <Group gap="xs">
-                                                                        <Text size="sm" fw={500}>
-                                                                            {homework.subject}
-                                                                        </Text>
-                                                                    </Group>
-                                                                    <Group gap="xs">
-                                                                        <Text size="sm">
-                                                                            {homework.points ? `${homework.points}/${homework.maxPoints}` : `${homework.maxPoints} points`}
-                                                                        </Text>
-                                                                    </Group>
-                                                                </Group>
-
-                                                                {homework.points && (
-                                                                    <Box mb="sm">
-                                                                        <Group justify="space-between" mb="xs">
-                                                                            <Text size="sm" fw={500}>Note</Text>
-                                                                            <Text size="sm">{homework.points}/{homework.maxPoints}</Text>
-                                                                        </Group>
-                                                                        <Progress 
-                                                                            value={(homework.points / homework.maxPoints) * 100} 
-                                                                            color={homework.points >= homework.maxPoints * 0.8 ? 'green' : homework.points >= homework.maxPoints * 0.6 ? 'yellow' : 'red'}
-                                                                            size="sm"
-                                                                        />
-                                                                    </Box>
-                                                                )}
-                                                            </div>
-                                                            
-                                            <Group gap="sm">
-                                                
-                                                {homework.status === 'pending' && (
-                                                    <Button
-                                                        size="sm"
-                                                        leftSection={<IconCalendarPlus size={16} />}
-                                                        onClick={() => handleAddToCalendar(homework)}
-                                                        variant="outline"
-                                                        color="green"
-                                                    >
-                                                        Ajouter à l'agenda
-                                                    </Button>
-                                                )}
-                                                
-                                                
-                                                <Menu shadow="md" width={200}>
-                                                    <Menu.Target>
-                                                        <ActionIcon variant="subtle" color="gray">
-                                                            <IconDots size={16} />
-                                                        </ActionIcon>
-                                                    </Menu.Target>
-                                                    <Menu.Dropdown>
-                                                        <Menu.Item leftSection={<IconEye size={14} />}>
-                                                            Voir les détails
-                                                        </Menu.Item>
-                                                        {homework.attachments.length > 0 && (
-                                                            <Menu.Item leftSection={<IconDownload size={14} />}>
-                                                                Télécharger les fichiers
-                                                            </Menu.Item>
-                                                        )}
-                                                    </Menu.Dropdown>
-                                                </Menu>
-                                            </Group>
-                                        </Group>
-
-                                        {submission && (
-                                            <Paper withBorder p="md" bg="gray.0">
-                                                <Group justify="space-between" mb="sm">
-                                                    <Text size="sm" fw={500}>Votre remise</Text>
-                                                    <Badge color="blue" variant="light" size="sm">
-                                                        {formatDate(submission.submittedAt)}
-                                                    </Badge>
-                                                </Group>
-                                                <Text size="sm" mb="sm">
-                                                    {submission.content}
-                                                </Text>
-                                                {submission.attachments.length > 0 && (
-                                                    <Group gap="xs">
-                                                        <Text size="sm" c="dimmed">Fichiers joints:</Text>
-                                                        {submission.attachments.map((file, index) => (
-                                                            <Badge key={index} variant="light" size="sm">
-                                                                {file.name}
-                                                            </Badge>
-                                                        ))}
-                                                    </Group>
-                                                )}
-                                            </Paper>
-                                        )}
-
-                                        {homework.attachments.length > 0 && (
-                                            <Group gap="xs">
-                                                <Text size="sm" c="dimmed">Fichiers du devoir:</Text>
-                                                {homework.attachments.map((file, index) => (
-                                                    <Badge key={index} variant="outline" size="sm">
-                                                        {file}
-                                                    </Badge>
-                                                ))}
-                                            </Group>
-                                        )}
-                                    </Stack>
-                                </Card>
-                                            );
-                                        })}
-                                </Stack>
-                            </Box>
-                        )}
-
-                            {/* Devoirs rendus - Triés par date de soumission */}
-                            {filteredHomeworks.filter(h => h.status === 'submitted' || h.status === 'graded').length > 0 && (
-                                <Box>
-                                    <Group gap="xs" mb="md">
-                                        <IconClipboardCheck size={20} color="var(--mantine-color-green-6)" />
-                                        <Title order={3} size="h4" c="green">
-                                            Rendus ({filteredHomeworks.filter(h => h.status === 'submitted' || h.status === 'graded').length})
-                                        </Title>
+                                <Group gap="md">
+                                    <Group gap="xs">
+                                        <Badge color="yellow" variant="light" size="lg">
+                                            {filteredHomeworks.filter(h => h.status === 'pending').length} À rendre
+                                        </Badge>
+                                        <Badge color="blue" variant="light" size="lg">
+                                            {filteredHomeworks.filter(h => h.status === 'submitted').length} Rendus
+                                        </Badge>
+                                        <Badge color="green" variant="light" size="lg">
+                                            {filteredHomeworks.filter(h => h.status === 'graded').length} Notés
+                                        </Badge>
                                     </Group>
-                                    <Stack gap="md">
-                                        {filteredHomeworks
-                                            .filter(h => h.status === 'submitted' || h.status === 'graded')
-                                            .sort((a, b) => {
-                                                // Tri par statut (notés en premier), puis par date d'échéance
-                                                if (a.status === 'graded' && b.status !== 'graded') return -1;
-                                                if (b.status === 'graded' && a.status !== 'graded') return 1;
-                                                return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
-                                            })
-                                            .map((homework) => {
-                                                const submission = getSubmissionForHomework(homework.id);
-                                                const isOverdueHomework = isOverdue(homework.dueDate);
-                                                
-                                                return (
-                                                    <Card key={homework.id} withBorder shadow="sm">
-                                                        <Stack gap="md">
-                                                            <Group justify="space-between" align="flex-start">
-                                                                <div style={{ flex: 1 }}>
-                                                                    <Group gap="sm" mb="xs">
-                                                                        <Title order={3} size="h4">
-                                                                        {homework.title}
-                                                                    </Title>
-                                                                    <Badge 
-                                                                        color={getStatusColor(homework.status)}
-                                                                        variant="filled"
-                                                                        size="md"
-                                                                        radius="md"
-                                                                    >
-                                                                        {getStatusLabel(homework.status)}
-                                                                    </Badge>
-                                                                    {isOverdueHomework && homework.status === 'pending' && (
-                                                                        <Badge color="red" variant="filled" size="md" radius="md">
-                                                                            En retard
-                                                                        </Badge>
-                                                                    )}
-                                                                </Group>
-                                                                
-                                                                <Text size="sm" c="dimmed" mb="sm">
-                                                                    {homework.description}
-                                                                </Text>
-                                                                
-                                                                <Group gap="lg" mb="sm">
-                                                                    <Group gap="xs">
-                                                                        <IconCalendar size={16} />
-                                                                        <Text size="sm">
-                                                                            Échéance: {formatDate(homework.dueDate)}
-                                                                        </Text>
-                                                                    </Group>
-                                                                    <Group gap="xs">
-                                                                        <IconUser size={16} />
-                                                                        <Text size="sm">
-                                                                            {homework.teacher.name}
-                                                                        </Text>
-                                                                    </Group>
-                                                                    <Group gap="xs">
-                                                                        <Text size="sm" fw={500}>
-                                                                            {homework.subject}
-                                                                        </Text>
-                                                                    </Group>
-                                                                    <Group gap="xs">
-                                                                        <Text size="sm">
-                                                                            {homework.points ? `${homework.points}/${homework.maxPoints}` : `${homework.maxPoints} points`}
-                                                                        </Text>
-                                                                    </Group>
-                                                                </Group>
+                                </Group>
+                            </Group>
 
-                                                                {homework.points && (
-                                                                    <Box mb="sm">
-                                                                        <Group justify="space-between" mb="xs">
-                                                                            <Text size="sm" fw={500}>Note</Text>
-                                                                            <Text size="sm">{homework.points}/{homework.maxPoints}</Text>
+                            <Stack gap="md">
+                                {/* Devoirs à rendre - Triés par urgence */}
+                                {filteredHomeworks.filter(h => h.status === 'pending' || h.status === 'late').length > 0 && (
+                                    <Box mb="xl">
+                                        <Group gap="xs" mb="md">
+                                            <IconClipboardList size={20} color="var(--mantine-color-red-6)" />
+                                            <Title order={3} size="h4" c="red">
+                                                À rendre ({filteredHomeworks.filter(h => h.status === 'pending' || h.status === 'late').length})
+                                            </Title>
+                                        </Group>
+                                        <Stack gap="md">
+                                            {filteredHomeworks
+                                                .filter(h => h.status === 'pending' || h.status === 'late')
+                                                .sort((a, b) => {
+                                                    // Tri par urgence : d'abord les en retard, puis par date d'échéance
+                                                    if (a.status === 'late' && b.status !== 'late') return -1;
+                                                    if (b.status === 'late' && a.status !== 'late') return 1;
+                                                    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+                                                })
+                                                .map((homework) => {
+                                                    const submission = getSubmissionForHomework(homework.id);
+                                                    const isOverdueHomework = isOverdue(homework.dueDate);
+
+                                                    return (
+                                                        <Card
+                                                            key={homework.id}
+                                                            withBorder
+                                                            shadow="sm"
+                                                            radius="lg"
+                                                            p="lg"
+                                                            style={{
+                                                                transition: 'all 0.2s ease',
+                                                                borderColor: homework.status === 'graded' ? 'var(--mantine-color-green-3)' :
+                                                                    homework.status === 'submitted' ? 'var(--mantine-color-blue-3)' :
+                                                                        homework.status === 'late' ? 'var(--mantine-color-red-3)' : 'var(--mantine-color-gray-3)',
+                                                                backgroundColor: homework.status === 'graded' ? 'var(--mantine-color-green-0)' :
+                                                                    homework.status === 'submitted' ? 'var(--mantine-color-blue-0)' :
+                                                                        homework.status === 'late' ? 'var(--mantine-color-red-0)' : 'white'
+                                                            }}
+                                                        >
+                                                            <Stack gap="md">
+                                                                <Group justify="space-between" align="flex-start">
+                                                                    <div style={{ flex: 1 }}>
+                                                                        <Group gap="sm" mb="xs">
+                                                                            <Title order={3} size="h4">
+                                                                                {homework.title}
+                                                                            </Title>
+                                                                            <Badge
+                                                                                color={getStatusColor(homework.status)}
+                                                                                variant="filled"
+                                                                                size="md"
+                                                                                radius="md"
+                                                                            >
+                                                                                {getStatusLabel(homework.status)}
+                                                                            </Badge>
+                                                                            {isOverdueHomework && homework.status === 'pending' && (
+                                                                                <Badge color="red" variant="filled" size="md" radius="md">
+                                                                                    En retard
+                                                                                </Badge>
+                                                                            )}
                                                                         </Group>
-                                                                        <Progress 
-                                                                            value={(homework.points / homework.maxPoints) * 100} 
-                                                                            color={homework.points >= homework.maxPoints * 0.8 ? 'green' : homework.points >= homework.maxPoints * 0.6 ? 'yellow' : 'red'}
-                                                                            size="sm"
-                                                                        />
-                                                                    </Box>
-                                                                )}
-                                                            </div>
-                                                            
-                                                            <Group gap="sm">
-                                                                
-                                                                {homework.status === 'pending' && (
-                                                                    <Button
-                                                                        size="sm"
-                                                                        leftSection={<IconCalendarPlus size={16} />}
-                                                                        onClick={() => handleAddToCalendar(homework)}
-                                                                        variant="outline"
-                                                                        color="green"
-                                                                    >
-                                                                        Ajouter à l'agenda
-                                                                    </Button>
-                                                                )}
-                                                                
-                                                                <Menu shadow="md" width={200}>
-                                                                    <Menu.Target>
-                                                                        <ActionIcon variant="subtle" color="gray">
-                                                                            <IconDots size={16} />
-                                                                        </ActionIcon>
-                                                                    </Menu.Target>
-                                                                    <Menu.Dropdown>
-                                                                        <Menu.Item leftSection={<IconEye size={14} />}>
-                                                                            Voir les détails
-                                                                        </Menu.Item>
-                                                                        {homework.attachments.length > 0 && (
-                                                                            <Menu.Item leftSection={<IconDownload size={14} />}>
-                                                                                Télécharger les fichiers
-                                                                            </Menu.Item>
-                                                                        )}
-                                                                    </Menu.Dropdown>
-                                                                </Menu>
-                                                            </Group>
-                                                        </Group>
 
-                                                        {submission && (
-                                                            <Paper withBorder p="md" bg="gray.0">
-                                                                <Group justify="space-between" mb="sm">
-                                                                    <Text size="sm" fw={500}>Votre remise</Text>
-                                                                    <Badge color="blue" variant="light" size="sm">
-                                                                        {formatDate(submission.submittedAt)}
-                                                                    </Badge>
+                                                                        <Text size="sm" c="dimmed" mb="sm">
+                                                                            {homework.description}
+                                                                        </Text>
+
+                                                                        <Group gap="lg" mb="sm">
+                                                                            <Group gap="xs">
+                                                                                <IconCalendar size={16} />
+                                                                                <Text size="sm">
+                                                                                    Échéance: {formatDate(homework.dueDate)}
+                                                                                </Text>
+                                                                            </Group>
+                                                                            <Group gap="xs">
+                                                                                <IconUser size={16} />
+                                                                                <Text size="sm">
+                                                                                    {homework.teacher.name}
+                                                                                </Text>
+                                                                            </Group>
+                                                                            <Group gap="xs">
+                                                                                <Text size="sm" fw={500}>
+                                                                                    {homework.subject}
+                                                                                </Text>
+                                                                            </Group>
+                                                                            <Group gap="xs">
+                                                                                <Text size="sm">
+                                                                                    {homework.points ? `${homework.points}/${homework.maxPoints}` : `${homework.maxPoints} points`}
+                                                                                </Text>
+                                                                            </Group>
+                                                                        </Group>
+
+                                                                        {homework.points && (
+                                                                            <Box mb="sm">
+                                                                                <Group justify="space-between" mb="xs">
+                                                                                    <Text size="sm" fw={500}>Note</Text>
+                                                                                    <Text size="sm">{homework.points}/{homework.maxPoints}</Text>
+                                                                                </Group>
+                                                                                <Progress
+                                                                                    value={(homework.points / homework.maxPoints) * 100}
+                                                                                    color={homework.points >= homework.maxPoints * 0.8 ? 'green' : homework.points >= homework.maxPoints * 0.6 ? 'yellow' : 'red'}
+                                                                                    size="sm"
+                                                                                />
+                                                                            </Box>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <Group gap="sm">
+
+                                                                        {homework.status === 'pending' && (
+                                                                            <Button
+                                                                                size="sm"
+                                                                                leftSection={<IconCalendarPlus size={16} />}
+                                                                                onClick={() => handleAddToCalendar(homework)}
+                                                                                variant="outline"
+                                                                                color="green"
+                                                                            >
+                                                                                Ajouter à l'agenda
+                                                                            </Button>
+                                                                        )}
+
+
+                                                                        <Menu shadow="md" width={200}>
+                                                                            <Menu.Target>
+                                                                                <ActionIcon variant="subtle" color="gray">
+                                                                                    <IconDots size={16} />
+                                                                                </ActionIcon>
+                                                                            </Menu.Target>
+                                                                            <Menu.Dropdown>
+                                                                                <Menu.Item leftSection={<IconEye size={14} />}>
+                                                                                    Voir les détails
+                                                                                </Menu.Item>
+                                                                                {homework.attachments.length > 0 && (
+                                                                                    <Menu.Item leftSection={<IconDownload size={14} />}>
+                                                                                        Télécharger les fichiers
+                                                                                    </Menu.Item>
+                                                                                )}
+                                                                            </Menu.Dropdown>
+                                                                        </Menu>
+                                                                    </Group>
                                                                 </Group>
-                                                                <Text size="sm" mb="sm">
-                                                                    {submission.content}
-                                                                </Text>
-                                                                {submission.attachments.length > 0 && (
+
+                                                                {submission && (
+                                                                    <Paper withBorder p="md" bg="gray.0">
+                                                                        <Group justify="space-between" mb="sm">
+                                                                            <Text size="sm" fw={500}>Votre remise</Text>
+                                                                            <Badge color="blue" variant="light" size="sm">
+                                                                                {formatDate(submission.submittedAt)}
+                                                                            </Badge>
+                                                                        </Group>
+                                                                        <Text size="sm" mb="sm">
+                                                                            {submission.content}
+                                                                        </Text>
+                                                                        {submission.attachments.length > 0 && (
+                                                                            <Group gap="xs">
+                                                                                <Text size="sm" c="dimmed">Fichiers joints:</Text>
+                                                                                {submission.attachments.map((file, index) => (
+                                                                                    <Badge key={index} variant="light" size="sm">
+                                                                                        {file.name}
+                                                                                    </Badge>
+                                                                                ))}
+                                                                            </Group>
+                                                                        )}
+                                                                    </Paper>
+                                                                )}
+
+                                                                {homework.attachments.length > 0 && (
                                                                     <Group gap="xs">
-                                                                        <Text size="sm" c="dimmed">Fichiers joints:</Text>
-                                                                        {submission.attachments.map((file, index) => (
-                                                                            <Badge key={index} variant="light" size="sm">
-                                                                                {file.name}
+                                                                        <Text size="sm" c="dimmed">Fichiers du devoir:</Text>
+                                                                        {homework.attachments.map((file, index) => (
+                                                                            <Badge key={index} variant="outline" size="sm">
+                                                                                {file}
                                                                             </Badge>
                                                                         ))}
                                                                     </Group>
                                                                 )}
-                                                            </Paper>
-                                                        )}
+                                                            </Stack>
+                                                        </Card>
+                                                    );
+                                                })}
+                                        </Stack>
+                                    </Box>
+                                )}
 
-                                                        {homework.attachments.length > 0 && (
-                                                            <Group gap="xs">
-                                                                <Text size="sm" c="dimmed">Fichiers du devoir:</Text>
-                                                                {homework.attachments.map((file, index) => (
-                                                                    <Badge key={index} variant="outline" size="sm">
-                                                                        {file}
-                                                                    </Badge>
-                                                                ))}
-                                                            </Group>
-                                                        )}
-                                                    </Stack>
-                                                </Card>
-                                            );
-                                        })}
-                                </Stack>
-                            </Box>
-                        )}
-                    </Stack>
-                </Paper>
-
-                {/* Section Archives */}
-                <Paper withBorder p="lg" radius="md">
-                    <Group gap="xs" mb="md">
-                        <IconBook size={20} color="var(--mantine-color-gray-6)" />
-                        <Title order={3} size="h4" c="gray">
-                            Archives
-                        </Title>
-                    </Group>
-                    <Stack gap="md">
-                        {mockHomeworks
-                            .filter(h => h.subject === selectedSubject && h.session === 'archives')
-                            .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime())
-                            .map((homework) => {
-                                const submission = getSubmissionForHomework(homework.id);
-                                const isOverdueHomework = isOverdue(homework.dueDate);
-                                
-                                return (
-                                    <Card 
-                                        key={homework.id} 
-                                        withBorder 
-                                        shadow="sm" 
-                                        radius="lg"
-                                        p="lg"
-                                        style={{
-                                            transition: 'all 0.2s ease',
-                                            borderColor: homework.status === 'graded' ? 'var(--mantine-color-green-3)' : 
-                                                       homework.status === 'submitted' ? 'var(--mantine-color-blue-3)' :
-                                                       homework.status === 'late' ? 'var(--mantine-color-red-3)' : 'var(--mantine-color-gray-3)',
-                                            backgroundColor: homework.status === 'graded' ? 'var(--mantine-color-green-0)' : 
-                                                          homework.status === 'submitted' ? 'var(--mantine-color-blue-0)' :
-                                                          homework.status === 'late' ? 'var(--mantine-color-red-0)' : 'white',
-                                            opacity: 0.8
-                                        }}
-                                    >
+                                {/* Devoirs rendus - Triés par date de soumission */}
+                                {filteredHomeworks.filter(h => h.status === 'submitted' || h.status === 'graded').length > 0 && (
+                                    <Box>
+                                        <Group gap="xs" mb="md">
+                                            <IconClipboardCheck size={20} color="var(--mantine-color-green-6)" />
+                                            <Title order={3} size="h4" c="green">
+                                                Rendus ({filteredHomeworks.filter(h => h.status === 'submitted' || h.status === 'graded').length})
+                                            </Title>
+                                        </Group>
                                         <Stack gap="md">
-                                            <Group justify="space-between" align="flex-start">
-                                                <div style={{ flex: 1 }}>
-                                                    <Group gap="sm" mb="xs">
-                                                        <Title order={3} size="h4">
-                                                            {homework.title}
-                                                        </Title>
-                                                        <Badge 
-                                                            color={getStatusColor(homework.status)}
-                                                            variant="filled"
-                                                            size="md"
-                                                            radius="md"
-                                                        >
-                                                            {getStatusLabel(homework.status)}
-                                                        </Badge>
-                                                        {isOverdueHomework && homework.status === 'pending' && (
-                                                            <Badge color="red" variant="filled" size="md" radius="md">
-                                                                En retard
-                                                            </Badge>
-                                                        )}
-                                                    </Group>
-                                                    
-                                                    <Text size="sm" c="dimmed" mb="sm">
-                                                        {homework.description}
-                                                    </Text>
-                                                    
-                                                    <Group gap="lg" mb="sm">
-                                                        <Group gap="xs">
-                                                            <IconCalendar size={16} />
-                                                            <Text size="sm">
-                                                                Échéance: {formatDate(homework.dueDate)}
-                                                            </Text>
-                                                        </Group>
-                                                        <Group gap="xs">
-                                                            <IconUser size={16} />
-                                                            <Text size="sm">
-                                                                {homework.teacher.name}
-                                                            </Text>
-                                                        </Group>
-                                                        <Group gap="xs">
-                                                            <IconFileText size={16} />
-                                                            <Text size="sm">
-                                                                {homework.maxPoints} points
-                                                            </Text>
-                                                        </Group>
-                                                    </Group>
-                                                </div>
-                                                
-                                                <Group gap="xs">
-                                                    <Menu shadow="md" width={200}>
-                                                        <Menu.Target>
-                                                            <ActionIcon variant="subtle" color="gray">
-                                                                <IconDots size={16} />
-                                                            </ActionIcon>
-                                                        </Menu.Target>
-                                                        <Menu.Dropdown>
-                                                            <Menu.Item leftSection={<IconEye size={14} />}>
-                                                                Voir les détails
-                                                            </Menu.Item>
-                                                            {homework.attachments.length > 0 && (
-                                                                <Menu.Item leftSection={<IconDownload size={14} />}>
-                                                                    Télécharger les fichiers
-                                                                </Menu.Item>
-                                                            )}
-                                                        </Menu.Dropdown>
-                                                    </Menu>
-                                                </Group>
-                                            </Group>
+                                            {filteredHomeworks
+                                                .filter(h => h.status === 'submitted' || h.status === 'graded')
+                                                .sort((a, b) => {
+                                                    // Tri par statut (notés en premier), puis par date d'échéance
+                                                    if (a.status === 'graded' && b.status !== 'graded') return -1;
+                                                    if (b.status === 'graded' && a.status !== 'graded') return 1;
+                                                    return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
+                                                })
+                                                .map((homework) => {
+                                                    const submission = getSubmissionForHomework(homework.id);
+                                                    const isOverdueHomework = isOverdue(homework.dueDate);
 
-                                            {submission && (
-                                                <Paper withBorder p="md" bg="gray.0">
-                                                    <Group justify="space-between" mb="sm">
-                                                        <Text size="sm" fw={500}>Votre remise</Text>
-                                                        <Badge color="blue" variant="light" size="sm">
-                                                            {formatDate(submission.submittedAt)}
-                                                        </Badge>
-                                                    </Group>
-                                                    <Text size="sm" mb="sm">
-                                                        {submission.content}
-                                                    </Text>
-                                                    {submission.attachments.length > 0 && (
+                                                    return (
+                                                        <Card key={homework.id} withBorder shadow="sm">
+                                                            <Stack gap="md">
+                                                                <Group justify="space-between" align="flex-start">
+                                                                    <div style={{ flex: 1 }}>
+                                                                        <Group gap="sm" mb="xs">
+                                                                            <Title order={3} size="h4">
+                                                                                {homework.title}
+                                                                            </Title>
+                                                                            <Badge
+                                                                                color={getStatusColor(homework.status)}
+                                                                                variant="filled"
+                                                                                size="md"
+                                                                                radius="md"
+                                                                            >
+                                                                                {getStatusLabel(homework.status)}
+                                                                            </Badge>
+                                                                            {isOverdueHomework && homework.status === 'pending' && (
+                                                                                <Badge color="red" variant="filled" size="md" radius="md">
+                                                                                    En retard
+                                                                                </Badge>
+                                                                            )}
+                                                                        </Group>
+
+                                                                        <Text size="sm" c="dimmed" mb="sm">
+                                                                            {homework.description}
+                                                                        </Text>
+
+                                                                        <Group gap="lg" mb="sm">
+                                                                            <Group gap="xs">
+                                                                                <IconCalendar size={16} />
+                                                                                <Text size="sm">
+                                                                                    Échéance: {formatDate(homework.dueDate)}
+                                                                                </Text>
+                                                                            </Group>
+                                                                            <Group gap="xs">
+                                                                                <IconUser size={16} />
+                                                                                <Text size="sm">
+                                                                                    {homework.teacher.name}
+                                                                                </Text>
+                                                                            </Group>
+                                                                            <Group gap="xs">
+                                                                                <Text size="sm" fw={500}>
+                                                                                    {homework.subject}
+                                                                                </Text>
+                                                                            </Group>
+                                                                            <Group gap="xs">
+                                                                                <Text size="sm">
+                                                                                    {homework.points ? `${homework.points}/${homework.maxPoints}` : `${homework.maxPoints} points`}
+                                                                                </Text>
+                                                                            </Group>
+                                                                        </Group>
+
+                                                                        {homework.points && (
+                                                                            <Box mb="sm">
+                                                                                <Group justify="space-between" mb="xs">
+                                                                                    <Text size="sm" fw={500}>Note</Text>
+                                                                                    <Text size="sm">{homework.points}/{homework.maxPoints}</Text>
+                                                                                </Group>
+                                                                                <Progress
+                                                                                    value={(homework.points / homework.maxPoints) * 100}
+                                                                                    color={homework.points >= homework.maxPoints * 0.8 ? 'green' : homework.points >= homework.maxPoints * 0.6 ? 'yellow' : 'red'}
+                                                                                    size="sm"
+                                                                                />
+                                                                            </Box>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <Group gap="sm">
+
+                                                                        {homework.status === 'pending' && (
+                                                                            <Button
+                                                                                size="sm"
+                                                                                leftSection={<IconCalendarPlus size={16} />}
+                                                                                onClick={() => handleAddToCalendar(homework)}
+                                                                                variant="outline"
+                                                                                color="green"
+                                                                            >
+                                                                                Ajouter à l'agenda
+                                                                            </Button>
+                                                                        )}
+
+                                                                        <Menu shadow="md" width={200}>
+                                                                            <Menu.Target>
+                                                                                <ActionIcon variant="subtle" color="gray">
+                                                                                    <IconDots size={16} />
+                                                                                </ActionIcon>
+                                                                            </Menu.Target>
+                                                                            <Menu.Dropdown>
+                                                                                <Menu.Item leftSection={<IconEye size={14} />}>
+                                                                                    Voir les détails
+                                                                                </Menu.Item>
+                                                                                {homework.attachments.length > 0 && (
+                                                                                    <Menu.Item leftSection={<IconDownload size={14} />}>
+                                                                                        Télécharger les fichiers
+                                                                                    </Menu.Item>
+                                                                                )}
+                                                                            </Menu.Dropdown>
+                                                                        </Menu>
+                                                                    </Group>
+                                                                </Group>
+
+                                                                {submission && (
+                                                                    <Paper withBorder p="md" bg="gray.0">
+                                                                        <Group justify="space-between" mb="sm">
+                                                                            <Text size="sm" fw={500}>Votre remise</Text>
+                                                                            <Badge color="blue" variant="light" size="sm">
+                                                                                {formatDate(submission.submittedAt)}
+                                                                            </Badge>
+                                                                        </Group>
+                                                                        <Text size="sm" mb="sm">
+                                                                            {submission.content}
+                                                                        </Text>
+                                                                        {submission.attachments.length > 0 && (
+                                                                            <Group gap="xs">
+                                                                                <Text size="sm" c="dimmed">Fichiers joints:</Text>
+                                                                                {submission.attachments.map((file, index) => (
+                                                                                    <Badge key={index} variant="light" size="sm">
+                                                                                        {file.name}
+                                                                                    </Badge>
+                                                                                ))}
+                                                                            </Group>
+                                                                        )}
+                                                                    </Paper>
+                                                                )}
+
+                                                                {homework.attachments.length > 0 && (
+                                                                    <Group gap="xs">
+                                                                        <Text size="sm" c="dimmed">Fichiers du devoir:</Text>
+                                                                        {homework.attachments.map((file, index) => (
+                                                                            <Badge key={index} variant="outline" size="sm">
+                                                                                {file}
+                                                                            </Badge>
+                                                                        ))}
+                                                                    </Group>
+                                                                )}
+                                                            </Stack>
+                                                        </Card>
+                                                    );
+                                                })}
+                                        </Stack>
+                                    </Box>
+                                )}
+                            </Stack>
+                        </Paper>
+
+                        {/* Section Archives */}
+                        <Paper withBorder p="lg" radius="md">
+                            <Group gap="xs" mb="md">
+                                <IconBook size={20} color="var(--mantine-color-gray-6)" />
+                                <Title order={3} size="h4" c="gray">
+                                    Archives
+                                </Title>
+                            </Group>
+                            <Stack gap="md">
+                                {mockHomeworks
+                                    .filter(h => h.subject === selectedSubject && h.session === 'archives')
+                                    .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime())
+                                    .map((homework) => {
+                                        const submission = getSubmissionForHomework(homework.id);
+                                        const isOverdueHomework = isOverdue(homework.dueDate);
+
+                                        return (
+                                            <Card
+                                                key={homework.id}
+                                                withBorder
+                                                shadow="sm"
+                                                radius="lg"
+                                                p="lg"
+                                                style={{
+                                                    transition: 'all 0.2s ease',
+                                                    borderColor: homework.status === 'graded' ? 'var(--mantine-color-green-3)' :
+                                                        homework.status === 'submitted' ? 'var(--mantine-color-blue-3)' :
+                                                            homework.status === 'late' ? 'var(--mantine-color-red-3)' : 'var(--mantine-color-gray-3)',
+                                                    backgroundColor: homework.status === 'graded' ? 'var(--mantine-color-green-0)' :
+                                                        homework.status === 'submitted' ? 'var(--mantine-color-blue-0)' :
+                                                            homework.status === 'late' ? 'var(--mantine-color-red-0)' : 'white',
+                                                    opacity: 0.8
+                                                }}
+                                            >
+                                                <Stack gap="md">
+                                                    <Group justify="space-between" align="flex-start">
+                                                        <div style={{ flex: 1 }}>
+                                                            <Group gap="sm" mb="xs">
+                                                                <Title order={3} size="h4">
+                                                                    {homework.title}
+                                                                </Title>
+                                                                <Badge
+                                                                    color={getStatusColor(homework.status)}
+                                                                    variant="filled"
+                                                                    size="md"
+                                                                    radius="md"
+                                                                >
+                                                                    {getStatusLabel(homework.status)}
+                                                                </Badge>
+                                                                {isOverdueHomework && homework.status === 'pending' && (
+                                                                    <Badge color="red" variant="filled" size="md" radius="md">
+                                                                        En retard
+                                                                    </Badge>
+                                                                )}
+                                                            </Group>
+
+                                                            <Text size="sm" c="dimmed" mb="sm">
+                                                                {homework.description}
+                                                            </Text>
+
+                                                            <Group gap="lg" mb="sm">
+                                                                <Group gap="xs">
+                                                                    <IconCalendar size={16} />
+                                                                    <Text size="sm">
+                                                                        Échéance: {formatDate(homework.dueDate)}
+                                                                    </Text>
+                                                                </Group>
+                                                                <Group gap="xs">
+                                                                    <IconUser size={16} />
+                                                                    <Text size="sm">
+                                                                        {homework.teacher.name}
+                                                                    </Text>
+                                                                </Group>
+                                                                <Group gap="xs">
+                                                                    <IconFileText size={16} />
+                                                                    <Text size="sm">
+                                                                        {homework.maxPoints} points
+                                                                    </Text>
+                                                                </Group>
+                                                            </Group>
+                                                        </div>
+
                                                         <Group gap="xs">
-                                                            <Text size="sm" c="dimmed">Fichiers joints:</Text>
-                                                            {submission.attachments.map((file, index) => (
-                                                                <Badge key={index} variant="light" size="sm">
-                                                                    {file.name}
+                                                            <Menu shadow="md" width={200}>
+                                                                <Menu.Target>
+                                                                    <ActionIcon variant="subtle" color="gray">
+                                                                        <IconDots size={16} />
+                                                                    </ActionIcon>
+                                                                </Menu.Target>
+                                                                <Menu.Dropdown>
+                                                                    <Menu.Item leftSection={<IconEye size={14} />}>
+                                                                        Voir les détails
+                                                                    </Menu.Item>
+                                                                    {homework.attachments.length > 0 && (
+                                                                        <Menu.Item leftSection={<IconDownload size={14} />}>
+                                                                            Télécharger les fichiers
+                                                                        </Menu.Item>
+                                                                    )}
+                                                                </Menu.Dropdown>
+                                                            </Menu>
+                                                        </Group>
+                                                    </Group>
+
+                                                    {submission && (
+                                                        <Paper withBorder p="md" bg="gray.0">
+                                                            <Group justify="space-between" mb="sm">
+                                                                <Text size="sm" fw={500}>Votre remise</Text>
+                                                                <Badge color="blue" variant="light" size="sm">
+                                                                    {formatDate(submission.submittedAt)}
+                                                                </Badge>
+                                                            </Group>
+                                                            <Text size="sm" mb="sm">
+                                                                {submission.content}
+                                                            </Text>
+                                                            {submission.attachments.length > 0 && (
+                                                                <Group gap="xs">
+                                                                    <Text size="sm" c="dimmed">Fichiers joints:</Text>
+                                                                    {submission.attachments.map((file, index) => (
+                                                                        <Badge key={index} variant="light" size="sm">
+                                                                            {file.name}
+                                                                        </Badge>
+                                                                    ))}
+                                                                </Group>
+                                                            )}
+                                                        </Paper>
+                                                    )}
+
+                                                    {homework.attachments.length > 0 && (
+                                                        <Group gap="xs">
+                                                            <Text size="sm" c="dimmed">Fichiers du devoir:</Text>
+                                                            {homework.attachments.map((file, index) => (
+                                                                <Badge key={index} variant="outline" size="sm">
+                                                                    {file}
                                                                 </Badge>
                                                             ))}
                                                         </Group>
                                                     )}
-                                                </Paper>
-                                            )}
+                                                </Stack>
+                                            </Card>
+                                        );
+                                    })}
 
-                                            {homework.attachments.length > 0 && (
-                                                <Group gap="xs">
-                                                    <Text size="sm" c="dimmed">Fichiers du devoir:</Text>
-                                                    {homework.attachments.map((file, index) => (
-                                                        <Badge key={index} variant="outline" size="sm">
-                                                            {file}
-                                                        </Badge>
-                                                    ))}
-                                                </Group>
-                                            )}
-                                        </Stack>
-                                    </Card>
-                                );
-                            })}
-                        
-                        {mockHomeworks.filter(h => h.subject === selectedSubject && h.session === 'archives').length === 0 && (
-                            <Text c="dimmed" ta="center" py="xl">
-                                Aucun devoir archivé pour cette matière
-                            </Text>
-                        )}
+                                {mockHomeworks.filter(h => h.subject === selectedSubject && h.session === 'archives').length === 0 && (
+                                    <Text c="dimmed" ta="center" py="xl">
+                                        Aucun devoir archivé pour cette matière
+                                    </Text>
+                                )}
+                            </Stack>
+                        </Paper>
                     </Stack>
-                </Paper>
-                        </Stack>
-                    )}
+                )}
 
             </Stack>
         </MainLayout>

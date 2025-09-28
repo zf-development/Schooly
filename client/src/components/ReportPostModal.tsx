@@ -2,11 +2,9 @@ import React, { useState } from "react";
 import {
     Modal,
     Button,
-    TextInput,
     Textarea,
     Select,
     Stack,
-    Title,
     Text,
     Group,
     Alert,
@@ -62,7 +60,7 @@ const ReportPostModal: React.FC<ReportPostModalProps> = ({
                 reason,
                 details
             });
-            
+
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
             setSuccess(true);
@@ -110,7 +108,7 @@ const ReportPostModal: React.FC<ReportPostModalProps> = ({
                         <Text size="sm">{postTitle}</Text>
                     </Alert>
                 )}
-                
+
                 {type === 'comment' && commentContent && (
                     <Alert
                         icon={<IconAlertCircle size={16} />}
