@@ -44,9 +44,7 @@ import {
     IconVideo,
     IconInfoCircle,
     IconBell,
-    IconBellOff,
-    IconVolume,
-    IconVolumeOff
+    IconBellOff
 } from '@tabler/icons-react';
 import MainLayout from '../layouts/MainLayout';
 
@@ -1472,7 +1470,7 @@ const MessagingPage: React.FC = () => {
                                         placeholder="Tapez votre message..."
                                         value={newMessage}
                                         onChange={(e) => setNewMessage(e.target.value)}
-                                        onKeyPress={(e) => {
+                                        onKeyDown={(e) => {
                                             if (e.key === 'Enter' && !e.shiftKey) {
                                                 e.preventDefault();
                                                 handleSendMessage();
