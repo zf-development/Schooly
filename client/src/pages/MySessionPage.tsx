@@ -639,7 +639,7 @@ const MySessionPage: React.FC = () => {
                                                                         </Group>
                                                                     )}
                                                                     {exam.teacherNote && (
-                                                                        <Text size="xs" c="dimmed" lineClamp={2}>
+                                                                        <Text size="xs" c="dimmed" lineClamp={2} bg="var(--mantine-color-gray-0)" p="md">
                                                                             {exam.teacherNote}
                                                                         </Text>
                                                                     )}
