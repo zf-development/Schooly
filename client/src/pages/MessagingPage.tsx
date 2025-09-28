@@ -1189,7 +1189,7 @@ const MessagingPage: React.FC = () => {
                                                 <IconPhone size={18} />
                                             </ActionIcon>
                                         </Tooltip>
-                                        <Tooltip label="Appel vidéo" position="bottom-center">
+                                        <Tooltip label="Appel vidéo" position="bottom">
                                             <ActionIcon
                                                 variant="subtle"
                                                 color="violet"
@@ -1438,7 +1438,7 @@ const MessagingPage: React.FC = () => {
                                 boxShadow: '0 -1px 3px rgba(0, 0, 0, 0.05)'
                             }}>
                                 <Group gap="sm" align="flex-end">
-                                    <Tooltip label="Joindre un fichier" position="bottom-center">
+                                    <Tooltip label="Joindre un fichier" position="bottom">
                                         <ActionIcon
                                             variant="subtle"
                                             color="gray"
@@ -1453,7 +1453,7 @@ const MessagingPage: React.FC = () => {
                                             <IconPaperclip size={18} />
                                         </ActionIcon>
                                     </Tooltip>
-                                    <Tooltip label="Envoyer une photo" position="bottom-center">
+                                    <Tooltip label="Envoyer une photo" position="bottom">
                                         <ActionIcon
                                             variant="subtle"
                                             color="gray"
@@ -1494,7 +1494,7 @@ const MessagingPage: React.FC = () => {
                                             }
                                         }}
                                     />
-                                    <Tooltip label="Ajouter un emoji" position="bottom-center">
+                                    <Tooltip label="Ajouter un emoji" position="bottom">
                                         <ActionIcon
                                             variant="subtle"
                                             color="gray"
@@ -1509,7 +1509,7 @@ const MessagingPage: React.FC = () => {
                                             <IconMoodSmile size={18} />
                                         </ActionIcon>
                                     </Tooltip>
-                                    <Tooltip label="Envoyer le message" position="bottom-center">
+                                    <Tooltip label="Envoyer le message" position="bottom">
                                         <ActionIcon
                                             variant="filled"
                                             color="violet"
