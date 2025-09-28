@@ -31,7 +31,7 @@ export interface AuthButtonProps {
 }
 
 export interface PostFormProps {
-    onSubmit: (title: string, content: string, visibility: 'public' | 'private') => void;
+    onSubmit: (title: string, content: string, visibility: 'public' | 'private', files?: File[]) => void;
     loading: boolean;
     success?: boolean; // Indique si l'envoi précédent a réussi
 }

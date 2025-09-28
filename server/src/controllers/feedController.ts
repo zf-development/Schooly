@@ -506,8 +506,6 @@ export const createFeedWithFilesController = async (req: Request, res: Response)
             }
         }
 
-
-
         // Récupérer l'institution_id de l'utilisateur
         const userDetails = await getUserById(userId);
         const institution_id = userDetails?.institution_id;
@@ -528,8 +526,6 @@ export const createFeedWithFilesController = async (req: Request, res: Response)
             institution_id: institution_id,
             files: uploadedFiles
         });
-
-
 
         if (!feed) {
             await AuditService.logError(

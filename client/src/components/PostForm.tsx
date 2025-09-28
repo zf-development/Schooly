@@ -47,7 +47,7 @@ const PostForm: React.FC<PostFormProps> = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(title, content, visibility);
+        onSubmit(title, content, visibility, files);
     };
 
     return (
