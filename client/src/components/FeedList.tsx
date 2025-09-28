@@ -30,7 +30,6 @@ const PostSkeleton: React.FC = () => (
         padding="lg"
         radius="md"
         shadow="xs"
-        w="36.5vw"
         className={styles.postCard}
     >
         {/* Header avec avatar et informations de l'auteur */}
