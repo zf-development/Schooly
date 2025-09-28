@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Stack, Title, Alert, Text, Box, Container, Group, ThemeIcon } from "@mantine/core";
-import { IconAlertCircle, IconNews } from "@tabler/icons-react";
+import { Stack, Title, Alert, Text, Box, Container, Group, ThemeIcon, ActionIcon, Tooltip } from "@mantine/core";
+import { IconAlertCircle, IconNews, IconTrendingUp } from "@tabler/icons-react";
 import MainLayout from "../layouts/MainLayout";
 import PostForm from "../components/PostForm";
 import FeedList from "../components/FeedList";
@@ -183,22 +183,36 @@ const FeedPage: React.FC = () => {
     return (
         <MainLayout authProps={authProps}>
                 <Stack gap="xl">
-                    {/* En-tête */}
-                    <Group justify="space-between" align="center" mb="xl">
-                        <Group>
-                            <ThemeIcon size={40} radius="md" color="violet">
-                                <IconNews size={24} />
-                            </ThemeIcon>
-                            <div>
-                                <Title order={1} size="h2">
-                                    Fil d'actualité
-                                </Title>
-                                <Text c="dimmed" size="sm">
-                                    Découvrez les dernières publications de vos établissements
-                                </Text>
-                            </div>
-                        </Group>
+                {/* En-tête */}
+                <Group justify="space-between" align="center" mb="xl">
+                    <Group>
+                        <ThemeIcon size={40} radius="md" color="violet">
+                            <IconNews size={24} />
+                        </ThemeIcon>
+                        <div>
+                            <Title order={1} size="h2">
+                                Fil d'actualité
+                            </Title>
+                            <Text c="dimmed" size="sm">
+                                Découvrez les dernières publications de vos établissements
+                            </Text>
+                        </div>
                     </Group>
+                    <Tooltip label="Voir les hashtags tendances" position="left">
+                        <ActionIcon
+                            variant="filled"
+                            color="violet"
+                            size="lg"
+                            radius="md"
+                            onClick={() => navigate("/trending")}
+                            style={{
+                                boxShadow: "0 4px 12px rgba(139, 69, 219, 0.3)",
+                            }}
+                        >
+                            <IconTrendingUp size={20} />
+                        </ActionIcon>
+                    </Tooltip>
+                </Group>
 
                         {error && (
                             <Alert

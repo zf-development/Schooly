@@ -136,14 +136,6 @@ const HashtagPage: React.FC = () => {
                 {/* En-tête */}
                 <Group justify="space-between" align="center" mb="xl">
                     <Group>
-                        <ActionIcon
-                            variant="light"
-                            color="violet"
-                            size="lg"
-                            onClick={() => navigate(-1)}
-                        >
-                            <IconArrowLeft size={20} />
-                        </ActionIcon>
                         <ThemeIcon size={40} radius="md" color="violet">
                             <IconHash size={24} />
                         </ThemeIcon>
@@ -156,17 +148,29 @@ const HashtagPage: React.FC = () => {
                             </Text>
                         </div>
                     </Group>
-                    <Tooltip label="Actualiser">
-                        <ActionIcon
-                            variant="light"
-                            color="violet"
-                            size="lg"
-                            onClick={handleRefresh}
-                            loading={loadingPosts}
-                        >
-                            <IconRefresh size={20} />
-                        </ActionIcon>
-                    </Tooltip>
+                    <Group gap="sm">
+                        <Tooltip label="Actualiser">
+                            <ActionIcon
+                                variant="light"
+                                color="violet"
+                                size="lg"
+                                onClick={handleRefresh}
+                                loading={loadingPosts}
+                            >
+                                <IconRefresh size={20} />
+                            </ActionIcon>
+                        </Tooltip>
+                        <Tooltip label="Retour">
+                            <ActionIcon
+                                variant="light"
+                                color="violet"
+                                size="lg"
+                                onClick={() => navigate(-1)}
+                            >
+                                <IconArrowLeft size={20} />
+                            </ActionIcon>
+                        </Tooltip>
+                    </Group>
                 </Group>
 
                 {error && (
