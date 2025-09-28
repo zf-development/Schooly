@@ -32,6 +32,7 @@ import {
     IconBook,
     IconChartLine,
     IconBrain,
+    IconTrendingUp,
 } from "@tabler/icons-react";
 
 const linksSections = {
@@ -39,6 +40,7 @@ const linksSections = {
         label: "Social",
         links: [
             { route: "/feed", label: "Fil d'actualités", icon: IconNews },
+            { route: "/trending", label: "Hashtags tendances", icon: IconTrendingUp },
             {
                 route: "/subscriptions",
                 label: "Mes abonnements",

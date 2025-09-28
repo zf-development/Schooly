@@ -5,7 +5,7 @@
 // - DELETE /api/feed/:id - Supprimer un post
 
 import { Request, Response } from 'express';
-import { getPosts as getSupabasePosts, createPost as createSupabasePost, updatePost as updateSupabasePost, deletePost as deleteSupabasePost, canUserModifyPost, getUserById, getUserSubscriptions, getInstitutionDetails, supabase, uploadFileToStorage, createFeedWithFiles, togglePostLike, checkUserLike, getPostLikesCount, getPostsWithDetails, addPostComment, getPostComments, updatePostComment, deletePostComment } from '../services/supabaseService';
+import { getPosts as getSupabasePosts, createPost as createSupabasePost, updatePost as updateSupabasePost, deletePost as deleteSupabasePost, canUserModifyPost, getUserById, getUserSubscriptions, getInstitutionDetails, supabase, uploadFileToStorage, createFeedWithFiles, togglePostLike, checkUserLike, getPostLikesCount, getPostsWithDetails, addPostComment, getPostComments, updatePostComment, deletePostComment, searchPostsByHashtag, getTrendingHashtags, getAllHashtags } from '../services/supabaseService';
 import { AuditService, extractRequestContext } from '../services/auditService';
 
 // Interface étendue pour inclure l'utilisateur authentifié
@@ -917,5 +917,165 @@ export const deleteCommentController = async (req: AuthenticatedRequest, res: Re
             error: 'Erreur interne du serveur',
             code: 'SERVER_ERROR'
         });
+    }
+};
+
+// Rechercher des posts par hashtag
+export const searchByHashtag = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        const { hashtag } = req.params;
+        const { limit = 20, offset = 0 } = req.query;
+
+        if (!hashtag) {
+            return res.status(400).json({
+                error: 'Hashtag requis',
+                code: 'MISSING_HASHTAG'
+            });
+        }
+
+        // Récupérer l'institution de l'utilisateur
+        const userDetails = await getUserById(userId);
+        const institutionId = userDetails?.institution_id;
+
+        if (!institutionId) {
+            return res.status(400).json({
+                error: 'Institution non trouvée pour l\'utilisateur',
+                code: 'MISSING_INSTITUTION'
+            });
+        }
+
+        const posts = await searchPostsByHashtag(
+            hashtag,
+            institutionId,
+            parseInt(limit as string),
+            parseInt(offset as string)
+        );
+
+        // Transformer les posts pour correspondre au format attendu
+        const transformedPosts = posts.map(post => {
+            const transformedFiles = (() => {
+                if (!post.files) return [];
+                if (typeof post.files === "string") {
+                    try {
+                        return JSON.parse(post.files);
+                    } catch (e) {
+                        console.error("Erreur parsing fichiers:", e);
+                        return [];
+                    }
+                }
+                return post.files;
+            })();
+
+            return {
+                id: post.id,
+                title: post.title,
+                content: post.content,
+                visibility: post.visibility,
+                author: {
+                    id: post.users.id,
+                    name: post.users.display_name,
+                    display_name: post.users.display_name,
+                    avatar_url: post.users.avatar_url,
+                    institution_id: post.users.institution_id,
+                    institution: post.institutions.name
+                },
+                created_at: post.created_at,
+                files: transformedFiles,
+                hashtags: post.hashtags || [],
+                likes_count: post.likes_count || 0,
+                comments_count: post.comments_count || 0,
+                hasLiked: post.hasLiked || false
+            };
+        });
+
+        res.json({
+            posts: transformedPosts,
+            total_count: transformedPosts.length
+        });
+
+    } catch (error) {
+        console.error('Erreur lors de la recherche par hashtag:', error);
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
+};
+
+// Obtenir les hashtags tendances
+export const getTrendingHashtagsController = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        const { limit = 10 } = req.query;
+
+        // Récupérer l'institution de l'utilisateur
+        const userDetails = await getUserById(userId);
+        const institutionId = userDetails?.institution_id;
+
+        if (!institutionId) {
+            return res.status(400).json({
+                error: 'Institution non trouvée pour l\'utilisateur',
+                code: 'MISSING_INSTITUTION'
+            });
+        }
+
+        const trendingHashtags = await getTrendingHashtags(
+            institutionId,
+            parseInt(limit as string)
+        );
+
+        res.json({
+            hashtags: trendingHashtags
+        });
+
+    } catch (error) {
+        console.error('Erreur lors de la récupération des hashtags tendances:', error);
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
+};
+
+// Obtenir tous les hashtags disponibles
+export const getAllHashtagsController = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                error: 'Utilisateur non authentifié',
+                code: 'UNAUTHORIZED'
+            });
+        }
+
+        // Récupérer l'institution de l'utilisateur
+        const userDetails = await getUserById(userId);
+        const institutionId = userDetails?.institution_id;
+
+        if (!institutionId) {
+            return res.status(400).json({
+                error: 'Institution non trouvée pour l\'utilisateur',
+                code: 'MISSING_INSTITUTION'
+            });
+        }
+
+        const hashtags = await getAllHashtags(institutionId);
+
+        res.json({
+            hashtags: hashtags
+        });
+
+    } catch (error) {
+        console.error('Erreur lors de la récupération des hashtags:', error);
+        res.status(500).json({ error: 'Erreur interne du serveur' });
     }
 };

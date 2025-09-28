@@ -257,6 +257,19 @@ class ApiService {
             method: 'DELETE',
         });
     }
+
+    // Hashtags
+    async searchByHashtag(hashtag: string, limit: number = 20, offset: number = 0): Promise<ApiResponse<any>> {
+        return this.request(`/feed/hashtags/${hashtag}/posts?limit=${limit}&offset=${offset}`);
+    }
+
+    async getTrendingHashtags(limit: number = 10): Promise<ApiResponse<any>> {
+        return this.request(`/feed/hashtags/trending?limit=${limit}`);
+    }
+
+    async getAllHashtags(): Promise<ApiResponse<any>> {
+        return this.request('/feed/hashtags/all');
+    }
 }
 
 export const apiService = new ApiService();

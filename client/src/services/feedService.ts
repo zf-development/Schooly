@@ -233,6 +233,52 @@ class FeedService {
             throw error;
         }
     }
+
+    // Fonctions pour les hashtags
+    async searchByHashtag(hashtag: string, limit: number = 20, offset: number = 0): Promise<PostsResponse> {
+        try {
+            const response = await apiService.searchByHashtag(hashtag, limit, offset);
+            if (response.success && response.data) {
+                return {
+                    posts: response.data.posts || [],
+                    total_count: response.data.total_count || 0
+                };
+            } else {
+                throw new Error(response.error || 'Erreur lors de la recherche par hashtag');
+            }
+        } catch (error) {
+            console.error('Erreur lors de la recherche par hashtag:', error);
+            throw error;
+        }
+    }
+
+    async getTrendingHashtags(limit: number = 10): Promise<Array<{ hashtag: string; count: number }>> {
+        try {
+            const response = await apiService.getTrendingHashtags(limit);
+            if (response.success && response.data) {
+                return response.data.hashtags || [];
+            } else {
+                throw new Error(response.error || 'Erreur lors de la récupération des hashtags tendances');
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des hashtags tendances:', error);
+            throw error;
+        }
+    }
+
+    async getAllHashtags(): Promise<string[]> {
+        try {
+            const response = await apiService.getAllHashtags();
+            if (response.success && response.data) {
+                return response.data.hashtags || [];
+            } else {
+                throw new Error(response.error || 'Erreur lors de la récupération des hashtags');
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des hashtags:', error);
+            throw error;
+        }
+    }
 }
 
 export const feedService = new FeedService();

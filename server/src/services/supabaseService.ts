@@ -4,6 +4,7 @@
 // - Gestion des erreurs Supabase
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { extractAndValidateHashtags } from '../utils/hashtagUtils';
 
 // Configuration Supabase côté serveur
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -46,6 +47,7 @@ interface FeedPost {
     institution_id: string;
     created_at: string;
     updated_at?: string;
+    hashtags?: string[];
 }
 
 // Fonction pour récupérer un utilisateur par ID
@@ -235,6 +237,9 @@ export const createPost = async (postData: {
     institution_id: string;
 }): Promise<FeedPost | null> => {
     try {
+        // Extraire les hashtags du contenu
+        const hashtags = extractAndValidateHashtags(postData.content);
+
         const { data, error } = await supabase
             .from('feeds')
             .insert([{
@@ -242,7 +247,8 @@ export const createPost = async (postData: {
                 content: postData.content,
                 visibility: postData.visibility,
                 author_id: postData.author_id,
-                institution_id: postData.institution_id
+                institution_id: postData.institution_id,
+                hashtags: hashtags
             }])
             .select()
             .single();
@@ -726,6 +732,9 @@ export const createFeedWithFiles = async (feedData: {
     }>;
 }): Promise<FeedPost | null> => {
     try {
+        // Extraire les hashtags du contenu
+        const hashtags = extractAndValidateHashtags(feedData.content);
+
         const { data, error } = await supabase
             .from('feeds')
             .insert({
@@ -735,6 +744,7 @@ export const createFeedWithFiles = async (feedData: {
                 author_id: feedData.author_id,
                 institution_id: feedData.institution_id,
                 files: feedData.files,
+                hashtags: hashtags,
                 created_at: new Date().toISOString()
             })
             .select()
@@ -982,6 +992,110 @@ export const deletePostComment = async (commentId: string, userId: string): Prom
     } catch (error) {
         console.error('Erreur lors de la suppression du commentaire:', error);
         return false;
+    }
+};
+
+// Fonction pour rechercher des posts par hashtag
+export const searchPostsByHashtag = async (hashtag: string, institutionId: string, limit: number = 20, offset: number = 0): Promise<any[]> => {
+    try {
+        const { data, error } = await supabase
+            .from('feeds')
+            .select(`
+                *,
+                users!inner (
+                    id,
+                    display_name,
+                    avatar_url,
+                    institution_id
+                ),
+                institutions!inner (
+                    id,
+                    name
+                )
+            `)
+            .eq('institution_id', institutionId)
+            .contains('hashtags', [hashtag.toLowerCase()])
+            .order('created_at', { ascending: false })
+            .range(offset, offset + limit - 1);
+
+        if (error) {
+            console.error('Erreur lors de la recherche par hashtag:', error);
+            return [];
+        }
+
+        return data || [];
+    } catch (error) {
+        console.error('Erreur lors de la recherche par hashtag:', error);
+        return [];
+    }
+};
+
+// Fonction pour obtenir les hashtags tendances
+export const getTrendingHashtags = async (institutionId: string, limit: number = 10): Promise<Array<{ hashtag: string; count: number }>> => {
+    try {
+        // Récupérer tous les posts de l'institution avec leurs hashtags
+        const { data, error } = await supabase
+            .from('feeds')
+            .select('hashtags')
+            .eq('institution_id', institutionId)
+            .not('hashtags', 'is', null);
+
+        if (error) {
+            console.error('Erreur lors de la récupération des hashtags:', error);
+            return [];
+        }
+
+        // Compter les occurrences de chaque hashtag
+        const hashtagCounts: { [key: string]: number } = {};
+
+        data?.forEach(post => {
+            if (post.hashtags && Array.isArray(post.hashtags)) {
+                post.hashtags.forEach(hashtag => {
+                    const normalizedHashtag = hashtag.toLowerCase();
+                    hashtagCounts[normalizedHashtag] = (hashtagCounts[normalizedHashtag] || 0) + 1;
+                });
+            }
+        });
+
+        // Trier par nombre d'occurrences et retourner les plus populaires
+        return Object.entries(hashtagCounts)
+            .map(([hashtag, count]) => ({ hashtag, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, limit);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des hashtags tendances:', error);
+        return [];
+    }
+};
+
+// Fonction pour obtenir tous les hashtags uniques d'une institution
+export const getAllHashtags = async (institutionId: string): Promise<string[]> => {
+    try {
+        const { data, error } = await supabase
+            .from('feeds')
+            .select('hashtags')
+            .eq('institution_id', institutionId)
+            .not('hashtags', 'is', null);
+
+        if (error) {
+            console.error('Erreur lors de la récupération des hashtags:', error);
+            return [];
+        }
+
+        const allHashtags = new Set<string>();
+
+        data?.forEach(post => {
+            if (post.hashtags && Array.isArray(post.hashtags)) {
+                post.hashtags.forEach(hashtag => {
+                    allHashtags.add(hashtag.toLowerCase());
+                });
+            }
+        });
+
+        return Array.from(allHashtags).sort();
+    } catch (error) {
+        console.error('Erreur lors de la récupération des hashtags:', error);
+        return [];
     }
 };
 

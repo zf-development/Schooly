@@ -21,6 +21,8 @@ import CourseNotesPage from "./pages/CourseNotesPage";
 import VideoCallPage from "./pages/VideoCallPage";
 import MySessionPage from "./pages/MySessionPage";
 import QuizzesPage from "./pages/QuizzesPage";
+import TrendingHashtagsPage from "./pages/TrendingHashtagsPage";
+import HashtagPage from "./pages/HashtagPage";
 import { UserProvider } from "./contexts/UserContext";
 import { NavbarProvider } from "./contexts/NavbarContext";
 import { lightTheme, darkTheme } from "./theme";
@@ -162,6 +164,24 @@ const App: React.FC = () => {
                                 element={
                                     <ProtectedRoute>
                                         <QuizzesPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/trending"
+                                element={
+                                    <ProtectedRoute>
+                                        <TrendingHashtagsPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/hashtag/:hashtag"
+                                element={
+                                    <ProtectedRoute>
+                                        <HashtagPage />
                                     </ProtectedRoute>
                                 }
                             />

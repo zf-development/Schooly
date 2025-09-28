@@ -16,6 +16,7 @@ export interface Post {
     visibility: 'public' | 'private';
     createdAt: string | Date;
     files?: any[];
+    hashtags?: string[];
     likes?: number;
     comments?: number;
     hasLiked?: boolean;

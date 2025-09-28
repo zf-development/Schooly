@@ -15,6 +15,52 @@ import {
     Menu,
     Modal,
 } from "@mantine/core";
+import HashtagList from "./HashtagList";
+
+// Fonction pour rendre le contenu avec les hashtags transformés en badges
+const renderContentWithHashtags = (content: string) => {
+    if (!content) return content;
+    
+    // Regex pour détecter les hashtags
+    const hashtagRegex = /#([a-zA-Z0-9\u00C0-\u017F\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF]+)/g;
+    
+    // Diviser le contenu en parties (texte et hashtags)
+    const parts = content.split(hashtagRegex);
+    
+    return parts.map((part, index) => {
+        // Si l'index est impair, c'est un hashtag (capturé par le groupe)
+        if (index % 2 === 1) {
+            return (
+                <Badge
+                    key={index}
+                    variant="filled"
+                    color="grape"
+                    size="xs"
+                    style={{ 
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 2px',
+                        verticalAlign: 'middle',
+                        transform: 'translateY(-1px)',
+                        fontSize: '10px',
+                        height: '16px',
+                        lineHeight: '1',
+                        padding: '0 4px'
+                    }}
+                    onClick={() => {
+                        window.location.href = `/hashtag/${part.toLowerCase()}`;
+                    }}
+                >
+                    #{part}
+                </Badge>
+            );
+        }
+        // Sinon, c'est du texte normal
+        return part;
+    });
+};
 
 import {
     IconFlag,
@@ -59,6 +105,7 @@ export interface PostCardProps {
         size: number;
         url: string;
     }>;
+    hashtags?: string[];
     likes?: number;
     comments?: number;
     isLiked?: boolean;
@@ -76,6 +123,7 @@ const PostCard: React.FC<PostCardProps> = ({
     visibility,
     createdAt,
     files = [],
+    hashtags = [],
     likes = 0,
     comments = 0,
     isLiked = false,
@@ -322,9 +370,17 @@ const PostCard: React.FC<PostCardProps> = ({
                 )}
 
                 <Box>
-                    <Text size="sm" c="dark.7" className={styles.postContent}>
-                        {content}
-                    </Text>
+                    <div 
+                        style={{ 
+                            fontSize: '14px', 
+                            color: 'var(--mantine-color-dark-7)',
+                            lineHeight: '1.5',
+                            whiteSpace: 'pre-wrap'
+                        }}
+                        className={styles.postContent}
+                    >
+                        {renderContentWithHashtags(content)}
+                    </div>
                 </Box>
 
                 {/* Affichage des fichiers */}

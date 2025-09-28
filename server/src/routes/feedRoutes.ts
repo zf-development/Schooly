@@ -18,7 +18,10 @@ import {
     addCommentController,
     getCommentsController,
     updateCommentController,
-    deleteCommentController
+    deleteCommentController,
+    searchByHashtag,
+    getTrendingHashtagsController,
+    getAllHashtagsController
 } from '../controllers/feedController';
 
 const router = express.Router();
@@ -77,5 +80,10 @@ router.post('/feeds/:postId/comments', addCommentController);
 router.get('/feeds/:postId/comments', getCommentsController);
 router.put('/comments/:commentId', updateCommentController);
 router.delete('/comments/:commentId', deleteCommentController);
+
+// Routes pour les hashtags
+router.get('/hashtags/trending', getTrendingHashtagsController);
+router.get('/hashtags/all', getAllHashtagsController);
+router.get('/hashtags/:hashtag/posts', searchByHashtag);
 
 export default router;

@@ -72,6 +72,7 @@ const FeedPage: React.FC = () => {
                         visibility: post.visibility,
                         createdAt: new Date(post.created_at),
                         files: transformedFiles,
+                        hashtags: post.hashtags || [],
                         likes: post.likes_count || 0,
                         comments: post.comments_count || 0,
                         hasLiked: post.hasLiked || false,
