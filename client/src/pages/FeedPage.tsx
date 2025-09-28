@@ -62,8 +62,7 @@ const FeedPage: React.FC = () => {
                                 post.author?.display_name || "Utilisateur",
                             avatar_url:
                                 post.author?.avatar_url ||
-                                `https://api.dicebear.com/7.x/avataaars/svg?seed=${
-                                    post.author?.id || post.author_id
+                                `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.id || post.author_id
                                 }`,
                             institution:
                                 post.author?.institution || "MGR Parent",
@@ -129,10 +128,8 @@ const FeedPage: React.FC = () => {
                         id: response.author_id,
                         name: response.author?.name || "Vous",
                         display_name: response.author?.display_name || "Vous",
-                        avatar_url:
-                            response.author?.avatar_url ||
-                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${response.author_id}`,
-                        institution: "MGR Parent", // Pour l'instant, utiliser une valeur par défaut
+                        avatar_url: response.author?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${response.author_id}`,
+                        institution: response.author?.institution?.name || "MGR Parent",
                     },
                     content: response.content,
                     visibility: response.visibility,
@@ -145,10 +142,16 @@ const FeedPage: React.FC = () => {
                 // Recharger les posts pour avoir les données complètes
                 await loadPosts();
             } else {
-                setError("Erreur lors de la création du post");
+                setError("Une erreur est survenue lors de la création du post.");
             }
         } catch (err) {
-            setError("Erreur de connexion au serveur");
+            if (err instanceof Error) {
+                setError(err.message);
+            } else if (typeof err === "string") {
+                setError(err);
+            } else {
+                setError("Une erreur inconnue est survenue.");
+            }
         } finally {
             setLoading(false);
         }
@@ -174,17 +177,16 @@ const FeedPage: React.FC = () => {
         onProfile: () => navigate("/profile"),
         userAvatar:
             user?.avatar_url ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${
-                user?.id || Date.now()
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id || Date.now()
             }`,
         userName: user?.name || "Utilisateur",
     };
 
     return (
         <MainLayout authProps={authProps}>
-                <Stack gap="xl">
+            <Stack gap="xl">
                 {/* En-tête */}
-                <Group justify="space-between" align="center" mb="xl">
+                <Group justify="space-between" align="center">
                     <Group>
                         <ThemeIcon size={40} radius="md" color="violet">
                             <IconNews size={24} />
@@ -214,35 +216,35 @@ const FeedPage: React.FC = () => {
                     </Tooltip>
                 </Group>
 
-                        {error && (
-                            <Alert
-                                icon={<IconAlertCircle size={16} />}
-                                title="Erreur"
-                                color="red"
-                                variant="light"
-                            >
-                                <Text size="sm" c="#ef4444" fw={600}>
-                                    {error}
-                                </Text>
-                            </Alert>
-                        )}
+                {error && (
+                    <Alert
+                        icon={<IconAlertCircle size={16} />}
+                        title="Erreur"
+                        color="red"
+                        variant="light"
+                    >
+                        <Text size="sm" c="#ef4444" fw={600}>
+                            {error}
+                        </Text>
+                    </Alert>
+                )}
 
-                    <Box w="100%">
-                        <PostForm
-                            onSubmit={handleCreatePost}
-                            loading={loading}
-                            success={success}
-                        />
-                    </Box>
+                <Box w="100%">
+                    <PostForm
+                        onSubmit={handleCreatePost}
+                        loading={loading}
+                        success={success}
+                    />
+                </Box>
 
-                    <Box>
-                        <FeedList
-                            posts={posts}
-                            loading={loadingPosts}
-                            onReport={handleReportPost}
-                        />
-                    </Box>
-                </Stack>
+                <Box>
+                    <FeedList
+                        posts={posts}
+                        loading={loadingPosts}
+                        onReport={handleReportPost}
+                    />
+                </Box>
+            </Stack>
 
             <ReportPostModal
                 opened={reportModalOpened}

@@ -116,7 +116,6 @@ class FeedService {
                 throw new Error(response.error || 'Erreur lors de la création du post');
             }
         } catch (error) {
-            console.error('Erreur lors de la création du post:', error);
             throw error;
         }
     }
@@ -140,6 +139,7 @@ class FeedService {
             if (response.success && response.data) {
                 return response.data;
             } else {
+                console.error('Erreur lors de la création du post avec fichiers:', response.error);
                 throw new Error(response.error || 'Erreur lors de la création du post avec fichiers');
             }
         } catch (error) {
