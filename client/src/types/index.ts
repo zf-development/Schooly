@@ -1,7 +1,3 @@
-// Types communs pour l'application Skolarae
-
-// Plus besoin de InstitutionOption
-
 export interface Post {
     id: string;
     title?: string;
@@ -35,4 +31,18 @@ export interface PostFormProps {
     onSubmit: (title: string, content: string, visibility: 'public' | 'private', files?: File[]) => void;
     loading: boolean;
     success?: boolean; // Indique si l'envoi précédent a réussi
+}
+
+export interface CalendarEvent {
+    id?: string;
+    title: string;
+    description?: string;
+    start_date: Date;
+    end_date: Date;
+    location?: string;
+    attendees?: string[];
+    type: 'academic' | 'personal' | 'institution';
+    reminder?: boolean;
+    created_by: string;
+    created_at: Date;
 }

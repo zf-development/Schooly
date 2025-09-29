@@ -1,50 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Title,
-    Group,
-    ThemeIcon,
-    Stack,
-    Text,
-    Button,
-    Grid,
-    Modal,
-    TextInput,
-    Textarea,
-    Select,
-    ActionIcon,
-    Box,
-    SimpleGrid,
-    Center,
-    Loader,
-    ScrollArea,
-} from '@mantine/core';
-import {
-    IconCalendar,
-    IconPlus,
-    IconEdit,
-    IconTrash,
-    IconClock,
-    IconMapPin,
-    IconCalendarMonth,
-    IconCalendarWeek,
-    IconCalendarEvent
-} from '@tabler/icons-react';
+import { Title, Group, ThemeIcon, Stack, Text, Button, Grid, Modal, TextInput, Textarea, Select, ActionIcon, Box, SimpleGrid, Center, Loader, ScrollArea } from '@mantine/core';
+import { DateTimePicker } from '@mantine/dates';
+import { IconCalendar, IconPlus, IconEdit, IconTrash, IconClock, IconMapPin, IconCalendarMonth, IconCalendarWeek, IconCalendarEvent } from '@tabler/icons-react';
 import { useUserContext } from '../contexts/UserContext';
 import MainLayout from '../layouts/MainLayout';
-
-interface Event {
-    id: string;
-    title: string;
-    description?: string;
-    startDate: Date;
-    endDate: Date;
-    location?: string;
-    attendees?: string[];
-    type: 'academic' | 'personal' | 'institution';
-    reminder?: boolean;
-    createdBy: string;
-    createdAt: Date;
-}
+import { CalendarEvent as Event } from '../types';
+import calendarService from '../services/calendarService';
 
 type ViewType = 'month' | 'week' | 'day';
 
@@ -55,10 +16,8 @@ const CalendarPage: React.FC = () => {
     const [clickedDate, setClickedDate] = useState<Date | null>(null);
     const [modalOpened, setModalOpened] = useState(false);
     const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-    const [loading, setLoading] = useState(false);
     const [currentView, setCurrentView] = useState<ViewType>('month');
-
-    // État du formulaire
+    const [isCreatingEvent, setIsCreatingEvent] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -68,503 +27,6 @@ const CalendarPage: React.FC = () => {
         type: 'academic' as 'academic' | 'personal' | 'institution',
         reminder: false
     });
-
-    // Données d'exemple
-    useEffect(() => {
-        // Générer des événements pour plusieurs jours
-        const today = new Date();
-        const testEvents: Event[] = [];
-
-        // Événements pour aujourd'hui (30 événements)
-        for (let i = 0; i < 30; i++) {
-            const hour = 8 + Math.floor(i / 2); // De 8h à 22h
-            const minute = (i % 2) * 30; // 0 ou 30 minutes
-            const eventTypes = ['academic', 'personal', 'institution'] as const;
-            const locations = ['Salle 101', 'Salle 201', 'Salle 301', 'Amphithéâtre A', 'Bibliothèque', 'Cafétéria', 'Labo Info', 'Salle de conférence'];
-            const titles = [
-                'Cours de Mathématiques', 'Réunion équipe', 'Examen Physique', 'Déjeuner équipe',
-                'Séminaire IA', 'Travaux pratiques', 'Conférence', 'Atelier créatif',
-                'Révision examens', 'Projet groupe', 'Cours d\'anglais', 'Méeting client',
-                'Formation logiciel', 'Présentation projet', 'Cours de chimie', 'Réunion département',
-                'Workshop design', 'Cours d\'histoire', 'Entretien personnel', 'Cours de français',
-                'Séance révision', 'Cours d\'économie', 'Réunion planning', 'Cours de biologie',
-                'Atelier communication', 'Cours de géographie', 'Méeting produit', 'Cours de philosophie',
-                'Formation sécurité', 'Cours de sport'
-            ];
-
-            testEvents.push({
-                id: `test-today-${i}`,
-                title: titles[i],
-                description: `Description de l'événement ${i + 1} - Test d'affichage avec beaucoup d'événements`,
-                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate(), hour, minute),
-                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate(), hour + 1, minute),
-                location: locations[i % locations.length],
-                type: eventTypes[i % 3],
-                reminder: i % 3 === 0,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            });
-        }
-
-        // Événements pour demain (15 événements)
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-
-        for (let i = 0; i < 15; i++) {
-            const hour = 9 + Math.floor(i / 2);
-            const minute = (i % 2) * 30;
-            const eventTypes = ['academic', 'personal', 'institution'] as const;
-            const locations = ['Salle 102', 'Salle 202', 'Salle 302', 'Amphithéâtre B', 'Bibliothèque', 'Cafétéria', 'Labo Info', 'Salle de conférence'];
-            const titles = [
-                'Cours de Physique', 'Réunion projet', 'Examen Mathématiques', 'Déjeuner client',
-                'Séminaire Machine Learning', 'Travaux pratiques Chimie', 'Conférence Tech', 'Atelier Design',
-                'Révision examens', 'Projet équipe', 'Cours d\'espagnol', 'Méeting produit',
-                'Formation React', 'Présentation finale', 'Cours de géologie'
-            ];
-
-            testEvents.push({
-                id: `test-tomorrow-${i}`,
-                title: titles[i],
-                description: `Événement de demain ${i + 1} - Test d'affichage multi-jours`,
-                startDate: new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), hour, minute),
-                endDate: new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), hour + 1, minute),
-                location: locations[i % locations.length],
-                type: eventTypes[i % 3],
-                reminder: i % 2 === 0,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            });
-        }
-
-        // Événements pour après-demain (10 événements)
-        const dayAfterTomorrow = new Date(today);
-        dayAfterTomorrow.setDate(today.getDate() + 2);
-
-        for (let i = 0; i < 10; i++) {
-            const hour = 10 + Math.floor(i / 2);
-            const minute = (i % 2) * 30;
-            const eventTypes = ['academic', 'personal', 'institution'] as const;
-            const locations = ['Salle 103', 'Salle 203', 'Salle 303', 'Amphithéâtre C', 'Bibliothèque', 'Cafétéria', 'Labo Info', 'Salle de conférence'];
-            const titles = [
-                'Cours de Biologie', 'Réunion direction', 'Examen Chimie', 'Déjeuner équipe',
-                'Séminaire Data Science', 'Travaux pratiques Physique', 'Conférence Innovation', 'Atelier Marketing',
-                'Révision finale', 'Projet individuel'
-            ];
-
-            testEvents.push({
-                id: `test-day-after-${i}`,
-                title: titles[i],
-                description: `Événement après-demain ${i + 1} - Test d'affichage multi-jours`,
-                startDate: new Date(dayAfterTomorrow.getFullYear(), dayAfterTomorrow.getMonth(), dayAfterTomorrow.getDate(), hour, minute),
-                endDate: new Date(dayAfterTomorrow.getFullYear(), dayAfterTomorrow.getMonth(), dayAfterTomorrow.getDate(), hour + 1, minute),
-                location: locations[i % locations.length],
-                type: eventTypes[i % 3],
-                reminder: i % 4 === 0,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            });
-        }
-
-        // Événements pour la semaine prochaine (20 événements répartis sur 5 jours)
-        for (let dayOffset = 3; dayOffset < 8; dayOffset++) {
-            const weekDay = new Date(today);
-            weekDay.setDate(today.getDate() + dayOffset);
-
-            for (let i = 0; i < 4; i++) {
-                const hour = 8 + (i * 3); // 8h, 11h, 14h, 17h
-                const minute = 0;
-                const eventTypes = ['academic', 'personal', 'institution'] as const;
-                const locations = ['Salle 104', 'Salle 204', 'Salle 304', 'Amphithéâtre D', 'Bibliothèque', 'Cafétéria', 'Labo Info', 'Salle de conférence'];
-                const titles = [
-                    'Cours avancé', 'Réunion hebdomadaire', 'Examen pratique', 'Formation continue',
-                    'Atelier technique', 'Conférence spécialisée', 'Projet de recherche', 'Séminaire expert'
-                ];
-
-                testEvents.push({
-                    id: `test-week-${dayOffset}-${i}`,
-                    title: `${titles[i]} - Jour ${dayOffset - 2}`,
-                    description: `Événement de la semaine prochaine - Jour ${dayOffset - 2}, Événement ${i + 1}`,
-                    startDate: new Date(weekDay.getFullYear(), weekDay.getMonth(), weekDay.getDate(), hour, minute),
-                    endDate: new Date(weekDay.getFullYear(), weekDay.getMonth(), weekDay.getDate(), hour + 2, minute),
-                    location: locations[i % locations.length],
-                    type: eventTypes[i % 3],
-                    reminder: i % 3 === 0,
-                    createdBy: user?.id || '',
-                    createdAt: new Date()
-                });
-            }
-        }
-
-        const sampleEvents: Event[] = [
-            // Événements académiques - Septembre 2025
-            {
-                id: '1',
-                title: 'Examen de Mathématiques',
-                description: 'Examen final de calcul différentiel et intégral - Chapitres 1 à 8',
-                startDate: new Date(2025, 8, 15, 9, 0), // 15 septembre 2025
-                endDate: new Date(2025, 8, 15, 12, 0),
-                location: 'Salle 201',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '2',
-                title: 'Cours de Physique',
-                description: 'Mécanique quantique - Introduction aux concepts fondamentaux',
-                startDate: new Date(2025, 8, 16, 10, 0), // 16 septembre 2025
-                endDate: new Date(2025, 8, 16, 12, 0),
-                location: 'Amphithéâtre A',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '2b',
-                title: 'Réunion d\'équipe',
-                description: 'Préparation du projet de recherche - Équipe de 5 personnes',
-                startDate: new Date(2025, 8, 16, 14, 0), // 16 septembre 2025 - après-midi
-                endDate: new Date(2025, 8, 16, 16, 0),
-                location: 'Salle de réunion 3B',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '2c',
-                title: 'Séance de sport',
-                description: 'Entraînement de natation - Piscine universitaire',
-                startDate: new Date(2025, 8, 16, 18, 0), // 16 septembre 2025 - soir
-                endDate: new Date(2025, 8, 16, 19, 30),
-                location: 'Piscine universitaire',
-                type: 'personal',
-                reminder: false,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '3',
-                title: 'Laboratoire de Chimie',
-                description: 'Synthèse organique - Expérience sur les réactions d\'estérification',
-                startDate: new Date(2025, 8, 17, 14, 0), // 17 septembre 2025
-                endDate: new Date(2025, 8, 17, 17, 0),
-                location: 'Laboratoire 3B',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '4',
-                title: 'Rendu de projet',
-                description: 'Projet de programmation web - Site e-commerce avec React et Node.js',
-                startDate: new Date(2025, 8, 18, 23, 59), // 18 septembre 2025
-                endDate: new Date(2025, 8, 18, 23, 59),
-                location: 'Plateforme en ligne',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '5',
-                title: 'Séminaire de recherche',
-                description: 'Présentation des travaux de recherche en intelligence artificielle',
-                startDate: new Date(2025, 8, 19, 15, 0), // 19 septembre 2025
-                endDate: new Date(2025, 8, 19, 17, 0),
-                location: 'Salle de conférence',
-                type: 'academic',
-                reminder: false,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            // Événements personnels
-            {
-                id: '6',
-                title: 'Anniversaire de Marie',
-                description: 'Fête d\'anniversaire - Restaurant Le Bistrot',
-                startDate: new Date(2025, 8, 20, 19, 0), // 20 septembre 2025
-                endDate: new Date(2025, 8, 20, 23, 0),
-                location: 'Restaurant Le Bistrot, 123 rue de la Paix',
-                type: 'personal',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '6b',
-                title: 'Cours de Mathématiques',
-                description: 'Calcul différentiel - Chapitre 3: Dérivées partielles',
-                startDate: new Date(2025, 8, 20, 9, 0), // 20 septembre 2025 - matin
-                endDate: new Date(2025, 8, 20, 11, 0),
-                location: 'Salle 201',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '6c',
-                title: 'Atelier de programmation',
-                description: 'Introduction à React - Hooks et composants',
-                startDate: new Date(2025, 8, 20, 14, 0), // 20 septembre 2025 - après-midi
-                endDate: new Date(2025, 8, 20, 17, 0),
-                location: 'Salle informatique 1',
-                type: 'academic',
-                reminder: false,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '7',
-                title: 'Rendez-vous médical',
-                description: 'Contrôle de routine chez le médecin généraliste',
-                startDate: new Date(2025, 8, 22, 14, 30), // 22 septembre 2025
-                endDate: new Date(2025, 8, 22, 15, 30),
-                location: 'Cabinet Dr. Martin, 45 avenue des Champs',
-                type: 'personal',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '8',
-                title: 'Séance de sport',
-                description: 'Entraînement au gymnase - Musculation et cardio',
-                startDate: new Date(2025, 8, 23, 18, 0), // 23 septembre 2025
-                endDate: new Date(2025, 8, 23, 20, 0),
-                location: 'Gymnase universitaire',
-                type: 'personal',
-                reminder: false,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            // Événements institutionnels
-            {
-                id: '9',
-                title: 'Conférence sur l\'innovation',
-                description: 'L\'avenir de la technologie dans l\'éducation - Conférencier invité',
-                startDate: new Date(2025, 8, 21, 18, 0), // 21 septembre 2025
-                endDate: new Date(2025, 8, 21, 20, 0),
-                location: 'Amphithéâtre principal',
-                type: 'institution',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '10',
-                title: 'Journée portes ouvertes',
-                description: 'Découverte des programmes d\'études - Visite guidée du campus',
-                startDate: new Date(2025, 8, 24, 9, 0), // 24 septembre 2025
-                endDate: new Date(2025, 8, 24, 16, 0),
-                location: 'Hall principal et salles de cours',
-                type: 'institution',
-                reminder: false,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '11',
-                title: 'Réunion de projet',
-                description: 'Discussion sur le projet de fin d\'études - Équipe de 4 personnes',
-                startDate: new Date(2025, 8, 25, 14, 0), // 25 septembre 2025
-                endDate: new Date(2025, 8, 25, 16, 0),
-                location: 'Bibliothèque - Salle de travail en groupe',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '11b',
-                title: 'Cours de Français',
-                description: 'Littérature française - Analyse de "Les Misérables"',
-                startDate: new Date(2025, 8, 25, 9, 0), // 25 septembre 2025 - matin
-                endDate: new Date(2025, 8, 25, 11, 0),
-                location: 'Salle 105',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '11c',
-                title: 'Déjeuner avec les amis',
-                description: 'Repas au restaurant universitaire - Discussion sur les cours',
-                startDate: new Date(2025, 8, 25, 12, 0), // 25 septembre 2025 - midi
-                endDate: new Date(2025, 8, 25, 13, 30),
-                location: 'Restaurant universitaire',
-                type: 'personal',
-                reminder: false,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '11d',
-                title: 'Séance de révision',
-                description: 'Révision pour l\'examen de mathématiques - Bibliothèque',
-                startDate: new Date(2025, 8, 25, 18, 0), // 25 septembre 2025 - soir
-                endDate: new Date(2025, 8, 25, 20, 0),
-                location: 'Bibliothèque - Zone silencieuse',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '12',
-                title: 'Examen de Français',
-                description: 'Épreuve de littérature française - Analyse de texte et dissertation',
-                startDate: new Date(2025, 8, 26, 8, 30), // 26 septembre 2025
-                endDate: new Date(2025, 8, 26, 11, 30),
-                location: 'Salle 105',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '13',
-                title: 'Atelier de programmation',
-                description: 'Introduction à Python - Session pratique avec exercices',
-                startDate: new Date(2025, 8, 27, 10, 0), // 27 septembre 2025
-                endDate: new Date(2025, 8, 27, 12, 0),
-                location: 'Salle informatique 2',
-                type: 'academic',
-                reminder: false,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '14',
-                title: 'Soirée culturelle',
-                description: 'Spectacle de théâtre étudiant - Pièce "Les Misérables"',
-                startDate: new Date(2025, 8, 28, 19, 30), // 28 septembre 2025
-                endDate: new Date(2025, 8, 28, 22, 0),
-                location: 'Théâtre de l\'université',
-                type: 'institution',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '14b',
-                title: 'Cours de Physique',
-                description: 'Mécanique quantique - Exercices pratiques',
-                startDate: new Date(2025, 8, 28, 10, 0), // 28 septembre 2025 - matin
-                endDate: new Date(2025, 8, 28, 12, 0),
-                location: 'Amphithéâtre A',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '14c',
-                title: 'Laboratoire de Chimie',
-                description: 'Analyse spectroscopique - Utilisation des instruments',
-                startDate: new Date(2025, 8, 28, 14, 0), // 28 septembre 2025 - après-midi
-                endDate: new Date(2025, 8, 28, 17, 0),
-                location: 'Laboratoire 2A',
-                type: 'academic',
-                reminder: false,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '14d',
-                title: 'Rendez-vous coiffeur',
-                description: 'Coupe et soins - Salon de coiffure du centre-ville',
-                startDate: new Date(2025, 8, 28, 16, 0), // 28 septembre 2025 - fin d'après-midi
-                endDate: new Date(2025, 8, 28, 17, 30),
-                location: 'Salon Coiffure Moderne, 45 rue du Centre',
-                type: 'personal',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '15',
-                title: 'Rendez-vous avec le conseiller',
-                description: 'Planification du parcours académique - Orientation professionnelle',
-                startDate: new Date(2025, 8, 29, 15, 0), // 29 septembre 2025
-                endDate: new Date(2025, 8, 29, 16, 0),
-                location: 'Bureau des conseillers - Bâtiment administratif',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            // Événements d'octobre 2025
-            {
-                id: '16',
-                title: 'Examen de mi-session',
-                description: 'Examen de mi-session - Toutes les matières',
-                startDate: new Date(2025, 9, 2, 9, 0), // 2 octobre 2025
-                endDate: new Date(2025, 9, 2, 17, 0),
-                location: 'Salles d\'examen - Bâtiment principal',
-                type: 'academic',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '16b',
-                title: 'Petit-déjeuner d\'équipe',
-                description: 'Repas avant l\'examen - Café universitaire',
-                startDate: new Date(2025, 9, 2, 7, 30), // 2 octobre 2025 - très tôt
-                endDate: new Date(2025, 9, 2, 8, 30),
-                location: 'Café universitaire',
-                type: 'personal',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '16c',
-                title: 'Séance de révision finale',
-                description: 'Révision intensive avant l\'examen - Bibliothèque',
-                startDate: new Date(2025, 9, 2, 18, 0), // 2 octobre 2025 - après l'examen
-                endDate: new Date(2025, 9, 2, 20, 0),
-                location: 'Bibliothèque - Zone silencieuse',
-                type: 'academic',
-                reminder: false,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '17',
-                title: 'Week-end de détente',
-                description: 'Sortie en groupe - Randonnée dans les montagnes',
-                startDate: new Date(2025, 9, 5, 8, 0), // 5 octobre 2025
-                endDate: new Date(2025, 9, 6, 18, 0),
-                location: 'Parc national des Laurentides',
-                type: 'personal',
-                reminder: true,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            },
-            {
-                id: '18',
-                title: 'Conférence sur l\'environnement',
-                description: 'Changements climatiques et solutions durables',
-                startDate: new Date(2025, 9, 10, 19, 0), // 10 octobre 2025
-                endDate: new Date(2025, 9, 10, 21, 0),
-                location: 'Auditorium des sciences',
-                type: 'institution',
-                reminder: false,
-                createdBy: user?.id || '',
-                createdAt: new Date()
-            }
-        ];
-
-        // Utiliser les événements de test au lieu des événements d'exemple
-        setEvents(testEvents);
-    }, [user?.id]);
 
     if (!user) {
         return (
@@ -586,8 +48,55 @@ const CalendarPage: React.FC = () => {
         );
     }
 
+    const fetchEvents = async () => {
+        const response = await calendarService.getEvents();
+        if (response.events) {
+            // Convertir les dates UTC en objets Date (affichage en heure locale)
+            const eventsWithDates = response.events.map(event => ({
+                ...event,
+                start_date: new Date(event.start_date),
+                end_date: new Date(event.end_date),
+                created_at: new Date(event.created_at)
+            }));
+            setEvents(eventsWithDates);
+        }
+    }
+
+    useEffect(() => {
+        fetchEvents();
+    }, [user?.id]);
+
+    // Fonction utilitaire pour gérer les heures par défaut
+    const processEventDates = (startDateStr: string, endDateStr: string) => {
+        if (!startDateStr || !endDateStr) {
+            throw new Error('Les dates de début et de fin sont requises');
+        }
+
+        let startDate = new Date(startDateStr);
+        let endDate = new Date(endDateStr);
+
+        // Vérifier que les dates sont valides
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            throw new Error('Les dates fournies ne sont pas valides');
+        }
+
+        const startTimeString = startDateStr.split('T')[1];
+        const endTimeString = endDateStr.split('T')[1];
+
+        if (!startTimeString) {
+            startDate.setHours(0, 0, 0, 0);
+        }
+
+        if (!endTimeString) {
+            endDate.setHours(23, 59, 59, 999);
+        }
+
+        return { startDate, endDate };
+    };
+
     const handleCreateEvent = () => {
         setEditingEvent(null);
+        setModalOpened(true);
         setFormData({
             title: '',
             description: '',
@@ -597,16 +106,24 @@ const CalendarPage: React.FC = () => {
             type: 'academic',
             reminder: false
         });
-        setModalOpened(true);
     };
 
     const handleEditEvent = (event: Event) => {
         setEditingEvent(event);
+
+        // S'assurer que les dates sont des objets Date
+        const startDate = event.start_date instanceof Date ? event.start_date : new Date(event.start_date);
+        const endDate = event.end_date instanceof Date ? event.end_date : new Date(event.end_date);
+
+        // Convertir les dates UTC en format local pour l'édition
+        const startDateLocal = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
+        const endDateLocal = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
+
         setFormData({
             title: event.title,
             description: event.description || '',
-            startDate: event.startDate.toISOString().slice(0, 16),
-            endDate: event.endDate.toISOString().slice(0, 16),
+            startDate: startDateLocal.toISOString().slice(0, 16),
+            endDate: endDateLocal.toISOString().slice(0, 16),
             location: event.location || '',
             type: event.type,
             reminder: event.reminder || false
@@ -614,42 +131,73 @@ const CalendarPage: React.FC = () => {
         setModalOpened(true);
     };
 
-    const handleSaveEvent = () => {
-        if (!formData.title || !formData.startDate || !formData.endDate) return;
-
-        const newEvent: Event = {
-            id: editingEvent?.id || Date.now().toString(),
-            title: formData.title,
-            description: formData.description,
-            startDate: new Date(formData.startDate),
-            endDate: new Date(formData.endDate),
-            location: formData.location,
-            type: formData.type,
-            reminder: formData.reminder,
-            createdBy: user.id,
-            createdAt: editingEvent?.createdAt || new Date()
-        };
-
-        if (editingEvent) {
-            setEvents(events.map(e => e.id === editingEvent.id ? newEvent : e));
-        } else {
-            setEvents([...events, newEvent]);
+    const handleSaveEvent = async () => {
+        if (!formData.title || !formData.startDate || !formData.endDate) {
+            return;
         }
 
-        setModalOpened(false);
-        setFormData({
-            title: '',
-            description: '',
-            startDate: '',
-            endDate: '',
-            location: '',
-            type: 'academic',
-            reminder: false
-        });
+        setIsCreatingEvent(true);
+        try {
+            const { startDate, endDate } = processEventDates(formData.startDate, formData.endDate);
+
+            // Convertir les dates locales en UTC pour la sauvegarde
+            const startDateUTC = new Date(startDate).toISOString();
+            const endDateUTC = new Date(endDate).toISOString();
+
+            const eventData = {
+                title: formData.title,
+                description: formData.description,
+                start_date: startDateUTC,
+                end_date: endDateUTC,
+                location: formData.location,
+                type: formData.type,
+                reminder: formData.reminder,
+                created_by: user.id,
+                created_at: new Date().toISOString()
+            };
+
+            let savedEvent;
+            if (editingEvent) {
+                // Mise à jour d'un événement existant
+                savedEvent = await calendarService.updateEvent(editingEvent.id!, eventData);
+            } else {
+                // Création d'un nouvel événement
+                savedEvent = await calendarService.createEvent(eventData);
+            }
+
+            if (savedEvent) {
+                await fetchEvents();
+                setModalOpened(false);
+                setEditingEvent(null);
+                setFormData({
+                    title: '',
+                    description: '',
+                    startDate: '',
+                    endDate: '',
+                    location: '',
+                    type: 'academic',
+                    reminder: false
+                });
+            }
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde de l\'événement:', error);
+        } finally {
+            setIsCreatingEvent(false);
+        }
     };
 
-    const handleDeleteEvent = (eventId: string) => {
-        setEvents(events.filter(e => e.id !== eventId));
+    const handleDeleteEvent = async (eventId: string | undefined) => {
+        if (!eventId) return;
+
+        try {
+            const success = await calendarService.deleteEvent(eventId);
+            if (success) {
+                // Rafraîchir la liste complète des événements
+                await fetchEvents();
+            }
+        } catch (error) {
+            console.error('Erreur lors de la suppression de l\'événement:', error);
+        }
     };
 
     const handleDateClick = (date: Date) => {
@@ -682,7 +230,6 @@ const CalendarPage: React.FC = () => {
         setSelectedDate(new Date());
     };
 
-    // Calculer les dates de la semaine
     const getWeekDates = (date: Date) => {
         const startOfWeek = new Date(date);
         const day = startOfWeek.getDay();
@@ -698,10 +245,9 @@ const CalendarPage: React.FC = () => {
         return weekDates;
     };
 
-    // Obtenir les événements pour une période donnée
     const getEventsForPeriod = (startDate: Date, endDate: Date) => {
         return events.filter(event => {
-            const eventDate = new Date(event.startDate);
+            const eventDate = new Date(event.start_date);
             return eventDate >= startDate && eventDate <= endDate;
         });
     };
@@ -724,8 +270,12 @@ const CalendarPage: React.FC = () => {
         }
     };
 
-    const formatTime = (date: Date) => {
-        return date.toLocaleTimeString('fr-FR', {
+    const formatTime = (date: Date | string) => {
+        const dateObj = typeof date === 'string' ? new Date(date) : date;
+        if (isNaN(dateObj.getTime())) {
+            return 'Heure invalide';
+        }
+        return dateObj.toLocaleTimeString('fr-FR', {
             hour: '2-digit',
             minute: '2-digit'
         });
@@ -740,16 +290,14 @@ const CalendarPage: React.FC = () => {
         });
     };
 
-    // Filtrer les événements du mois sélectionné
     const currentMonthEvents = events.filter(event => {
-        const eventDate = new Date(event.startDate);
+        const eventDate = new Date(event.start_date);
         return eventDate.getMonth() === selectedDate.getMonth() &&
             eventDate.getFullYear() === selectedDate.getFullYear();
     });
 
-    // Événements d'aujourd'hui
     const todayEvents = events.filter(event => {
-        const eventDate = new Date(event.startDate);
+        const eventDate = new Date(event.start_date);
         const today = new Date();
         return eventDate.toDateString() === today.toDateString();
     });
@@ -932,7 +480,7 @@ const CalendarPage: React.FC = () => {
                                                     const { date, isCurrentMonth, day } = calendarDay;
                                                     const isToday = date.toDateString() === new Date().toDateString();
                                                     const dayEvents = events.filter(event => {
-                                                        const eventDate = new Date(event.startDate);
+                                                        const eventDate = new Date(event.start_date);
                                                         return eventDate.toDateString() === date.toDateString();
                                                     });
 
@@ -1006,7 +554,7 @@ const CalendarPage: React.FC = () => {
                                                 const isToday = date.toDateString() === new Date().toDateString();
                                                 const isClicked = clickedDate && clickedDate.toDateString() === date.toDateString();
                                                 const dayEvents = events.filter(event => {
-                                                    const eventDate = new Date(event.startDate);
+                                                    const eventDate = new Date(event.start_date);
                                                     return eventDate.toDateString() === date.toDateString();
                                                 });
 
@@ -1078,9 +626,9 @@ const CalendarPage: React.FC = () => {
                                             }}>
                                                 {(() => {
                                                     const dayEvents = events.filter(event => {
-                                                        const eventDate = new Date(event.startDate);
+                                                        const eventDate = new Date(event.start_date);
                                                         return eventDate.toDateString() === selectedDate.toDateString();
-                                                    }).sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+                                                    }).sort((a, b) => a.start_date.getTime() - b.start_date.getTime());
 
                                                     return dayEvents.length > 0 ? (
                                                         <SimpleGrid cols={1} spacing="sm" p="xs">
@@ -1118,7 +666,7 @@ const CalendarPage: React.FC = () => {
                                                                                         <IconClock size={12} />
                                                                                     </ThemeIcon>
                                                                                     <Text size="sm" c="dimmed" fw={500}>
-                                                                                        {formatTime(event.startDate)} - {formatTime(event.endDate)}
+                                                                                        {formatTime(event.start_date)} - {formatTime(event.end_date)}
                                                                                     </Text>
                                                                                 </Group>
                                                                                 {event.location && (
@@ -1164,7 +712,7 @@ const CalendarPage: React.FC = () => {
                                                                                 size="md"
                                                                                 variant="subtle"
                                                                                 color="red"
-                                                                                onClick={() => handleDeleteEvent(event.id)}
+                                                                                onClick={async () => await handleDeleteEvent(event.id)}
                                                                                 style={{ borderRadius: '8px' }}
                                                                             >
                                                                                 <IconTrash size={14} />
@@ -1260,7 +808,7 @@ const CalendarPage: React.FC = () => {
 
                                                         // Vérifier s'il y a des événements ce jour
                                                         const hasEvents = events.some(event => {
-                                                            const eventDate = new Date(event.startDate);
+                                                            const eventDate = new Date(event.start_date);
                                                             return eventDate.toDateString() === date.toDateString();
                                                         });
 
@@ -1329,7 +877,7 @@ const CalendarPage: React.FC = () => {
                                             {(() => {
                                                 const displayEvents = clickedDate ?
                                                     events.filter(event => {
-                                                        const eventDate = new Date(event.startDate);
+                                                        const eventDate = new Date(event.start_date);
                                                         return eventDate.toDateString() === clickedDate.toDateString();
                                                     }) :
                                                     todayEvents;
@@ -1390,7 +938,7 @@ const CalendarPage: React.FC = () => {
                                                                                         <IconClock size={12} />
                                                                                     </ThemeIcon>
                                                                                     <Text size="sm" c="dimmed" fw={500}>
-                                                                                        {formatTime(event.startDate)} - {formatTime(event.endDate)}
+                                                                                        {formatTime(event.start_date)} - {formatTime(event.end_date)}
                                                                                     </Text>
                                                                                 </Group>
                                                                                 {event.location && (
@@ -1435,9 +983,9 @@ const CalendarPage: React.FC = () => {
                                                                                 size="md"
                                                                                 variant="subtle"
                                                                                 color="red"
-                                                                                onClick={(e) => {
+                                                                                onClick={async (e) => {
                                                                                     e.stopPropagation();
-                                                                                    handleDeleteEvent(event.id);
+                                                                                    await handleDeleteEvent(event.id);
                                                                                 }}
                                                                                 style={{
                                                                                     borderRadius: '4px',
@@ -1494,20 +1042,80 @@ const CalendarPage: React.FC = () => {
 
                         <Grid>
                             <Grid.Col span={6}>
-                                <TextInput
-                                    label="Date de début"
-                                    type="datetime-local"
-                                    value={formData.startDate}
-                                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                                <DateTimePicker
+                                    label="Date et heure de début"
+                                    placeholder="Sélectionner la date et l'heure de début"
+                                    value={formData.startDate ? new Date(formData.startDate) : null}
+                                    onChange={(date) => {
+                                        if (date) {
+                                            let dateTimeValue;
+                                            if (typeof date === 'string') {
+                                                // Convertir la string en Date puis en format local pour l'affichage
+                                                const dateObj = new Date(date);
+                                                const year = dateObj.getFullYear();
+                                                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                                                const day = String(dateObj.getDate()).padStart(2, '0');
+                                                const hours = String(dateObj.getHours()).padStart(2, '0');
+                                                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                                                dateTimeValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+                                            } else if (date instanceof Date && !isNaN(date.getTime())) {
+                                                // Même logique pour les objets Date
+                                                const year = date.getFullYear();
+                                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                const day = String(date.getDate()).padStart(2, '0');
+                                                const hours = String(date.getHours()).padStart(2, '0');
+                                                const minutes = String(date.getMinutes()).padStart(2, '0');
+                                                dateTimeValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+                                            } else {
+                                                dateTimeValue = '';
+                                            }
+                                            setFormData({
+                                                ...formData,
+                                                startDate: dateTimeValue
+                                            });
+                                        } else {
+                                            setFormData({ ...formData, startDate: '' });
+                                        }
+                                    }}
                                     required
                                 />
                             </Grid.Col>
                             <Grid.Col span={6}>
-                                <TextInput
-                                    label="Date de fin"
-                                    type="datetime-local"
-                                    value={formData.endDate}
-                                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                                <DateTimePicker
+                                    label="Date et heure de fin"
+                                    placeholder="Sélectionner la date et l'heure de fin"
+                                    value={formData.endDate ? new Date(formData.endDate) : null}
+                                    onChange={(date) => {
+                                        if (date) {
+                                            let dateTimeValue;
+                                            if (typeof date === 'string') {
+                                                // Convertir la string en Date puis en format local pour l'affichage
+                                                const dateObj = new Date(date);
+                                                const year = dateObj.getFullYear();
+                                                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                                                const day = String(dateObj.getDate()).padStart(2, '0');
+                                                const hours = String(dateObj.getHours()).padStart(2, '0');
+                                                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                                                dateTimeValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+                                            } else if (date instanceof Date && !isNaN(date.getTime())) {
+                                                // Même logique pour les objets Date
+                                                const year = date.getFullYear();
+                                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                const day = String(date.getDate()).padStart(2, '0');
+                                                const hours = String(date.getHours()).padStart(2, '0');
+                                                const minutes = String(date.getMinutes()).padStart(2, '0');
+                                                dateTimeValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+                                            } else {
+                                                dateTimeValue = '';
+                                            }
+                                            setFormData({
+                                                ...formData,
+                                                endDate: dateTimeValue
+                                            });
+                                        } else {
+                                            setFormData({ ...formData, endDate: '' });
+                                        }
+                                    }}
                                     required
                                 />
                             </Grid.Col>
@@ -1535,7 +1143,12 @@ const CalendarPage: React.FC = () => {
                             <Button variant="light" onClick={() => setModalOpened(false)}>
                                 Annuler
                             </Button>
-                            <Button onClick={handleSaveEvent} color="violet">
+                            <Button
+                                onClick={handleSaveEvent}
+                                color="violet"
+                                loading={isCreatingEvent}
+                                disabled={isCreatingEvent}
+                            >
                                 {editingEvent ? 'Modifier' : 'Créer'}
                             </Button>
                         </Group>

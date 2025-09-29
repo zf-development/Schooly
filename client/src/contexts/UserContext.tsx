@@ -1,9 +1,3 @@
-// Fournit l'utilisateur à l'app
-// - Créer le contexte utilisateur
-// - Fournir les méthodes de gestion de l'utilisateur
-// - Gérer l'état global de l'utilisateur
-// - Gérer automatiquement l'expiration des tokens
-
 import React, {
     createContext,
     useContext,
@@ -13,12 +7,11 @@ import React, {
 } from "react";
 import { setTokenExpiredCallback } from "../services/api";
 
-// Interface pour l'utilisateur
 interface User {
     id: string;
     email: string;
     name: string;
-    avatar_url?: string; // Utiliser le même nom que l'API
+    avatar_url?: string;
     institution?: {
         id: string;
         name: string;
@@ -30,20 +23,17 @@ interface User {
     }>;
 }
 
-// Interface pour le contexte
 interface UserContextType {
     user: User | null;
     setUser: (user: User | null) => void;
     isLoading: boolean;
     logout: () => Promise<void>;
-    forceLogout: () => void; // Déconnexion forcée sans appel API
+    forceLogout: () => void;
     isTokenExpired: boolean;
 }
 
-// Créer le contexte
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Provider du contexte
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
@@ -51,29 +41,23 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     const [isLoading, setIsLoading] = useState(true);
     const [isTokenExpired, setIsTokenExpired] = useState(false);
 
-    // Fonction de déconnexion forcée (sans appel API)
     const forceLogout = useCallback(() => {
         localStorage.removeItem("authToken");
         setUser(null);
         setIsTokenExpired(false);
-        // Rediriger vers la page de connexion
         window.location.href = "/login";
     }, []);
 
-    // Enregistrer le callback de déconnexion dans le service API
     useEffect(() => {
         setTokenExpiredCallback(forceLogout);
     }, [forceLogout]);
 
-    // Fonction de déconnexion normale
     const logout = async () => {
         try {
             setIsLoading(true);
 
-            // Appeler notre API de déconnexion
             const response = await fetch(
-                `${
-                    import.meta.env.VITE_API_URL || "http://localhost:3001/api"
+                `${import.meta.env.VITE_API_URL || "http://localhost:3001/api"
                 }/auth/logout`,
                 {
                     method: "POST",
@@ -86,25 +70,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                 }
             );
 
-            // Même si l'API échoue, on se déconnecte localement
             forceLogout();
         } catch (error) {
             console.error("Erreur lors de la déconnexion:", error);
-            // En cas d'erreur, on se déconnecte quand même
             forceLogout();
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Vérifier si un token est expiré en analysant sa structure
     const isTokenExpiredCheck = useCallback((token: string): boolean => {
         try {
-            // Décoder le JWT pour vérifier l'expiration
             const payload = JSON.parse(atob(token.split(".")[1]));
             const currentTime = Math.floor(Date.now() / 1000);
 
-            // Vérifier si le token est expiré (avec une marge de 5 minutes)
             if (payload.exp && payload.exp < currentTime + 300) {
                 return true;
             }
@@ -112,11 +91,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
             return false;
         } catch (error) {
             console.error("Erreur lors de la vérification du token:", error);
-            return true; // En cas d'erreur, considérer comme expiré
+            return true;
         }
     }, []);
 
-    // Initialisation avec vérification du token
     useEffect(() => {
         const checkAuth = async () => {
             try {
@@ -128,7 +106,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                     return;
                 }
 
-                // Vérifier d'abord si le token est expiré localement
                 if (isTokenExpiredCheck(token)) {
                     console.log("Token expiré détecté localement");
                     setIsTokenExpired(true);
@@ -136,11 +113,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                     return;
                 }
 
-                // Vérifier si le token est valide en appelant notre API
                 const response = await fetch(
-                    `${
-                        import.meta.env.VITE_API_URL ||
-                        "http://localhost:3001/api"
+                    `${import.meta.env.VITE_API_URL ||
+                    "http://localhost:3001/api"
                     }/auth/me`,
                     {
                         headers: {
@@ -161,12 +136,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                     });
                     setIsTokenExpired(false);
                 } else if (response.status === 401) {
-                    // Token invalide ou expiré
                     console.log("Token invalide détecté par l'API");
                     setIsTokenExpired(true);
                     forceLogout();
                 } else {
-                    // Autre erreur
                     console.error(
                         "Erreur lors de la vérification:",
                         response.status
@@ -179,7 +152,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                     "Erreur lors de la vérification de l'authentification:",
                     error
                 );
-                // En cas d'erreur, supprimer le token et considérer comme non connecté
                 setIsTokenExpired(true);
                 forceLogout();
             } finally {
@@ -190,7 +162,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         checkAuth();
     }, [forceLogout, isTokenExpiredCheck]);
 
-    // Vérifier périodiquement la validité du token (toutes les 5 minutes)
     useEffect(() => {
         if (!user) return;
 
@@ -203,7 +174,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                 setIsTokenExpired(true);
                 forceLogout();
             }
-        }, 5 * 60 * 1000); // 5 minutes
+        }, 5 * 60 * 1000);
 
         return () => clearInterval(interval);
     }, [user, forceLogout, isTokenExpiredCheck]);
@@ -224,7 +195,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 };
 
-// Hook pour utiliser le contexte
 export const useUserContext = () => {
     const context = useContext(UserContext);
     if (context === undefined) {

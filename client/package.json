@@ -17,6 +17,7 @@
     "dependencies": {
         "@emotion/react": "^11.11.4",
         "@mantine/core": "^8.3.1",
+        "@mantine/dates": "^8.3.2",
         "@mantine/hooks": "^8.3.1",
         "@supabase/supabase-js": "^2.57.4",
         "@tabler/icons-react": "^3.6.0",

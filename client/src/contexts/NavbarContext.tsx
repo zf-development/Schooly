@@ -32,21 +32,19 @@ interface NavbarProviderProps {
 export const NavbarProvider: React.FC<NavbarProviderProps> = ({ children }) => {
     const initializedRef = useRef(false);
 
-    // Récupérer l'état initial depuis localStorage
     const getInitialNavbarState = (): boolean => {
         try {
             const saved = localStorage.getItem("navbarOpen");
-            return saved !== null ? JSON.parse(saved) : true; // Par défaut ouvert
+            return saved !== null ? JSON.parse(saved) : true;
         } catch (error) {
             console.warn("Erreur lors de la lecture du localStorage:", error);
-            return true; // Fallback par défaut
+            return true;
         }
     };
 
     const [isOpen, setIsOpen] = useState(getInitialNavbarState);
     const [hasInitialized, setHasInitialized] = useState(false);
 
-    // Sauvegarder l'état dans localStorage à chaque changement
     useEffect(() => {
         try {
             localStorage.setItem("navbarOpen", JSON.stringify(isOpen));

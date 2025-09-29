@@ -3,6 +3,9 @@
 // - Interception globale des erreurs 401
 // - Déconnexion automatique en cas de session expirée
 
+import { CalendarEvent } from "../types";
+import { EventsResponse } from "./calendarService";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 interface ApiResponse<T> {
@@ -269,6 +272,35 @@ class ApiService {
 
     async getAllHashtags(): Promise<ApiResponse<any>> {
         return this.request('/feed/hashtags/all');
+    }
+
+    // Calendar
+    async getCalendarEvents(): Promise<ApiResponse<EventsResponse>> {
+        return this.request('/calendar');
+    }
+
+    async getCalendarEventById(eventId: string): Promise<ApiResponse<CalendarEvent>> {
+        return this.request(`/calendar/${eventId}`);
+    }
+
+    async createCalendarEvent(event: CalendarEvent): Promise<ApiResponse<CalendarEvent>> {
+        return this.request('/calendar', {
+            method: 'POST',
+            body: JSON.stringify(event),
+        });
+    }
+
+    async updateCalendarEvent(eventId: string, event: CalendarEvent): Promise<ApiResponse<CalendarEvent>> {
+        return this.request(`/calendar/${eventId}`, {
+            method: 'PUT',
+            body: JSON.stringify(event),
+        });
+    }
+
+    async deleteCalendarEvent(eventId: string): Promise<ApiResponse<{ message: string }>> {
+        return this.request(`/calendar/${eventId}`, {
+            method: 'DELETE',
+        });
     }
 }
 

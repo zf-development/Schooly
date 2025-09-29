@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { getAllSupabaseInstitutions, getSupabaseInstitutionById } from '../services/supabaseService';
 import { AuthenticatedRequest } from '../middlewares/authMiddleware';
 
-// Récupérer tous les établissements
 export const getAllInstitutions = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const institutions = await getAllSupabaseInstitutions();

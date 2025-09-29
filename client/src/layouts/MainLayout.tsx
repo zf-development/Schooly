@@ -15,7 +15,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, authProps }) => {
 
     return (
         <>
-            {/* Alerte de session expirée */}
             <SessionExpiredAlert />
 
             <AppShell
@@ -25,12 +24,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, authProps }) => {
                     breakpoint: "sm",
                 }}
             >
-                {/* Navbar persistante - isolée du cycle de rendu des pages */}
                 <AppShell.Navbar>
                     <AppNavbar />
                 </AppShell.Navbar>
 
-                {/* Contenu principal qui change selon la route */}
                 <AppShell.Main>
                     <Container fluid py="xl">
                         {children}

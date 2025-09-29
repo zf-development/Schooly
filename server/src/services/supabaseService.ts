@@ -1,56 +1,12 @@
-// TODO: Appels à Supabase depuis le back
-// - Initialiser le client Supabase côté serveur
-// - Fonctions pour interagir avec la base de données
-// - Gestion des erreurs Supabase
-
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { extractAndValidateHashtags } from '../utils/hashtagUtils';
+import { SupabaseUser as User, SupabaseInstitution as Institution, SupabaseFeedPost as FeedPost, SupabaseUserBadge as UserBadge, SupabaseCalendarEvent as CalendarEvent } from '../types';
 
-// Configuration Supabase côté serveur
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-// Créer le client Supabase avec la clé de service
 const supabase: SupabaseClient = createClient(supabaseUrl, supabaseServiceKey);
 
-// Interfaces TypeScript pour la base de données
-interface User {
-    id: string;
-    email: string;
-    institution_id: string;
-    display_name?: string;
-    full_name?: string;
-    avatar_url?: string;
-    file_number?: string;
-    school?: string;
-    group_number?: string;
-    education_level?: string;
-    preferred_tags?: string[];
-    academic_projects?: string[];
-    created_at: string;
-}
 
-interface Institution {
-    id: string;
-    name: string;
-    type: 'university' | 'college' | 'high_school';
-    is_active: boolean;
-    created_at: string;
-}
-
-interface FeedPost {
-    id: string;
-    title: string;
-    content: string;
-    visibility: string;
-    author_id: string;
-    institution_id: string;
-    created_at: string;
-    updated_at?: string;
-    hashtags?: string[];
-}
-
-// Fonction pour récupérer un utilisateur par ID
 export const getUserById = async (userId: string): Promise<User | null> => {
     try {
         const { data, error } = await supabase
@@ -69,8 +25,6 @@ export const getUserById = async (userId: string): Promise<User | null> => {
     }
 };
 
-
-// Fonction pour authentifier un utilisateur
 export const authenticateUser = async (email: string, password: string): Promise<{
     success: boolean;
     token?: string;
@@ -128,7 +82,6 @@ export const authenticateUser = async (email: string, password: string): Promise
     }
 };
 
-// Fonction pour créer un utilisateur
 export const createUser = async (userData: {
     email: string;
     password: string;
@@ -180,7 +133,6 @@ export const createUser = async (userData: {
     }
 };
 
-// Fonction pour récupérer une institution par ID
 export const getInstitutionById = async (institutionId: string): Promise<Institution | null> => {
     try {
         const { data, error } = await supabase
@@ -200,7 +152,6 @@ export const getInstitutionById = async (institutionId: string): Promise<Institu
     }
 };
 
-// Fonction pour récupérer les posts avec filtrage selon l'institution
 export const getPosts = async (userInstitutionId: string, visibility?: 'public' | 'private' | 'all'): Promise<FeedPost[]> => {
     try {
         let query = supabase
@@ -228,7 +179,6 @@ export const getPosts = async (userInstitutionId: string, visibility?: 'public' 
     }
 };
 
-// Fonction pour créer un post
 export const createPost = async (postData: {
     title: string;
     content: string;
@@ -263,7 +213,6 @@ export const createPost = async (postData: {
     }
 };
 
-// Fonction pour mettre à jour un post
 export const updatePost = async (postId: string, updates: {
     title?: string;
     content?: string;
@@ -287,7 +236,6 @@ export const updatePost = async (postId: string, updates: {
     }
 };
 
-// Fonction pour supprimer un post
 export const deletePost = async (postId: string): Promise<boolean> => {
     try {
         const { error } = await supabase
@@ -305,7 +253,6 @@ export const deletePost = async (postId: string): Promise<boolean> => {
     }
 };
 
-// Fonction pour vérifier si un utilisateur peut modifier/supprimer un post
 export const canUserModifyPost = async (postId: string, userId: string): Promise<boolean> => {
     try {
         const { data, error } = await supabase
@@ -325,7 +272,6 @@ export const canUserModifyPost = async (postId: string, userId: string): Promise
     }
 };
 
-// Fonction pour mettre à jour un utilisateur
 export const updateUser = async (userId: string, updateData: Partial<User>): Promise<User | null> => {
     try {
         const { data, error } = await supabase
@@ -347,7 +293,6 @@ export const updateUser = async (userId: string, updateData: Partial<User>): Pro
     }
 };
 
-// Fonction pour récupérer les abonnements d'un utilisateur
 export const getUserSubscriptions = async (userId: string): Promise<any[] | null> => {
     try {
         const { data, error } = await supabase
@@ -365,7 +310,6 @@ export const getUserSubscriptions = async (userId: string): Promise<any[] | null
     }
 };
 
-// Fonction pour créer un abonnement
 export const createSubscription = async (userId: string, institutionId: string): Promise<any | null> => {
     try {
         const { data, error } = await supabase
@@ -387,7 +331,6 @@ export const createSubscription = async (userId: string, institutionId: string):
     }
 };
 
-// Fonction pour supprimer un abonnement
 export const deleteSubscription = async (userId: string, institutionId: string): Promise<boolean> => {
     try {
         const { error } = await supabase
@@ -406,7 +349,6 @@ export const deleteSubscription = async (userId: string, institutionId: string):
     }
 };
 
-// Fonction pour récupérer les détails d'une institution
 export const getInstitutionDetails = async (institutionId: string): Promise<any | null> => {
     try {
         const { data, error } = await supabase
@@ -425,7 +367,6 @@ export const getInstitutionDetails = async (institutionId: string): Promise<any 
     }
 };
 
-// Fonction pour récupérer tous les établissements
 export const getAllSupabaseInstitutions = async (): Promise<Institution[]> => {
     try {
         const { data, error } = await supabase
@@ -443,7 +384,6 @@ export const getAllSupabaseInstitutions = async (): Promise<Institution[]> => {
     }
 };
 
-// Fonction pour récupérer un établissement par son ID
 export const getSupabaseInstitutionById = async (institutionId: string): Promise<Institution | null> => {
     try {
         const { data, error } = await supabase
@@ -462,7 +402,6 @@ export const getSupabaseInstitutionById = async (institutionId: string): Promise
     }
 };
 
-// Fonction pour récupérer les statistiques d'un utilisateur
 export const getUserStats = async (userId: string): Promise<{
     posts_count: number;
     xp_points: number;
@@ -498,16 +437,7 @@ export const getUserStats = async (userId: string): Promise<{
     }
 };
 
-// Fonction pour récupérer les badges d'un utilisateur
-export const getUserBadges = async (userId: string): Promise<Array<{
-    badge_id: string;
-    badge_name: string;
-    badge_description: string;
-    badge_icon: string;
-    badge_color: string;
-    unlocked: boolean;
-    unlocked_at?: string;
-}>> => {
+export const getUserBadges = async (userId: string): Promise<UserBadge[]> => {
     try {
         // Récupérer les statistiques de l'utilisateur
         const userStats = await getUserStats(userId);
@@ -562,7 +492,6 @@ export const getUserBadges = async (userId: string): Promise<Array<{
     }
 };
 
-// Fonction pour récupérer les posts avec tous les détails (utilisateurs, institutions, fichiers)
 export const getPostsWithDetails = async (userInstitutionId: string, userId?: string, visibility?: 'public' | 'private' | 'all'): Promise<any[]> => {
     try {
         // Récupérer directement depuis la table feeds pour avoir accès aux fichiers
@@ -659,7 +588,6 @@ export const getPostsWithDetails = async (userInstitutionId: string, userId?: st
     }
 };
 
-// Fonction pour uploader un fichier vers Supabase Storage
 export const uploadFileToStorage = async (
     file: Buffer,
     fileName: string,
@@ -697,7 +625,6 @@ export const uploadFileToStorage = async (
     }
 };
 
-// Fonction pour supprimer un fichier de Supabase Storage
 export const deleteFileFromStorage = async (filePath: string): Promise<boolean> => {
     try {
         const { error } = await supabase.storage
@@ -716,7 +643,6 @@ export const deleteFileFromStorage = async (filePath: string): Promise<boolean> 
     }
 };
 
-// Fonction pour créer un post avec fichiers
 export const createFeedWithFiles = async (feedData: {
     title?: string;
     content: string;
@@ -762,7 +688,6 @@ export const createFeedWithFiles = async (feedData: {
     }
 };
 
-// Fonctions pour les likes
 export const togglePostLike = async (postId: string, userId: string): Promise<{ liked: boolean; likes_count: number } | null> => {
     try {
         // Vérifier si l'utilisateur a déjà liké ce post
@@ -867,7 +792,6 @@ export const getPostLikesCount = async (postId: string): Promise<number> => {
     }
 };
 
-// Fonctions pour les commentaires
 export const addPostComment = async (postId: string, userId: string, content: string): Promise<any | null> => {
     try {
         const { data, error } = await supabase
@@ -995,7 +919,6 @@ export const deletePostComment = async (commentId: string, userId: string): Prom
     }
 };
 
-// Fonction pour rechercher des posts par hashtag
 export const searchPostsByHashtag = async (hashtag: string, institutionId: string, limit: number = 20, offset: number = 0): Promise<any[]> => {
     try {
         const { data, error } = await supabase
@@ -1030,7 +953,6 @@ export const searchPostsByHashtag = async (hashtag: string, institutionId: strin
     }
 };
 
-// Fonction pour obtenir les hashtags tendances
 export const getTrendingHashtags = async (institutionId: string, limit: number = 10): Promise<Array<{ hashtag: string; count: number }>> => {
     try {
         // Récupérer tous les posts de l'institution avec leurs hashtags
@@ -1068,7 +990,6 @@ export const getTrendingHashtags = async (institutionId: string, limit: number =
     }
 };
 
-// Fonction pour obtenir tous les hashtags uniques d'une institution
 export const getAllHashtags = async (institutionId: string): Promise<string[]> => {
     try {
         const { data, error } = await supabase
@@ -1099,5 +1020,106 @@ export const getAllHashtags = async (institutionId: string): Promise<string[]> =
     }
 };
 
-// Exporter le client Supabase pour utilisation dans les contrôleurs
+export const getUserCalendarEvents = async (userId: string): Promise<CalendarEvent[]> => {
+    try {
+        const { data, error } = await supabase
+            .from('calendar_events')
+            .select('*')
+            .eq('user_id', userId);
+
+        if (error) {
+            console.error('Erreur lors de la récupération des événements du calendrier:', error);
+            return [];
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des événements du calendrier:', error);
+        return [];
+    }
+}
+
+export const getUserCalendarEventById = async (eventId: string): Promise<CalendarEvent | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('calendar_events')
+            .select('*')
+            .eq('id', eventId)
+            .single();
+
+        if (error) {
+            console.error('Erreur lors de la récupération de l\'événement du calendrier:', error);
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de l\'événement du calendrier:', error);
+        return null;
+    }
+}
+
+export const createUserCalendarEvent = async (eventData: any): Promise<CalendarEvent | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('calendar_events')
+            .insert(eventData)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Erreur lors de la création de l\'événement du calendrier:', error);
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la création de l\'événement du calendrier:', error);
+        return null;
+    }
+};
+
+export const updateUserCalendarEvent = async (eventId: string, eventData: any): Promise<CalendarEvent | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('calendar_events')
+            .update({
+                ...eventData,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', eventId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Erreur lors de la mise à jour de l\'événement du calendrier:', error);
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour de l\'événement du calendrier:', error);
+        return null;
+    }
+};
+
+export const deleteUserCalendarEvent = async (eventId: string): Promise<boolean> => {
+    try {
+        const { error } = await supabase
+            .from('calendar_events')
+            .delete()
+            .eq('id', eventId);
+
+        if (error) {
+            console.error('Erreur lors de la suppression de l\'événement du calendrier:', error);
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Erreur lors de la suppression de l\'événement du calendrier:', error);
+        return false;
+    }
+};
+
 export { supabase };
