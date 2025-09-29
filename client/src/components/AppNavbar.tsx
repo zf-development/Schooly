@@ -48,10 +48,10 @@ const linksSections = {
     academic: {
         label: "Académique",
         links: [
-            { route: "/notes", label: "Mes notes", icon: IconNotes },
+            { route: "/notes", label: "Mes notes", icon: IconNotes, badge: "WIP" },
             { route: "/my-session", label: "Ma session", icon: IconChartLine, badge: "WIP" },
             { route: "/calendar", label: "Mon calendrier", icon: IconCalendar },
-            { route: "/files", label: "Mes fichiers", icon: IconCloud },
+            { route: "/files", label: "Mes fichiers", icon: IconCloud, badge: "WIP" },
             { route: "/homework", label: "Devoirs", icon: IconUpload, badge: "WIP" },
             { route: "/projects", label: "Projets", icon: IconUsers, badge: "WIP" },
             { route: "/course-notes", label: "Notes de cours", icon: IconBook, badge: "WIP" },
