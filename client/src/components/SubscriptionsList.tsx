@@ -300,7 +300,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                 <Stack gap="md" align="center">
                                     <Avatar
                                         src={
-                                            allInstitutions.find(inst => inst.id === userInstitutionId)?.logoUrl || 
+                                            (allInstitutions.length > 0 && allInstitutions.find(inst => inst.id === userInstitutionId)?.logoUrl) || 
                                             undefined
                                         }
                                         size="xl"
@@ -312,7 +312,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                     <Box ta="center">
                                         <Text fw={600} size="md" mb="xs">
                                             {userInstitutionName || 
-                                             allInstitutions.find(inst => inst.id === userInstitutionId)?.name || 
+                                             (allInstitutions.length > 0 ? allInstitutions.find(inst => inst.id === userInstitutionId)?.name : null) || 
                                              "Mon établissement"}
                                         </Text>
                                         <Badge

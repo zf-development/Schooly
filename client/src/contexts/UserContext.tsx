@@ -12,6 +12,7 @@ interface User {
     email: string;
     name: string;
     avatar_url?: string;
+    institution_id?: string;
     institution?: {
         id: string;
         name: string;
@@ -128,22 +129,22 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
                 if (response.ok) {
                     const userData = await response.json();
                     const userInstitution = userData.user.institution;
-                    
-                    // Si l'utilisateur a un institution_id mais pas d'institution, essayer de recharger
-                    if (userData.user.institution_id && !userInstitution) {
-                        console.warn(`Institution non trouvée pour l'utilisateur ${userData.user.id}, institution_id: ${userData.user.institution_id}`);
-                    }
-                    
-                    setUser({
+
+                    const finalUser = {
                         id: userData.user.id,
                         email: userData.user.email,
                         name: userData.user.display_name || userData.user.name || "Utilisateur",
                         avatar_url: userData.user.avatar_url,
-                        institution: userInstitution,
-                    });
+                        institution_id: userData.user.institution_id ?? undefined,
+                        institution: userInstitution ? {
+                            id: userInstitution.id,
+                            name: userInstitution.name
+                        } : undefined,
+                    };
+
+                    setUser(finalUser);
                     setIsTokenExpired(false);
                 } else if (response.status === 401) {
-                    console.log("Token invalide détecté par l'API");
                     setIsTokenExpired(true);
                     forceLogout();
                 } else {
@@ -169,15 +170,68 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         checkAuth();
     }, [forceLogout, isTokenExpiredCheck]);
 
+    // Recharger l'institution si elle est manquante mais que institution_id existe
+    useEffect(() => {
+        const reloadInstitution = async () => {
+            if (!user || !user.institution_id) {
+                return; // Pas besoin de recharger si l'utilisateur ou l'institution_id n'existent pas
+            }
+
+            if (user.institution && user.institution.name) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem("authToken");
+                if (!token) return;
+
+                const institutionResponse = await fetch(
+                    `${import.meta.env.VITE_API_URL || "http://localhost:3001/api"}/institutions/${user.institution_id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                if (institutionResponse.ok) {
+                    const institutionData = await institutionResponse.json();
+
+                    if (institutionData.success && institutionData.data) {
+                        const userInstitution = institutionData.data;
+
+                        setUser((prevUser) => {
+                            if (!prevUser || prevUser.id !== user.id) return prevUser;
+                            return {
+                                ...prevUser,
+                                institution: {
+                                    id: userInstitution.id,
+                                    name: userInstitution.name,
+                                },
+                            };
+                        });
+                    }
+                }
+            } catch (error) {
+                // Erreur silencieuse
+            }
+        };
+
+        // Attendre un petit délai pour éviter les problèmes de timing
+        const timeoutId = setTimeout(() => {
+            reloadInstitution();
+        }, 100);
+
+        return () => clearTimeout(timeoutId);
+    }, [user?.id, user?.institution_id]);
+
     useEffect(() => {
         if (!user) return;
 
         const interval = setInterval(() => {
             const token = localStorage.getItem("authToken");
             if (token && isTokenExpiredCheck(token)) {
-                console.log(
-                    "Token expiré détecté lors de la vérification périodique"
-                );
                 setIsTokenExpired(true);
                 forceLogout();
             }
