@@ -10,6 +10,7 @@ import userRoutes from './routes/userRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
 import institutionRoutes from './routes/institutionRoutes';
 import calendarRoutes from './routes/calendarRoutes';
+import pageRoutes from './routes/pageRoutes';
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/institutions', institutionRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/pages', pageRoutes);
 
 // Healthcheck
 app.get('/health', (_req, res) => {

@@ -46,3 +46,17 @@ export interface CalendarEvent {
     created_by: string;
     created_at: Date;
 }
+
+export interface Page {
+    id: string;
+    title: string;
+    content?: any; // Contenu Editor.js (null pour les dossiers)
+    parent_id?: string | null; // ID du dossier parent
+    user_id: string;
+    created_at: string;
+    updated_at: string;
+    created_by: string;
+    type: 'page' | 'folder';
+    order_index?: number; // Index pour l'ordre des éléments
+    children?: Page[]; // Enfants du dossier (calculé côté client)
+}

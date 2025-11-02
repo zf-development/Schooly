@@ -1,889 +1,566 @@
-import React, { useState, useEffect } from 'react';
-import {
-    Title,
-    Group,
-    ThemeIcon,
-    Stack,
-    Card,
-    Text,
-    Button,
-    Grid,
-    Badge,
-    TextInput,
-    Textarea,
-    ActionIcon,
-    Box,
-    Paper,
-    Divider,
-    Center,
-    Loader,
-    Menu,
-    ScrollArea,
-} from '@mantine/core';
-import {
-    IconNotes,
-    IconPlus,
-    IconEdit,
-    IconTrash,
-    IconSearch,
-    IconStar,
-    IconStarFilled,
-    IconDots,
-    IconPin,
-    IconPinFilled,
-    IconArchive,
-    IconShare,
-    IconCopy,
-    IconDownload,
-    IconSortAscending,
-    IconSortDescending,
-    IconCalendar,
-    IconClock,
-    IconFolder,
-    IconFolderPlus,
-    IconCheck,
-    IconX
-} from '@tabler/icons-react';
-import { useUserContext } from '../contexts/UserContext';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Box, Text, Button, Stack, Title } from '@mantine/core';
+import { IconPlus, IconFolderPlus } from '@tabler/icons-react';
 import MainLayout from '../layouts/MainLayout';
-
-interface Note {
-    id: string;
-    title: string;
-    content: string;
-    tags: string[];
-    isPinned: boolean;
-    isStarred: boolean;
-    isArchived: boolean;
-    folder?: string;
-    createdAt: Date;
-    modifiedAt: Date;
-    color?: string;
-    wordCount: number;
-}
-
-interface Folder {
-    id: string;
-    name: string;
-    color: string;
-    noteCount: number;
-    createdAt: Date;
-}
+import NotesSidebar from '../components/NotesSidebar';
+import NotesEditor from '../components/NotesEditor';
+import NotesSidebarSkeleton from '../components/NotesSidebarSkeleton';
+import NotesEditorSkeleton from '../components/NotesEditorSkeleton';
+import NotesCreateItemModal from '../components/NotesCreateItemModal';
+import NotesRenameModal from '../components/NotesRenameModal';
+import NotesDeleteConfirmModal from '../components/NotesDeleteConfirmModal';
+import pageService from '../services/pageService';
+import type { Page } from '../types';
+import { useUserContext } from '../contexts/UserContext';
+import { useNavbarContext } from '../contexts/NavbarContext';
+import { convertEditorContentToPDF } from '../utils/pdfUtils';
 
 const NotesPage: React.FC = () => {
-    const { user, isLoading } = useUserContext();
-    const [notes, setNotes] = useState<Note[]>([]);
-    const [folders, setFolders] = useState<Folder[]>([]);
-    const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
-    const [sortBy, setSortBy] = useState<'modified' | 'created' | 'title'>('modified');
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-    const [activeTab, setActiveTab] = useState<string>('all');
-    const [editingContent, setEditingContent] = useState('');
-    const [editingTags, setEditingTags] = useState('');
-    const [isEditingTags, setIsEditingTags] = useState(false);
-    const [currentTagInput, setCurrentTagInput] = useState('');
+    const [selectedNote, setSelectedNote] = useState<Page | null>(null);
+    const [editorContent, setEditorContent] = useState<any>(null);
+    const [pages, setPages] = useState<Page[]>([]);
+    const [isLoadingPages, setIsLoadingPages] = useState(true);
+    const [isLoadingEditor, setIsLoadingEditor] = useState(false);
 
-    // État du formulaire pour la création de notes
-    const [formData, setFormData] = useState({
-        title: '',
-        content: '',
-        tags: '',
-        folder: '',
-        color: '#ffffff',
-    });
+    // États pour les modaux de création
+    const [createPageModalOpened, setCreatePageModalOpened] = useState<boolean>(false);
+    const [createFolderModalOpened, setCreateFolderModalOpened] = useState<boolean>(false);
+    const [currentParentId, setCurrentParentId] = useState<string | undefined>(undefined);
+    const [isCreating, setIsCreating] = useState<boolean>(false);
 
-    // Données placeholder
+    // États pour les modaux de renommage et suppression
+    const [renameModalOpened, setRenameModalOpened] = useState<boolean>(false);
+    const [deleteModalOpened, setDeleteModalOpened] = useState<boolean>(false);
+    const [selectedPageForAction, setSelectedPageForAction] = useState<Page | null>(null);
+    const [isRenaming, setIsRenaming] = useState<boolean>(false);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+    // Ref pour l'éditeur
+    const editorRef = useRef<{ save: () => Promise<any> }>(null);
+
+    const { user, isLoading: userLoading } = useUserContext();
+    const { isOpen: isNavbarOpen } = useNavbarContext();
+
+    // Charger les pages au montage du composant
     useEffect(() => {
-        const mockNotes: Note[] = [
-            {
-                id: '1',
-                title: 'Notes de cours - Mathématiques',
-                content: '# Équations du second degré\n\nLes équations du second degré sont de la forme **ax² + bx + c = 0**.\n\n## Discriminant\nLe discriminant Δ = b² - 4ac détermine la nature des solutions :\n\n- Si Δ > 0 : deux solutions réelles distinctes\n- Si Δ = 0 : une solution double\n- Si Δ < 0 : aucune solution réelle\n\n## Exemple\n```\nRésoudre : x² - 5x + 6 = 0\nΔ = 25 - 24 = 1 > 0\nx₁ = (5 + 1)/2 = 3\nx₂ = (5 - 1)/2 = 2\n```',
-                tags: ['maths', 'cours', 'équations'],
-                isPinned: true,
-                isStarred: false,
-                isArchived: false,
-                folder: 'Cours',
-                createdAt: new Date('2024-01-15'),
-                modifiedAt: new Date('2024-01-20'),
-                color: '#fff3cd',
-                wordCount: 150
-            },
-            {
-                id: '2',
-                title: 'Idées pour le projet final',
-                content: '# Projet Final - Application Web\n\n## Objectif\nCréer une application web moderne avec **React** et **TypeScript**.\n\n## Fonctionnalités principales\n- [x] Authentification sécurisée\n- [ ] Interface intuitive\n- [ ] Export en PDF\n- [ ] Notifications temps réel\n\n## Technologies\n- **Frontend**: React + TypeScript\n- **Backend**: Node.js + Express\n- **Base de données**: PostgreSQL\n- **Déploiement**: Docker\n\n> **Note**: Commencer par le MVP avec les fonctionnalités essentielles.',
-                tags: ['projet', 'web', 'react'],
-                isPinned: false,
-                isStarred: true,
-                isArchived: false,
-                folder: 'Projets',
-                createdAt: new Date('2024-01-10'),
-                modifiedAt: new Date('2024-01-18'),
-                color: '#d1ecf1',
-                wordCount: 200
-            },
-            {
-                id: '3',
-                title: 'Liste de tâches - Semaine',
-                content: '# Tâches de la semaine\n\n## Urgent\n- [ ] Finir le rapport de stage\n- [ ] Préparer la présentation\n- [ ] Réviser pour l\'examen de physique\n\n## Important\n- [ ] Appeler le professeur\n- [ ] Mettre à jour le CV\n- [ ] Postuler aux offres d\'emploi\n\n## Moins urgent\n- [ ] Nettoyer l\'espace de travail\n- [ ] Archiver les anciens fichiers',
-                tags: ['tâches', 'organisation'],
-                isPinned: false,
-                isStarred: false,
-                isArchived: false,
-                folder: 'Personnel',
-                createdAt: new Date('2024-01-12'),
-                modifiedAt: new Date('2024-01-19'),
-                color: '#f8d7da',
-                wordCount: 45
-            },
-            {
-                id: '4',
-                title: 'Recette de cookies',
-                content: '# Cookies aux pépites de chocolat\n\n## Ingrédients\n- 200g de farine\n- 100g de beurre\n- 80g de sucre\n- 1 œuf\n- 100g de pépites de chocolat\n\n## Instructions\n1. **Préchauffer** le four à 180°C\n2. **Mélanger** le beurre et le sucre\n3. **Ajouter** l\'œuf et mélanger\n4. **Incorporer** la farine progressivement\n5. **Ajouter** les pépites de chocolat\n6. **Former** des boules et les déposer sur la plaque\n7. **Cuire** 12-15 minutes\n\n> **Astuce**: Ne pas trop cuire pour garder les cookies moelleux !',
-                tags: ['cuisine', 'recette'],
-                isPinned: false,
-                isStarred: false,
-                isArchived: true,
-                folder: 'Cuisine',
-                createdAt: new Date('2024-01-05'),
-                modifiedAt: new Date('2024-01-05'),
-                color: '#d4edda',
-                wordCount: 80
+        if (user) {
+            loadPages();
+        } else {
+            setIsLoadingPages(false);
+        }
+    }, [user]);
+
+    const loadPages = async () => {
+        setIsLoadingPages(true);
+        try {
+            // Appel à l'API réelle
+            const userPages = await pageService.getPages();
+            setPages(userPages);
+        } catch (error) {
+            // En cas d'erreur, utiliser des données par défaut
+            setPages([]);
+        } finally {
+            setIsLoadingPages(false);
+        }
+    };
+
+    const handleNoteSelect = async (pageId: string) => {
+        // Éviter de recharger la même page
+        if (selectedNote?.id === pageId) {
+            return;
+        }
+
+        // D'abord, essayer de trouver la page dans la liste locale
+        const localPage = pages.find(p => p.id === pageId);
+        if (localPage) {
+            setSelectedNote(localPage);
+            if (localPage.type === 'page') {
+                setEditorContent(localPage.content);
+            } else {
+                setEditorContent(null);
             }
-        ];
-
-        const mockFolders: Folder[] = [
-            { id: '1', name: 'Cours', color: '#667eea', noteCount: 1, createdAt: new Date('2024-01-01') },
-            { id: '2', name: 'Projets', color: '#f093fb', noteCount: 1, createdAt: new Date('2024-01-02') },
-            { id: '3', name: 'Personnel', color: '#4facfe', noteCount: 1, createdAt: new Date('2024-01-03') },
-            { id: '4', name: 'Cuisine', color: '#43e97b', noteCount: 1, createdAt: new Date('2024-01-04') }
-        ];
-
-        setNotes(mockNotes);
-        setFolders(mockFolders);
-    }, []);
-
-    // Filtrage et tri des notes
-    const filteredNotes = notes.filter(note => {
-        const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        const matchesTab = activeTab === 'all' ||
-            (activeTab === 'starred' && note.isStarred) ||
-            (activeTab === 'pinned' && note.isPinned) ||
-            (activeTab === 'archived' && note.isArchived);
-
-        const matchesFolder = !selectedFolder || note.folder === selectedFolder;
-
-        return matchesSearch && matchesTab && matchesFolder;
-    });
-
-    const sortedNotes = [...filteredNotes].sort((a, b) => {
-        let comparison = 0;
-
-        switch (sortBy) {
-            case 'title':
-                comparison = a.title.localeCompare(b.title);
-                break;
-            case 'created':
-                comparison = a.createdAt.getTime() - b.createdAt.getTime();
-                break;
-            case 'modified':
-            default:
-                comparison = a.modifiedAt.getTime() - b.modifiedAt.getTime();
-                break;
+            return;
         }
 
-        return sortOrder === 'asc' ? comparison : -comparison;
-    });
+        // Si pas trouvée localement, charger depuis l'API
+        try {
+            setIsLoadingEditor(true);
+            const page = await pageService.getPageById(pageId);
+            setSelectedNote(page);
 
-    // Handlers
-    const handleCreateNote = () => {
-        const newNote: Note = {
-            id: Date.now().toString(),
-            title: 'Nouvelle note',
-            content: '# Nouvelle note\n\nCommencez à écrire...',
-            tags: [],
-            isPinned: false,
-            isStarred: false,
-            isArchived: false,
-            folder: selectedFolder || undefined,
-            createdAt: new Date(),
-            modifiedAt: new Date(),
-            color: '#ffffff',
-            wordCount: 0
-        };
-
-        setNotes([newNote, ...notes]);
-        setSelectedNote(newNote);
-        setEditingContent(newNote.content);
-        setEditingTags(newNote.tags.join(', '));
-    };
-
-    const handleEditNote = (note: Note) => {
-        setSelectedNote(note);
-        setEditingContent(note.content);
-        setEditingTags(note.tags.join(', '));
-        setCurrentTagInput('');
-    };
-
-    const handleSaveNote = () => {
-        if (!selectedNote) return;
-
-        const updatedNote = {
-            ...selectedNote,
-            content: editingContent,
-            tags: editingTags.split(',').map(tag => tag.trim()).filter(tag => tag),
-            modifiedAt: new Date(),
-            wordCount: editingContent.split(' ').length
-        };
-
-        setNotes(notes.map(note => note.id === selectedNote.id ? updatedNote : note));
-        setSelectedNote(updatedNote);
-    };
-
-    const handleSaveTags = () => {
-        if (!selectedNote) return;
-
-        const updatedNote = {
-            ...selectedNote,
-            tags: editingTags.split(',').map(tag => tag.trim()).filter(tag => tag),
-            modifiedAt: new Date()
-        };
-
-        setNotes(notes.map(note => note.id === selectedNote.id ? updatedNote : note));
-        setSelectedNote(updatedNote);
-        setIsEditingTags(false);
-    };
-
-    const handleCancelEditTags = () => {
-        setEditingTags(selectedNote?.tags.join(', ') || '');
-        setCurrentTagInput('');
-        setIsEditingTags(false);
-    };
-
-    const handleAddTag = (tag: string) => {
-        if (tag.trim() && !editingTags.split(',').map(t => t.trim()).includes(tag.trim())) {
-            const newTags = editingTags ? `${editingTags}, ${tag.trim()}` : tag.trim();
-            setEditingTags(newTags);
-        }
-        setCurrentTagInput('');
-    };
-
-    const handleRemoveTag = (tagToRemove: string) => {
-        const tags = editingTags.split(',').map(tag => tag.trim()).filter(tag => tag !== tagToRemove);
-        setEditingTags(tags.join(', '));
-    };
-
-    const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if ((e.key === ' ' || e.key === 'Tab' || e.key === 'Enter') && currentTagInput.trim()) {
-            e.preventDefault();
-            handleAddTag(currentTagInput);
-        } else if (e.key === 'Backspace' && !currentTagInput && editingTags) {
-            // Si on appuie sur Backspace et qu'il n'y a pas de texte dans l'input, supprimer le dernier tag
-            const tags = editingTags.split(',').map(tag => tag.trim());
-            if (tags.length > 0) {
-                tags.pop();
-                setEditingTags(tags.join(', '));
+            if (page.type === 'page') {
+                setEditorContent(page.content);
+            } else {
+                setEditorContent(null);
             }
+        } catch (error) {
+            // Error loading page
+        } finally {
+            setIsLoadingEditor(false);
         }
     };
 
-    const handleTagInputBlur = () => {
-        // Sauvegarder automatiquement quand on perd le focus
-        if (currentTagInput.trim()) {
-            handleAddTag(currentTagInput);
+    const handleSave = async (content: any) => {
+        if (!selectedNote || !user) return;
+
+        try {
+            // Appel à l'API réelle
+            const updatedPage = await pageService.updatePage(selectedNote.id, {
+                content: content,
+                updated_at: new Date().toISOString()
+            });
+
+            // Mettre à jour la page sélectionnée
+            setSelectedNote(updatedPage);
+
+            // Mettre à jour dans la liste
+            setPages(pages.map(p => p.id === updatedPage.id ? updatedPage : p));
+
+        } catch (error) {
+            // Error saving
         }
-        handleSaveTags();
     };
 
-    const handleDeleteNote = (id: string) => {
-        setNotes(notes.filter(note => note.id !== id));
-        if (selectedNote?.id === id) {
-            setSelectedNote(null);
+    // Ouvrir le modal pour créer une page
+    const openCreatePageModal = (parentId?: string) => {
+        setCurrentParentId(parentId);
+        setCreatePageModalOpened(true);
+    };
+
+    // Créer une nouvelle page avec le nom choisi
+    const createNewPage = async (title: string) => {
+        if (!user?.id) {
+            return;
         }
-    };
 
-    const handleToggleStar = (id: string) => {
-        setNotes(notes.map(note =>
-            note.id === id ? { ...note, isStarred: !note.isStarred } : note
-        ));
-    };
-
-    const handleTogglePin = (id: string) => {
-        setNotes(notes.map(note =>
-            note.id === id ? { ...note, isPinned: !note.isPinned } : note
-        ));
-    };
-
-    const handleArchiveNote = (id: string) => {
-        setNotes(notes.map(note =>
-            note.id === id ? { ...note, isArchived: !note.isArchived } : note
-        ));
-    };
-
-    const handleShareNote = (id: string) => {
-        console.log('Partager la note:', id);
-    };
-
-    const handleDuplicateNote = (id: string) => {
-        const note = notes.find(n => n.id === id);
-        if (note) {
-            const duplicatedNote = {
-                ...note,
-                id: Date.now().toString(),
-                title: `${note.title} (Copie)`,
-                createdAt: new Date(),
-                modifiedAt: new Date()
+        setIsCreating(true);
+        try {
+            // Fonction pour extraire l'ID correctement
+            const extractId = (value: any): string => {
+                if (typeof value === 'string') return value;
+                if (value && typeof value === 'object' && value.id) return value.id;
+                return '';
             };
-            setNotes([duplicatedNote, ...notes]);
+
+            const userId = extractId(user.id);
+            const parentId = currentParentId ? extractId(currentParentId) : null;
+
+            // Calculer l'order_index pour la nouvelle page
+            const siblings = pages.filter(p => p.parent_id === currentParentId);
+            const maxOrderIndex = siblings.length > 0 ? Math.max(...siblings.map(p => p.order_index || 0)) : -1;
+
+            // Appel à l'API réelle
+            const newPage = await pageService.createPage({
+                title: title,
+                content: {
+                    blocks: [
+                        {
+                            type: 'header',
+                            data: {
+                                text: title,
+                                level: 1,
+                            },
+                        },
+                        {
+                            type: 'paragraph',
+                            data: {
+                                text: '',
+                            },
+                        },
+                    ],
+                },
+                user_id: userId,
+                created_by: userId,
+                type: 'page',
+                parent_id: parentId,
+                order_index: maxOrderIndex + 1
+            });
+
+            // Ajouter à la liste
+            setPages([...pages, newPage]);
+            setSelectedNote(newPage);
+            setEditorContent(newPage.content);
+
+
+            // Fermer le modal
+            setCreatePageModalOpened(false);
+            setCurrentParentId(undefined);
+        } catch (error) {
+            // Error creating page
+        } finally {
+            setIsCreating(false);
         }
     };
 
-    const handleExportNote = (id: string) => {
-        console.log('Exporter la note:', id);
+    // Ouvrir le modal pour créer un dossier
+    const openCreateFolderModal = (parentId?: string) => {
+        setCurrentParentId(parentId);
+        setCreateFolderModalOpened(true);
     };
 
-    const formatDate = (date: Date) => {
-        return date.toLocaleDateString('fr-FR', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-        });
+    // Créer un nouveau dossier avec le nom choisi
+    const createNewFolder = async (title: string) => {
+        if (!user?.id) {
+            return;
+        }
+
+        setIsCreating(true);
+        try {
+            // Fonction pour extraire l'ID correctement
+            const extractId = (value: any): string => {
+                if (typeof value === 'string') return value;
+                if (value && typeof value === 'object' && value.id) return value.id;
+                return '';
+            };
+
+            const userId = extractId(user.id);
+            const parentId = currentParentId ? extractId(currentParentId) : null;
+
+            // Calculer l'order_index pour le nouveau dossier
+            const siblings = pages.filter(p => p.parent_id === currentParentId);
+            const maxOrderIndex = siblings.length > 0 ? Math.max(...siblings.map(p => p.order_index || 0)) : -1;
+
+            // Appel à l'API réelle pour créer un dossier
+            const newFolder = await pageService.createPage({
+                title: title,
+                content: null, // Les dossiers n'ont pas de contenu
+                user_id: userId,
+                created_by: userId,
+                type: 'folder',
+                parent_id: parentId,
+                order_index: maxOrderIndex + 1
+            });
+
+            // Ajouter à la liste
+            setPages([...pages, newFolder]);
+
+
+            // Fermer le modal
+            setCreateFolderModalOpened(false);
+            setCurrentParentId(undefined);
+        } catch (error) {
+            // Error creating folder
+        } finally {
+            setIsCreating(false);
+        }
     };
 
-    if (isLoading) {
+    // Fonction pour déplacer une page
+    const handleMovePage = async (pageId: string, newParentId: string | null) => {
+        try {
+
+            // Mettre à jour l'état local immédiatement pour un feedback visuel instantané
+            setPages(prevPages => {
+                const updatedPages = prevPages.map(page =>
+                    page.id === pageId
+                        ? { ...page, parent_id: newParentId, updated_at: new Date().toISOString() }
+                        : page
+                );
+
+                // Trier alphabétiquement avec dossiers en premier
+                return updatedPages.sort((a, b) => {
+                    if (a.type === 'folder' && b.type !== 'folder') return -1;
+                    if (a.type !== 'folder' && b.type === 'folder') return 1;
+                    return a.title.localeCompare(b.title);
+                });
+            });
+
+            // Mettre à jour l'API en arrière-plan
+            const updatedPage = await pageService.updatePage(pageId, {
+                parent_id: newParentId
+            });
+
+        } catch (error) {
+            // En cas d'erreur, recharger pour revenir à l'état correct
+            loadPages();
+        }
+    };
+
+    // Fonction pour ouvrir le modal de renommage
+    const handleRename = (pageId: string, currentName: string) => {
+        const page = pages.find(p => p.id === pageId);
+        if (page) {
+            setSelectedPageForAction(page);
+            setRenameModalOpened(true);
+        }
+    };
+
+    // Fonction pour renommer une page
+    const handleConfirmRename = async (newName: string) => {
+        if (!selectedPageForAction) return;
+
+        setIsRenaming(true);
+        try {
+            const updatedPage = await pageService.updatePage(selectedPageForAction.id, {
+                title: newName
+            });
+
+            // Mettre à jour dans la liste
+            setPages(pages.map(p => p.id === updatedPage.id ? updatedPage : p));
+
+            // Si c'est la page sélectionnée, la mettre à jour aussi
+            if (selectedNote?.id === updatedPage.id) {
+                setSelectedNote(updatedPage);
+            }
+
+            setRenameModalOpened(false);
+            setSelectedPageForAction(null);
+        } catch (error) {
+            // Error renaming page
+        } finally {
+            setIsRenaming(false);
+        }
+    };
+
+    // Fonction pour ouvrir le modal de suppression
+    const handleDelete = (pageId: string) => {
+        const page = pages.find(p => p.id === pageId);
+        if (page) {
+            setSelectedPageForAction(page);
+            setDeleteModalOpened(true);
+        }
+    };
+
+    // Fonction pour supprimer une page
+    const handleConfirmDelete = async () => {
+        if (!selectedPageForAction) return;
+
+        setIsDeleting(true);
+        try {
+            await pageService.deletePage(selectedPageForAction.id);
+
+            // Retirer de la liste
+            setPages(pages.filter(p => p.id !== selectedPageForAction.id));
+
+            // Si c'est la page sélectionnée, la désélectionner
+            if (selectedNote?.id === selectedPageForAction.id) {
+                setSelectedNote(null);
+                setEditorContent(null);
+            }
+
+            setDeleteModalOpened(false);
+            setSelectedPageForAction(null);
+        } catch (error) {
+            // Error deleting page
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    // Fonction pour télécharger la page en PDF
+    const handleDownloadPDF = async () => {
+        if (!selectedNote || !user) return;
+
+        try {
+            // Forcer la sauvegarde du contenu actuel de l'éditeur avant l'export
+            if (editorRef.current) {
+                const currentContent = await editorRef.current.save();
+                // Vérifier si c'est du format Editor.js (blocks)
+                if (currentContent && currentContent.blocks) {
+                    // Sauvegarder le contenu mis à jour
+                    await handleSave(currentContent);
+                    // Utiliser le contenu fraîchement sauvegardé pour le PDF
+                    convertEditorContentToPDF(currentContent, selectedNote.title);
+                } else {
+                    // Si pas de contenu valide, utiliser le contenu existant
+                    convertEditorContentToPDF(editorContent, selectedNote.title);
+                }
+            } else {
+                // Si pas d'éditeur, utiliser le contenu existant
+                convertEditorContentToPDF(editorContent, selectedNote.title);
+            }
+        } catch (error) {
+            console.error('Erreur lors du téléchargement du PDF:', error);
+        }
+    };
+
+    // Si l'utilisateur n'est pas connecté
+    if (!user && !userLoading) {
         return (
-            <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
-                <Center h="100vh">
-                    <Loader color="violet" size="lg" />
-                </Center>
-            </MainLayout>
+            <Box style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Text>Veuillez vous connecter pour accéder à vos pages</Text>
+            </Box>
         );
     }
 
     return (
-        <MainLayout authProps={{ onLogout: () => { }, onLogin: () => { }, isAuthenticated: true }}>
-            {/* En-tête */}
-            <Group justify="space-between" align="center" mb="xl">
-                <Group>
-                    <ThemeIcon size={40} radius="md" color="violet">
-                        <IconNotes size={24} />
-                    </ThemeIcon>
-                    <div>
-                        <Title order={1} size="h2">
-                            Mes Notes
-                        </Title>
-                        <Text c="dimmed" size="sm">
-                            Organisez vos idées et vos pensées
-                        </Text>
-                    </div>
-                </Group>
-            </Group>
+        <MainLayout authProps={{ isAuthenticated: !!user, onLogin: () => { }, onLogout: () => { } }}>
+            <Box style={{
+                height: '100vh',
+                display: 'flex',
+                position: 'absolute',
+                top: 0,
+                left: isNavbarOpen ? '280px' : '90px', // Ajuster selon l'état de la sidebar
+                right: 0,
+                bottom: 0,
+                margin: 0,
+                padding: 0,
+                transition: 'left 0.2s ease', // Animation fluide
+                overflow: 'hidden'
+            }}>
+                {/* Sidebar avec skeleton */}
+                {isLoadingPages ? (
+                    <NotesSidebarSkeleton />
+                ) : (
+                    <NotesSidebar
+                        pages={pages}
+                        selectedPage={selectedNote}
+                        onPageSelect={handleNoteSelect}
+                        onCreatePage={openCreatePageModal}
+                        onCreateFolder={openCreateFolderModal}
+                        onMovePage={handleMovePage}
+                        onRenamePage={handleRename}
+                        onDeletePage={handleDelete}
+                    />
+                )}
 
-            {/* Interface 12 colonnes */}
-            <Grid gutter="lg" style={{ height: 'calc(100vh - 200px)' }}>
-                {/* Colonnes 1-3: Filtres consolidés */}
-                <Grid.Col span={3}>
-                    <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
-                        <Stack gap="lg" h="100%">
-                            {/* Barre de recherche */}
-                            <div>
-                                <Text fw={600} size="lg" mb="md" c="dark">Recherche</Text>
-                                <TextInput
-                                    placeholder="Rechercher dans vos notes..."
-                                    leftSection={<IconSearch size={18} />}
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    size="md"
-                                    radius="md"
-                                />
-                            </div>
-
-                            {/* Filtres */}
-                            <div>
-                                <Text fw={600} size="lg" mb="md" c="dark">Filtres</Text>
-                                <Stack gap="xs">
-                                    <Button
-                                        variant={activeTab === 'all' ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconNotes size={16} />}
-                                        onClick={() => setActiveTab('all')}
-                                        size="md"
-                                        radius="md"
-                                        fullWidth
-                                    >
-                                        Toutes les notes
-                                    </Button>
-                                    <Button
-                                        variant={activeTab === 'starred' ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconStarFilled size={16} />}
-                                        onClick={() => setActiveTab('starred')}
-                                        size="md"
-                                        radius="md"
-                                        fullWidth
-                                    >
-                                        Favorites
-                                    </Button>
-                                    <Button
-                                        variant={activeTab === 'pinned' ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconPinFilled size={16} />}
-                                        onClick={() => setActiveTab('pinned')}
-                                        size="md"
-                                        radius="md"
-                                        fullWidth
-                                    >
-                                        Épinglées
-                                    </Button>
-                                    <Button
-                                        variant={activeTab === 'archived' ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconArchive size={16} />}
-                                        onClick={() => setActiveTab('archived')}
-                                        size="md"
-                                        radius="md"
-                                        fullWidth
-                                    >
-                                        Archivées
-                                    </Button>
-                                </Stack>
-                            </div>
-
-                            <Divider />
-
-                            {/* Dossiers */}
-                            <div>
-                                <Group justify="space-between" mb="md">
-                                    <Text fw={600} size="lg" c="dark">Dossiers</Text>
-                                    <ActionIcon variant="light" color="violet" size="sm">
-                                        <IconFolderPlus size={16} />
-                                    </ActionIcon>
-                                </Group>
-                                <Stack gap="xs">
-                                    <Button
-                                        variant={selectedFolder === null ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconFolder size={16} />}
-                                        onClick={() => setSelectedFolder(null)}
-                                        size="md"
-                                        radius="md"
-                                        fullWidth
-                                    >
-                                        Tous les dossiers
-                                    </Button>
-                                    {folders.map(folder => (
-                                        <Button
-                                            key={folder.id}
-                                            variant={selectedFolder === folder.name ? 'light' : 'subtle'}
-                                            justify="flex-start"
-                                            leftSection={<IconFolder size={16} />}
-                                            onClick={() => setSelectedFolder(folder.name)}
-                                            size="md"
-                                            radius="md"
-                                            fullWidth
-                                        >
-                                            {folder.name} ({folder.noteCount})
-                                        </Button>
-                                    ))}
-                                </Stack>
-                            </div>
-
-                            <Divider />
-
-                            {/* Options de tri */}
-                            <div>
-                                <Text fw={600} size="lg" mb="md" c="dark">Trier par</Text>
-                                <Stack gap="xs">
-                                    <Button
-                                        variant={sortBy === 'modified' ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconClock size={16} />}
-                                        onClick={() => setSortBy('modified')}
-                                        size="md"
-                                        radius="md"
-                                        fullWidth
-                                    >
-                                        Date de modification
-                                    </Button>
-                                    <Button
-                                        variant={sortBy === 'created' ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconCalendar size={16} />}
-                                        onClick={() => setSortBy('created')}
-                                        size="md"
-                                        radius="md"
-                                        fullWidth
-                                    >
-                                        Date de création
-                                    </Button>
-                                    <Button
-                                        variant={sortBy === 'title' ? 'light' : 'subtle'}
-                                        justify="flex-start"
-                                        leftSection={<IconSortAscending size={16} />}
-                                        onClick={() => setSortBy('title')}
-                                        size="md"
-                                        radius="md"
-                                        fullWidth
-                                    >
-                                        Titre
-                                    </Button>
-                                    <Button
-                                        variant="subtle"
-                                        justify="flex-start"
-                                        leftSection={sortOrder === 'asc' ? <IconSortAscending size={16} /> : <IconSortDescending size={16} />}
-                                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                                        size="md"
-                                        radius="md"
-                                        fullWidth
-                                    >
-                                        {sortOrder === 'asc' ? 'Croissant' : 'Décroissant'}
-                                    </Button>
-                                </Stack>
-                            </div>
-                        </Stack>
-                    </Card>
-                </Grid.Col>
-
-                {/* Colonnes 4-6: Liste des notes */}
-                <Grid.Col span={3}>
-                    <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
-                        <Group justify="space-between" mb="lg">
-                            <Text fw={600} size="lg" c="dark">
-                                {sortedNotes.length} note{sortedNotes.length !== 1 ? 's' : ''}
-                            </Text>
-                            <ActionIcon
-                                variant="light"
-                                color="violet"
-                                size="lg"
-                                radius="md"
-                                onClick={handleCreateNote}
-                            >
-                                <IconPlus size={18} />
-                            </ActionIcon>
-                        </Group>
-
-                        <ScrollArea h="calc(100% - 60px)">
-                            <Stack gap="md">
-                                {sortedNotes.map(note => (
-                                    <Paper
-                                        key={note.id}
-                                        p="md"
-                                        radius="md"
-                                        style={{
-                                            cursor: 'pointer',
-                                            border: selectedNote?.id === note.id ? '2px solid #667eea' : '1px solid #e9ecef',
-                                            backgroundColor: note.color || '#ffffff',
-                                            transition: 'all 0.2s ease',
-                                            boxShadow: selectedNote?.id === note.id ? '0 8px 25px rgba(102, 126, 234, 0.15)' : '0 2px 8px rgba(0,0,0,0.05)'
-                                        }}
-                                        onClick={() => {
-                                            setSelectedNote(note);
-                                            setEditingContent(note.content);
-                                            setEditingTags(note.tags.join(', '));
-                                            setCurrentTagInput('');
-                                        }}
-                                    >
-                                        <Group justify="space-between" align="flex-start" mb="sm">
-                                            <Text fw={600} size="sm" truncate style={{ flex: 1 }}>
-                                                {note.title}
-                                            </Text>
-                                            <Group gap="xs">
-                                                {note.isPinned && (
-                                                    <IconPinFilled size={14} color="#667eea" />
-                                                )}
-                                                {note.isStarred && (
-                                                    <IconStarFilled size={14} color="#f39c12" />
-                                                )}
-                                            </Group>
-                                        </Group>
-                                        <Text size="xs" c="dimmed" lineClamp={2} mb="sm" style={{ lineHeight: 1.4 }}>
-                                            {note.content.replace(/[#*`]/g, '').substring(0, 80)}...
-                                        </Text>
-                                        <Group justify="space-between" align="center">
-                                            <Group gap="xs">
-                                                {note.tags.slice(0, 2).map(tag => (
-                                                    <Badge key={tag} size="xs" variant="light" color="violet" radius="md">
-                                                        {tag}
-                                                    </Badge>
-                                                ))}
-                                                {note.tags.length > 2 && (
-                                                    <Badge size="xs" variant="light" color="gray" radius="md">
-                                                        +{note.tags.length - 2}
-                                                    </Badge>
-                                                )}
-                                            </Group>
-                                            <Text size="xs" c="dimmed">
-                                                {formatDate(note.modifiedAt)}
-                                            </Text>
-                                        </Group>
-                                    </Paper>
-                                ))}
-                            </Stack>
-                        </ScrollArea>
-                    </Card>
-                </Grid.Col>
-
-                {/* Colonnes 7-12: Éditeur de notes */}
-                <Grid.Col span={6}>
-                    <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
-                        {selectedNote ? (
-                            <Stack gap="lg" h="100%">
-                                {/* En-tête de la note */}
-                                <Group justify="space-between" align="flex-start">
-                                    <div style={{ flex: 1 }}>
-                                        <Group gap="xs" mb="md">
-                                            {selectedNote.isPinned && (
-                                                <IconPinFilled size={18} color="#667eea" />
-                                            )}
-                                            {selectedNote.isStarred && (
-                                                <IconStarFilled size={18} color="#f39c12" />
-                                            )}
-                                            <Text fw={700} size="xl" c="dark">
-                                                {selectedNote.title}
-                                            </Text>
-                                        </Group>
-                                        <Group gap="xs" mb="lg" align="center">
-                                            {isEditingTags ? (
-                                                <Box style={{ flex: 1 }}>
-                                                    <Paper
-                                                        p="xs"
-                                                        radius="md"
-                                                        withBorder
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexWrap: 'wrap',
-                                                            gap: '4px',
-                                                            alignItems: 'center',
-                                                            minHeight: '32px',
-                                                            cursor: 'text'
-                                                        }}
-                                                        onClick={() => {
-                                                            // Focus sur l'input quand on clique sur le container
-                                                            const input = document.getElementById('tag-input');
-                                                            if (input) input.focus();
-                                                        }}
-                                                    >
-                                                        {editingTags.split(',').map(tag => tag.trim()).filter(tag => tag).map(tag => (
-                                                            <Badge
-                                                                key={tag}
-                                                                size="xs"
-                                                                variant="light"
-                                                                color="violet"
-                                                                radius="md"
-                                                                rightSection={
-                                                                    <ActionIcon
-                                                                        size="xs"
-                                                                        variant="transparent"
-                                                                        color="violet"
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            handleRemoveTag(tag);
-                                                                        }}
-                                                                    >
-                                                                        <IconX size={8} />
-                                                                    </ActionIcon>
-                                                                }
-                                                            >
-                                                                {tag}
-                                                            </Badge>
-                                                        ))}
-                                                        <TextInput
-                                                            id="tag-input"
-                                                            value={currentTagInput}
-                                                            onChange={(e) => setCurrentTagInput(e.target.value)}
-                                                            onKeyDown={handleTagInputKeyDown}
-                                                            onBlur={handleTagInputBlur}
-                                                            placeholder="Ajouter un tag..."
-                                                            size="xs"
-                                                            variant="unstyled"
-                                                            style={{
-                                                                flex: 1,
-                                                                minWidth: '120px',
-                                                                border: 'none',
-                                                                outline: 'none',
-                                                                fontSize: '12px'
-                                                            }}
-                                                        />
-                                                    </Paper>
-                                                    <Group gap="xs" mt="xs">
-                                                        <ActionIcon
-                                                            variant="light"
-                                                            color="green"
-                                                            size="sm"
-                                                            onClick={handleSaveTags}
-                                                        >
-                                                            <IconCheck size={14} />
-                                                        </ActionIcon>
-                                                        <ActionIcon
-                                                            variant="light"
-                                                            color="red"
-                                                            size="sm"
-                                                            onClick={handleCancelEditTags}
-                                                        >
-                                                            <IconX size={14} />
-                                                        </ActionIcon>
-                                                    </Group>
-                                                </Box>
-                                            ) : (
-                                                <>
-                                                    {selectedNote.tags.map(tag => (
-                                                        <Badge key={tag} size="md" variant="light" color="violet" radius="md">
-                                                            {tag}
-                                                        </Badge>
-                                                    ))}
-                                                    <ActionIcon
-                                                        variant="light"
-                                                        color="violet"
-                                                        size="sm"
-                                                        onClick={() => setIsEditingTags(true)}
-                                                    >
-                                                        <IconEdit size={14} />
-                                                    </ActionIcon>
-                                                </>
-                                            )}
-                                        </Group>
-                                    </div>
-                                    <Group gap="xs">
-                                        <ActionIcon
-                                            variant="light"
-                                            color="violet"
-                                            size="lg"
-                                            radius="md"
-                                            onClick={() => handleToggleStar(selectedNote.id)}
-                                        >
-                                            {selectedNote.isStarred ? <IconStar size={18} /> : <IconStarFilled size={18} />}
-                                        </ActionIcon>
-                                        <ActionIcon
-                                            variant="light"
-                                            color="violet"
-                                            size="lg"
-                                            radius="md"
-                                            onClick={() => handleTogglePin(selectedNote.id)}
-                                        >
-                                            {selectedNote.isPinned ? <IconPin size={18} /> : <IconPinFilled size={18} />}
-                                        </ActionIcon>
-                                        <Menu>
-                                            <Menu.Target>
-                                                <ActionIcon variant="light" color="violet" size="lg" radius="md">
-                                                    <IconDots size={18} />
-                                                </ActionIcon>
-                                            </Menu.Target>
-                                            <Menu.Dropdown>
-                                                <Menu.Item
-                                                    leftSection={<IconShare size={16} />}
-                                                    onClick={() => handleShareNote(selectedNote.id)}
-                                                >
-                                                    Partager
-                                                </Menu.Item>
-                                                <Menu.Item
-                                                    leftSection={<IconCopy size={16} />}
-                                                    onClick={() => handleDuplicateNote(selectedNote.id)}
-                                                >
-                                                    Dupliquer
-                                                </Menu.Item>
-                                                <Menu.Item
-                                                    leftSection={<IconDownload size={16} />}
-                                                    onClick={() => handleExportNote(selectedNote.id)}
-                                                >
-                                                    Exporter
-                                                </Menu.Item>
-                                                <Menu.Divider />
-                                                <Menu.Item
-                                                    leftSection={<IconArchive size={16} />}
-                                                    onClick={() => handleArchiveNote(selectedNote.id)}
-                                                >
-                                                    {selectedNote.isArchived ? 'Désarchiver' : 'Archiver'}
-                                                </Menu.Item>
-                                                <Menu.Item
-                                                    leftSection={<IconTrash size={16} />}
-                                                    color="red"
-                                                    onClick={() => handleDeleteNote(selectedNote.id)}
-                                                >
-                                                    Supprimer
-                                                </Menu.Item>
-                                            </Menu.Dropdown>
-                                        </Menu>
-                                    </Group>
-                                </Group>
-
-                                <Divider />
-
-                                {/* Contenu de la note */}
-                                <Box style={{ flex: 1, minHeight: 0 }}>
-                                    <Textarea
-                                        value={editingContent}
-                                        onChange={(e) => {
-                                            setEditingContent(e.target.value);
-                                            handleSaveNote();
-                                        }}
-                                        placeholder="Contenu de la note (Markdown supporté)"
-                                        minRows={20}
-                                        autosize
-                                        styles={{
-                                            input: {
-                                                fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-                                                fontSize: '14px',
-                                                lineHeight: 1.6,
-                                                border: 'none',
-                                                boxShadow: 'none',
-                                                '&:focus': {
-                                                    border: '2px solid #667eea',
-                                                    boxShadow: '0 0 0 1px #667eea'
-                                                }
-                                            }
-                                        }}
-                                    />
+                {/* Zone principale avec skeleton pour l'éditeur */}
+                <Box style={{ flex: 1, backgroundColor: 'white', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    {isLoadingEditor ? (
+                        <NotesEditorSkeleton />
+                    ) : selectedNote && selectedNote.type === 'page' && editorContent ? (
+                        <NotesEditor
+                            ref={editorRef}
+                            key={selectedNote.id} // Key pour forcer le re-render quand la page change
+                            content={editorContent}
+                            onSave={handleSave}
+                            onDelete={() => handleDelete(selectedNote.id)}
+                            onRename={async (newTitle: string) => {
+                                if (newTitle && newTitle !== selectedNote.title) {
+                                    await handleConfirmRename(newTitle);
+                                }
+                            }}
+                            onDownload={handleDownloadPDF}
+                            title={selectedNote.title}
+                            updatedAt={selectedNote.updated_at}
+                        />
+                    ) : selectedNote && selectedNote.type === 'folder' ? (
+                        <Box
+                            style={{
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            <Stack align="center" gap="xl">
+                                <Box style={{ textAlign: 'center' }}>
+                                    <Title order={3} c="dimmed" mb="md">
+                                        📁 {selectedNote.title}
+                                    </Title>
+                                    <Text c="dimmed" size="sm" mb="xl">
+                                        Ce dossier contient vos pages organisées
+                                    </Text>
                                 </Box>
 
-                                <Divider />
-
-                                {/* Métadonnées */}
-                                <Group justify="space-between" align="center">
-                                    <Text size="sm" c="dimmed">
-                                        Créé le {formatDate(selectedNote.createdAt)} • Modifié le {formatDate(selectedNote.modifiedAt)}
-                                    </Text>
-                                    <Badge size="sm" variant="light" color="gray" radius="md">
-                                        {selectedNote.wordCount} mots
-                                    </Badge>
-                                </Group>
-                            </Stack>
-                        ) : (
-                            <Center h="100%">
-                                <Stack align="center" gap="lg">
-                                    <Box
-                                        style={{
-                                            width: '120px',
-                                            height: '120px',
-                                            borderRadius: '50%',
-                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)'
-                                        }}
+                                <Button.Group>
+                                    <Button
+                                        leftSection={<IconPlus size={16} />}
+                                        onClick={() => openCreatePageModal(selectedNote.id)}
+                                        variant="light"
+                                        color="blue"
                                     >
-                                        <IconNotes size={60} color="white" />
-                                    </Box>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <Text fw={600} size="xl" c="dark" mb="xs">
-                                            Sélectionnez une note
-                                        </Text>
-                                        <Text c="dimmed" size="md" style={{ maxWidth: '300px', lineHeight: 1.6 }}>
-                                            Choisissez une note dans la liste pour la consulter et la modifier
-                                        </Text>
-                                    </div>
-                                </Stack>
-                            </Center>
-                        )}
-                    </Card>
-                </Grid.Col>
-            </Grid>
+                                        Nouvelle page
+                                    </Button>
+                                    <Button
+                                        leftSection={<IconFolderPlus size={16} />}
+                                        onClick={() => openCreateFolderModal(selectedNote.id)}
+                                        variant="light"
+                                        color="blue"
+                                    >
+                                        Nouveau dossier
+                                    </Button>
+                                </Button.Group>
+                            </Stack>
+                        </Box>
+                    ) : selectedNote ? (
+                        <Box p="xl" style={{ textAlign: 'center', marginTop: '50px' }}>
+                            <Text>Chargement de l'éditeur...</Text>
+                        </Box>
+                    ) : pages.length === 0 && !isLoadingPages && user ? (
+                        <Box
+                            style={{
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            <Stack align="center" gap="xl">
+                                <Box style={{ textAlign: 'center' }}>
+                                    <Title order={3} c="dimmed" mb="md">
+                                        Commencez votre aventure
+                                    </Title>
+                                    <Text c="dimmed" size="sm" mb="xl">
+                                        Créez votre première page pour organiser vos idées et notes
+                                    </Text>
+                                </Box>
+
+                                <Button
+                                    leftSection={<IconPlus size={20} />}
+                                    onClick={() => openCreatePageModal()}
+                                    size="lg"
+                                    variant="gradient"
+                                    gradient={{ from: 'blue', to: 'cyan', deg: 45 }}
+                                    style={{
+                                        boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                                        border: 'none'
+                                    }}
+                                >
+                                    Créer votre première page
+                                </Button>
+                            </Stack>
+                        </Box>
+                    ) : !isLoadingPages ? (
+                        <Box p="xl" style={{ textAlign: 'center', marginTop: '50px' }}>
+                            <Text size="sm" c="dimmed">Sélectionnez une page dans la sidebar</Text>
+                        </Box>
+                    ) : null}
+                </Box>
+            </Box>
+
+            {/* Modaux de création */}
+            <NotesCreateItemModal
+                opened={createPageModalOpened}
+                onClose={() => setCreatePageModalOpened(false)}
+                onConfirm={createNewPage}
+                type="page"
+                loading={isCreating}
+            />
+
+            <NotesCreateItemModal
+                opened={createFolderModalOpened}
+                onClose={() => setCreateFolderModalOpened(false)}
+                onConfirm={createNewFolder}
+                type="folder"
+                loading={isCreating}
+            />
+
+            {/* Modal de renommage */}
+            <NotesRenameModal
+                opened={renameModalOpened}
+                onClose={() => {
+                    setRenameModalOpened(false);
+                    setSelectedPageForAction(null);
+                }}
+                onConfirm={handleConfirmRename}
+                currentName={selectedPageForAction?.title || ''}
+                itemType={selectedPageForAction?.type === 'folder' ? 'folder' : 'page'}
+                loading={isRenaming}
+            />
+
+            {/* Modal de confirmation de suppression */}
+            <NotesDeleteConfirmModal
+                opened={deleteModalOpened}
+                onClose={() => {
+                    setDeleteModalOpened(false);
+                    setSelectedPageForAction(null);
+                }}
+                onConfirm={handleConfirmDelete}
+                itemName={selectedPageForAction?.title || ''}
+                itemType={selectedPageForAction?.type === 'folder' ? 'folder' : 'page'}
+                loading={isDeleting}
+            />
         </MainLayout>
     );
 };

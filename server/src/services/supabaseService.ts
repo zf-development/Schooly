@@ -393,11 +393,13 @@ export const getSupabaseInstitutionById = async (institutionId: string): Promise
             .single();
 
         if (error) {
+            console.error(`Erreur lors de la récupération de l'institution ${institutionId}:`, error);
             return null;
         }
 
         return data;
     } catch (error) {
+        console.error(`Exception lors de la récupération de l'institution ${institutionId}:`, error);
         return null;
     }
 };
@@ -1118,6 +1120,105 @@ export const deleteUserCalendarEvent = async (eventId: string): Promise<boolean>
         return true;
     } catch (error) {
         console.error('Erreur lors de la suppression de l\'événement du calendrier:', error);
+        return false;
+    }
+};
+
+export const createUserPage = async (pageData: any): Promise<any | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('pages')
+            .insert(pageData)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Erreur lors de la création de la page:', error);
+            return null;
+        }
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la création de la page:', error);
+        return null;
+    }
+};
+
+export const getUserPages = async (userId: string): Promise<any[] | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('pages')
+            .select('*')
+            .eq('user_id', userId)
+            .order('updated_at', { ascending: false });
+
+        if (error) {
+            console.error('Erreur lors de la récupération des pages:', error);
+            return null;
+        }
+        return data || [];
+    } catch (error) {
+        console.error('Erreur lors de la récupération des pages:', error);
+        return null;
+    }
+};
+
+export const getUserPageById = async (userId: string, pageId: string): Promise<any | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('pages')
+            .select('*')
+            .eq('id', pageId)
+            .eq('user_id', userId)
+            .single();
+
+        if (error) {
+            console.error('Erreur lors de la récupération de la page:', error);
+            return null;
+        }
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de la page:', error);
+        return null;
+    }
+};
+
+export const updateUserPage = async (pageId: string, pageData: any): Promise<any | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('pages')
+            .update({
+                ...pageData,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', pageId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Erreur lors de la mise à jour de la page:', error);
+            return null;
+        }
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour de la page:', error);
+        return null;
+    }
+};
+
+export const deleteUserPage = async (pageId: string): Promise<boolean> => {
+    try {
+        const { error } = await supabase
+            .from('pages')
+            .delete()
+            .eq('id', pageId);
+
+        if (error) {
+            console.error('Erreur lors de la suppression de la page:', error);
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error('Erreur lors de la suppression de la page:', error);
         return false;
     }
 };

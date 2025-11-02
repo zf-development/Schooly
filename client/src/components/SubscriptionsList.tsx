@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     Text,
     Stack,
@@ -59,16 +59,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
 
     const errorState = propError !== undefined ? propError : error;
 
-    // Charger seulement les établissements si les abonnements sont fournis en props
-    useEffect(() => {
-        if (!propSubscriptions) {
-            loadData();
-        } else {
-            loadInstitutions();
-        }
-    }, [propSubscriptions]);
-
-    const loadInstitutions = async () => {
+    const loadInstitutions = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -100,7 +91,36 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    // Recharger les institutions une fois si l'institution de l'utilisateur n'est pas trouvée après le premier chargement
+    const [hasCheckedInstitution, setHasCheckedInstitution] = useState(false);
+    
+    // Réinitialiser le flag quand l'institution de l'utilisateur change
+    useEffect(() => {
+        setHasCheckedInstitution(false);
+    }, [userInstitutionId]);
+    
+    useEffect(() => {
+        if (userInstitutionId && allInstitutions.length > 0 && !hasCheckedInstitution) {
+            const userInstitution = allInstitutions.find(inst => inst.id === userInstitutionId);
+            if (!userInstitution) {
+                // L'institution de l'utilisateur n'est pas dans la liste, recharger une fois
+                console.log(`Institution de l'utilisateur ${userInstitutionId} non trouvée, rechargement...`);
+                loadInstitutions();
+            }
+            setHasCheckedInstitution(true);
+        }
+    }, [userInstitutionId, allInstitutions, hasCheckedInstitution, loadInstitutions]);
+
+    // Charger seulement les établissements si les abonnements sont fournis en props
+    useEffect(() => {
+        if (!propSubscriptions) {
+            loadData();
+        } else {
+            loadInstitutions();
+        }
+    }, [propSubscriptions, loadInstitutions]);
 
     const loadData = async () => {
         try {
@@ -279,7 +299,10 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                             >
                                 <Stack gap="md" align="center">
                                     <Avatar
-                                        src={userInstitutionId ? allInstitutions.find(inst => inst.id === userInstitutionId)?.logoUrl : undefined}
+                                        src={
+                                            allInstitutions.find(inst => inst.id === userInstitutionId)?.logoUrl || 
+                                            undefined
+                                        }
                                         size="xl"
                                         color="green"
                                         radius="md"
@@ -288,7 +311,9 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                                     </Avatar>
                                     <Box ta="center">
                                         <Text fw={600} size="md" mb="xs">
-                                            {userInstitutionName || "Mon établissement"}
+                                            {userInstitutionName || 
+                                             allInstitutions.find(inst => inst.id === userInstitutionId)?.name || 
+                                             "Mon établissement"}
                                         </Text>
                                         <Badge
                                             color="green"

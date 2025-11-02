@@ -127,12 +127,19 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
                 if (response.ok) {
                     const userData = await response.json();
+                    const userInstitution = userData.user.institution;
+                    
+                    // Si l'utilisateur a un institution_id mais pas d'institution, essayer de recharger
+                    if (userData.user.institution_id && !userInstitution) {
+                        console.warn(`Institution non trouvée pour l'utilisateur ${userData.user.id}, institution_id: ${userData.user.institution_id}`);
+                    }
+                    
                     setUser({
                         id: userData.user.id,
                         email: userData.user.email,
                         name: userData.user.display_name || userData.user.name || "Utilisateur",
                         avatar_url: userData.user.avatar_url,
-                        institution: userData.user.institution,
+                        institution: userInstitution,
                     });
                     setIsTokenExpired(false);
                 } else if (response.status === 401) {
