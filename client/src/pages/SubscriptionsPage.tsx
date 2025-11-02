@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Title,
     Text,
@@ -71,7 +71,70 @@ const SubscriptionsPage: React.FC = () => {
         );
     }
 
-    const { user, isLoading: userLoading } = userContext;
+    const { user, isLoading: userLoading, setUser } = userContext;
+    const hasCheckedInstitutionRef = useRef<string | null>(null);
+
+    // Vérifier et mettre à jour l'institution si elle est manquante
+    useEffect(() => {
+        // Si l'utilisateur a déjà une institution complète, ne rien faire
+        if (user?.institution?.id && user?.institution?.name) {
+            hasCheckedInstitutionRef.current = user.id;
+            return;
+        }
+
+        // Si on a déjà vérifié pour cet utilisateur, ne pas re-vérifier
+        if (hasCheckedInstitutionRef.current === user?.id) {
+            return;
+        }
+
+        // Si l'utilisateur n'a pas d'institution_id, ne rien faire
+        if (!user?.id) {
+            return;
+        }
+
+        const checkApiDirectly = async () => {
+            try {
+                const token = localStorage.getItem("authToken");
+                if (!token) return;
+
+                const response = await fetch(
+                    `${import.meta.env.VITE_API_URL || "http://localhost:3001/api"}/auth/me`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                if (response.ok) {
+                    const apiData = await response.json();
+
+                    // Marquer qu'on a vérifié pour cet utilisateur, peu importe le résultat
+                    hasCheckedInstitutionRef.current = user.id;
+
+                    if (apiData.user?.institution_id || apiData.user?.institution) {
+                        // Mettre à jour uniquement si l'utilisateur actuel n'a pas encore l'institution
+                        if (user && (!user.institution?.id || !user.institution?.name)) {
+                            setUser({
+                                ...user,
+                                institution_id: apiData.user.institution_id || user.institution_id,
+                                institution: apiData.user.institution ? {
+                                    id: apiData.user.institution.id,
+                                    name: apiData.user.institution.name
+                                } : user.institution,
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                // Erreur silencieuse
+            }
+        };
+
+        const timeoutId = setTimeout(checkApiDirectly, 500);
+        return () => clearTimeout(timeoutId);
+    }, [user?.id, user?.institution_id, user?.institution?.id, setUser]);
 
 
     if (userLoading) {
@@ -153,7 +216,7 @@ const SubscriptionsPage: React.FC = () => {
                                     Institution
                                 </Text>
                                 <Text size="lg" fw={700} c="grape.6">
-                                    {user?.institution?.name || "Aucune"}
+                                    {user?.institution?.name || (user?.institution_id ? "Chargement..." : "Non configurée")}
                                 </Text>
                             </Box>
                         </Group>
@@ -263,13 +326,13 @@ const SubscriptionsPage: React.FC = () => {
                         subscriptions={subscriptions}
                         loading={subscriptionsLoading}
                         error={null}
-                        userInstitutionId={user?.institution?.id}
+                        userInstitutionId={user?.institution?.id || user?.institution_id}
                         userInstitutionName={user?.institution?.name}
                     />
                 ) : (
                     <DiscoverInstitutions
                         onSubscriptionChange={refreshSubscriptions}
-                        userInstitutionId={user?.institution?.id}
+                        userInstitutionId={user?.institution?.id || user?.institution_id}
                         currentSubscriptions={subscriptions}
                         searchTerm={searchTerm}
                         sortBy={sortBy}

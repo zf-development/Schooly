@@ -129,16 +129,13 @@ export const getCurrentUser = async (req: AuthenticatedRequest, res: Response) =
         let institution = null;
         if (userDetails.institution_id) {
             institution = await getSupabaseInstitutionById(userDetails.institution_id);
-            if (!institution) {
-                console.warn(`Institution non trouvée pour l'utilisateur ${userDetails.id} avec institution_id ${userDetails.institution_id}`);
-            }
         }
 
         res.status(200).json({
             user: {
                 id: userDetails.id,
                 email: userDetails.email,
-                institution_id: userDetails.institution_id,
+                institution_id: userDetails.institution_id || null,
                 display_name: userDetails.display_name,
                 avatar_url: userDetails.avatar_url,
                 created_at: userDetails.created_at,
