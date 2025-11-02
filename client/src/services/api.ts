@@ -302,6 +302,100 @@ class ApiService {
             method: 'DELETE',
         });
     }
+
+    // Méthodes pour les pages
+    async getPages(): Promise<ApiResponse<any[]>> {
+        return this.request('/pages');
+    }
+
+    async getPageById(pageId: string): Promise<ApiResponse<any>> {
+        return this.request(`/pages/${pageId}`);
+    }
+
+    async createPage(pageData: any): Promise<ApiResponse<any>> {
+        // Fonction pour sérialiser de manière sûre
+        const safeStringify = (obj: any): string => {
+            const seen = new Set();
+            return JSON.stringify(obj, (key, value) => {
+                if (typeof value === 'object' && value !== null) {
+                    if (seen.has(value)) {
+                        return '[Circular Reference]';
+                    }
+                    seen.add(value);
+                }
+                return value;
+            });
+        };
+
+        // Fonction pour s'assurer qu'on a un UUID valide
+        const ensureStringId = (id: any): string => {
+            if (typeof id === 'string') return id;
+            if (typeof id === 'object' && id !== null && id.id) return id.id;
+            console.error('ID invalide reçu dans API:', id, typeof id);
+            return '';
+        };
+
+        // Nettoyer l'objet pour éviter les références circulaires
+        const cleanData: any = {
+            title: String(pageData.title || ''),
+            content: pageData.content, // Peut être null pour les dossiers
+            parent_id: pageData.parent_id ? ensureStringId(pageData.parent_id) : null,
+            user_id: ensureStringId(pageData.user_id),
+            created_by: ensureStringId(pageData.created_by),
+            type: String(pageData.type || 'page')
+        };
+
+        // Inclure order_index seulement s'il est défini et est un nombre
+        if (typeof pageData.order_index === 'number') {
+            cleanData.order_index = pageData.order_index;
+        }
+
+        // Les données sont nettoyées et prêtes
+
+        return this.request('/pages', {
+            method: 'POST',
+            body: safeStringify(cleanData),
+        });
+    }
+
+    async updatePage(pageId: string, pageData: any): Promise<ApiResponse<any>> {
+        // Fonction pour sérialiser de manière sûre
+        const safeStringify = (obj: any): string => {
+            const seen = new Set();
+            return JSON.stringify(obj, (key, value) => {
+                if (typeof value === 'object' && value !== null) {
+                    if (seen.has(value)) {
+                        return '[Circular Reference]';
+                    }
+                    seen.add(value);
+                }
+                return value;
+            });
+        };
+
+        // Nettoyer l'objet pour éviter les références circulaires
+        const cleanData: any = {};
+
+        // Copier seulement les propriétés sûres et modifiables
+        // user_id, created_by, type, et updated_at sont immutables et ne doivent pas être modifiables
+        const safeProps = ['title', 'content', 'parent_id'];
+        safeProps.forEach(prop => {
+            if (pageData.hasOwnProperty(prop)) {
+                cleanData[prop] = pageData[prop];
+            }
+        });
+
+        return this.request(`/pages/${pageId}`, {
+            method: 'PUT',
+            body: safeStringify(cleanData),
+        });
+    }
+
+    async deletePage(pageId: string): Promise<ApiResponse<any>> {
+        return this.request(`/pages/${pageId}`, {
+            method: 'DELETE',
+        });
+    }
 }
 
 export const apiService = new ApiService();
