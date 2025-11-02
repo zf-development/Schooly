@@ -443,12 +443,6 @@ const HomeworkSubmissionPage: React.FC = () => {
                 {!showSubjectDetails ? (
                     /* Vue d'ensemble des devoirs par matière */
                     <Stack gap="lg">
-                        <Group justify="center" mb="md">
-                            <Text size="lg" c="dimmed" ta="center">
-                                Sélectionnez une matière pour voir vos devoirs et votre progression
-                            </Text>
-                        </Group>
-
                         <Grid>
                             {Array.from(new Set(mockHomeworks.map(h => h.subject))).map(subject => {
                                 const subjectHomeworks = mockHomeworks.filter(h => h.subject === subject);
@@ -490,13 +484,13 @@ const HomeworkSubmissionPage: React.FC = () => {
                                         >
                                             <Stack gap="md">
                                                 <Group justify="space-between" align="center">
-                                                    <Text fw={700} size="xl" c={selectedSubject === subject ? "violet" : "dark"}>
+                                                    <Text fw={700} size="lg" c={selectedSubject === subject ? "violet" : "dark"}>
                                                         {subject}
                                                     </Text>
                                                     <Badge
                                                         color={selectedSubject === subject ? "violet" : "blue"}
                                                         variant={selectedSubject === subject ? "filled" : "light"}
-                                                        size="lg"
+                                                        size="md"
                                                         radius="md"
                                                     >
                                                         {subjectHomeworks.length} devoir{subjectHomeworks.length > 1 ? 's' : ''}
