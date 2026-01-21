@@ -13,7 +13,7 @@ ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 
 # Installer les dépendances
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copier le code et builder
 COPY . .
@@ -35,7 +35,7 @@ RUN echo 'server { \
         try_files $uri $uri/ /index.html; \
     } \
     location /api { \
-        proxy_pass http://schooly-server:4000; \
+        proxy_pass http://server:4000; \
         proxy_http_version 1.1; \
         proxy_set_header Upgrade $http_upgrade; \
         proxy_set_header Connection "upgrade"; \
