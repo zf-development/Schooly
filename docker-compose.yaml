@@ -7,8 +7,9 @@ services:
       dockerfile: Dockerfile
     container_name: schooly-server
     restart: always
-    ports:
-      - "${SERVER_PORT:-4000}:4000"
+    # Enlever cette ligne - Coolify gère le routing
+    # ports:
+    #   - "${SERVER_PORT:-4000}:4000"
     environment:
       NODE_ENV: production
       PORT: 4000
@@ -24,6 +25,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+    networks:
+      - coolify
 
   client:
     build:
@@ -35,8 +38,15 @@ services:
         VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
     container_name: schooly-client
     restart: always
-    ports:
-      - "${CLIENT_PORT:-80}:80"
+    # Enlever cette ligne aussi
+    # ports:
+    #   - "${CLIENT_PORT:-80}:80"
     depends_on:
       server:
         condition: service_healthy
+    networks:
+      - coolify
+
+networks:
+  coolify:
+    external: true
