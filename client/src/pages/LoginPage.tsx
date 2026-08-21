@@ -97,7 +97,7 @@ const LoginPage: React.FC = () => {
                             size="2.5rem"
                             mb="16px"
                         >
-                            Skolarae
+                            Schooly
                         </Title>
 
                         <Text
@@ -165,7 +165,7 @@ const LoginPage: React.FC = () => {
                         }}
                     >
                         <Text size="xs">
-                            © 2025 Skolarae - Plateforme éducative
+                            © 2025 Schooly - Plateforme éducative
                         </Text>
                         <Text size="xs">•</Text>
                         <Text size="xs">Développé avec ❤️</Text>

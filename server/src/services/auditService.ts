@@ -1,4 +1,4 @@
-// Service d'audit pour Skolarae
+// Service d'audit pour Schooly
 // - Logging automatique de toutes les actions CRUD
 // - Traçabilité des modifications et suppressions
 // - Historique complet des actions utilisateurs

@@ -1,4 +1,4 @@
-# ✅ Roadmap – Suite du MVP Skolarae
+# ✅ Roadmap – Suite du MVP Schooly
 
 ## 1) Page de profil (ProfilePage)
 

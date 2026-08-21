@@ -199,7 +199,7 @@ const AppNavbar = React.memo(() => {
                                     lh={1}
                                     className={styles.logoText}
                                 >
-                                    Skolarae
+                                    Schooly
                                 </Text>
                             </Group>
 
@@ -232,7 +232,7 @@ const AppNavbar = React.memo(() => {
                             gap="xs"
                         >
                             <Tooltip
-                                label="Skolarae"
+                                label="Schooly"
                                 position="right"
                                 withArrow
                                 openDelay={500}

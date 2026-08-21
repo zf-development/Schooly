@@ -1,4 +1,4 @@
-# Skolarae – MVP
+# Schooly – MVP
 
 ## 🧱 Stack
 
