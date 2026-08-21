@@ -53,7 +53,7 @@ Le texte complet est dans [`LICENSE`](./LICENSE). Ce n’est pas une licence « 
 ### Auteur
 
 **Zachary Gagné**  
-[LinkedIn](https://linkedin.com/in/zgagne) · [GitHub (ce dépôt)](https://github.com/gestion-deezing-inc/Schooly) · [contact.zgagne@gmail.com](mailto:contact.zgagne@gmail.com)
+[LinkedIn](https://linkedin.com/in/zgagne) · [GitHub](https://github.com/zf-development)
 
 ---
 
@@ -106,4 +106,4 @@ The full text is in [`LICENSE`](./LICENSE). This is **not** OSI “open source�
 ### Author
 
 **Zachary Gagné**  
-[LinkedIn](https://linkedin.com/in/zgagne) · [GitHub (this repository)](https://github.com/gestion-deezing-inc/Schooly) · [contact.zgagne@gmail.com](mailto:contact.zgagne@gmail.com)
+[LinkedIn](https://linkedin.com/in/zgagne) · [GitHub](https://github.com/zf-development)
